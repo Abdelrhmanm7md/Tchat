@@ -14,24 +14,8 @@ const createTask = catchAsync(async (req, res, next) => {
   });
 });
 
-const createPhoto = catchAsync(async (req, res, next) => {
 
-  if (req.file) req.body.image = req.file.filename;
-  let image = "";
-  if (req.body.image) {
-    image = req.body.image;
-  }
-
-  if (!req.body.image) {
-    return res.status(404).json({ message: "Couldn't update!  not found!" });
-  }
-  res.status(200).json({
-    message: "Photo updated successfully!",
-    image: `${process.env.BASE_URL}invoices/${image}`,
-  });
-});
-
-const getAllTask = catchAsync(async (req, res, next) => {
+const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(taskModel.find(), req.query)
     .pagination()
     .filter()
@@ -58,6 +42,23 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
 
   let results = await ApiFeat.mongooseQuery;
   res.json({ message: "done", page: ApiFeat.page,count: await taskModel.countDocuments({ users: [req.params.id] }),
+  results });
+  if (!ApiFeat) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+
+});
+const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(taskModel.find(  { $and: [{ users: [req.params.id] }, { taskType: 'shared' }] }), req.query)
+    .pagination()
+    .filter()
+    .sort()
+    .search()
+
+  let results = await ApiFeat.mongooseQuery;
+  res.json({ message: "done", page: ApiFeat.page,count: await taskModel.countDocuments(  { $and: [{ users: [req.params.id] }, { taskType: 'shared' }] }),
   results });
   if (!ApiFeat) {
     return res.status(404).json({
@@ -184,4 +185,4 @@ console.log(req.body.resources);
 
 
 
-export { createTask, getAllTask, getTaskById, updateTask, deleteTask ,createPhoto,getAllTaskByUser,addPhotos,updateTaskPhoto };
+export { createTask, getAllTaskByAdmin, getTaskById, updateTask, deleteTask ,getAllTaskByUser,addPhotos,updateTaskPhoto,getAllTaskByUserShared };

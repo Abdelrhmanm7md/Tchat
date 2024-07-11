@@ -15,10 +15,9 @@ const userSchema = mongoose.Schema(
       minLength: 11,
       unique: [true, "Phone must be unique."],
     },
-    password: {
+    otp: {
       type: String,
-      required: true,
-      minLength: [6, "Password must be at least 6 characters long."],
+      // required: true,
     },
     profilePic: String,
     role: {

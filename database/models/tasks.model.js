@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 
 const taskSchema = mongoose.Schema(
   {
-    name: {
+    title: {
       type: String,
       required: true,
     },
@@ -10,9 +10,14 @@ const taskSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    isCompleted: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
     token: {
       type: String,
-      required: true,
+      // required: true,
     },
     tasksPriority: {
       type: String,
@@ -32,11 +37,11 @@ const taskSchema = mongoose.Schema(
       // required: true,
     },
     sDate: {
-      type: Date,
+      type: String,
       required: true,
     },
     eDate: {
-      type: Date,
+      type: String,
       required: true,
     },
     taskType: {
@@ -54,7 +59,7 @@ const taskSchema = mongoose.Schema(
           createdAt: { type: Date},
         },
       ],
-      required: true,
+      // required: true,
     },
   },
   { timestamps: true }

@@ -3,18 +3,6 @@ import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import AppError from "../../utils/appError.js";
 
-const createUser = catchAsync(async (req, res, next) => {
-  let phoneFormat = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/; //+XX XXXXX XXXXX
-  if (req.body.phone !== "" && req.body.phone.match(phoneFormat)) {
-    let existUser = await userModel.findOne({ phone: req.body.phone });
-    if (existUser) {
-      return res.status(409).json({ message: "this phone already exist" });
-    }
-  }
-  let results = new userModel(req.body);
-  await results.save();
-  res.json({ message: "added", results });
-});
 
 const addPhoto = catchAsync(async (req, res, next) => {
   if (req.file) req.body.profilePic = req.file.filename;
@@ -32,7 +20,7 @@ const addPhoto = catchAsync(async (req, res, next) => {
 });
 
 
-const getAllUsers = catchAsync(async (req, res, next) => {
+const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(userModel.find(), req.query)
     .pagination()
     .filter()
@@ -79,8 +67,7 @@ const deleteUser = catchAsync(async (req, res, next) => {
 });
 
 export {
-  createUser,
-  getAllUsers,
+  getAllUsersByAdmin,
   getUserById,
   updateUser,
   deleteUser,

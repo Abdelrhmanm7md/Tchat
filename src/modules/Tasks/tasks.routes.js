@@ -2,10 +2,11 @@ import express from "express";
 const taskRouter = express.Router();
 
 import * as taskController from "./tasks.controller.js";
-import { uploadMixFile, uploadSingleFile } from "../../utils/middleWare/fileUploads.js";
+import { uploadMixFile } from "../../utils/middleWare/fileUploads.js";
 
-taskRouter.get("/", taskController.getAllTask);
-taskRouter.get("/user/", taskController.getAllTaskByUser);
+taskRouter.get("/", taskController.getAllTaskByAdmin);
+taskRouter.get("/user/:id", taskController.getAllTaskByUser);
+taskRouter.get("/user/shared/:id", taskController.getAllTaskByUserShared);
 taskRouter.get("/:id", taskController.getTaskById);
 taskRouter.post(
   "/",
