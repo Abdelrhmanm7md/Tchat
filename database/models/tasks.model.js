@@ -15,6 +15,11 @@ const taskSchema = mongoose.Schema(
       default: false,
       required: true,
     },
+    isShared: {
+      type: Boolean,
+      default: false,
+      required: true,
+    },
     token: {
       type: String,
       // required: true,
