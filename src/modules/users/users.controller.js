@@ -23,7 +23,6 @@ const addPhoto = catchAsync(async (req, res, next) => {
 const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(userModel.find(), req.query)
     .pagination()
-    .filter()
     .sort()
     .search()
 

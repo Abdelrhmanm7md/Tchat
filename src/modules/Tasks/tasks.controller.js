@@ -4,9 +4,11 @@ import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 
 
 const createTask = catchAsync(async (req, res, next) => {
+  if(req.body.users.length > 1){ 
+req.body.isShared = true;
+}
   let newTask = new taskModel(req.body);
   let addedTask = await newTask.save();
-  console.log(req.body);
 
   res.status(201).json({
     message: " Task has been created successfully!",
@@ -16,14 +18,37 @@ const createTask = catchAsync(async (req, res, next) => {
 
 
 const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find(), req.query)
+  let ApiFeat = new ApiFeature(taskModel.find().populate("users"), req.query)
     .pagination()
-    .filter()
     .sort()
     .search()
-    .fields();
 
   let results = await ApiFeat.mongooseQuery;
+  results = JSON.stringify(results);
+  results = JSON.parse(results);
+
+  let { filterType, filterValue } = req.query;
+
+  if (filterType && filterValue) {
+    results = results.filter(function (item) {
+      if (filterType == "title") {
+        return item.title.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "users") {
+        return item.users[0].name.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "taskType") {
+        return item.taskType.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "date") {
+        return item.sDate == filterValue;
+      }
+      if (filterType == "date") {
+        return item.eDate == filterValue;
+      }
+    });
+  }
+
   res.json({ message: "done", page: ApiFeat.page,count: await taskModel.countDocuments(),
   results });
   if (!ApiFeat) {
@@ -34,13 +59,37 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
 
 });
 const getAllTaskByUser = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find({ users: [req.params.id] }), req.query)
+  let ApiFeat = new ApiFeature(taskModel.find({ users: [req.params.id] }).populate("users"), req.query)
     .pagination()
-    .filter()
     .sort()
     .search()
 
   let results = await ApiFeat.mongooseQuery;
+  results = JSON.stringify(results);
+  results = JSON.parse(results);
+
+  let { filterType, filterValue } = req.query;
+
+  if (filterType && filterValue) {
+    results = results.filter(function (item) {
+      if (filterType == "title") {
+        return item.title.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "users") {
+        return item.users[0].name.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "taskType") {
+        return item.taskType.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "date") {
+        return item.sDate == filterValue;
+      }
+      if (filterType == "date") {
+        return item.eDate == filterValue;
+      }
+    });
+  }
+
   res.json({ message: "done", page: ApiFeat.page,count: await taskModel.countDocuments({ users: [req.params.id] }),
   results });
   if (!ApiFeat) {
@@ -51,13 +100,76 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
 
 });
 const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find(  { $and: [{ users: [req.params.id] }, { taskType: 'shared' }] }), req.query)
+  let ApiFeat = new ApiFeature(taskModel.find(  { $and: [{ users: [req.params.id] }, { taskType: 'shared' }] }).populate("users"), req.query)
     .pagination()
-    .filter()
     .sort()
     .search()
 
   let results = await ApiFeat.mongooseQuery;
+  results = JSON.stringify(results);
+  results = JSON.parse(results);
+  let { filterType, filterValue } = req.query;
+
+  if (filterType && filterValue) {
+    results = results.filter(function (item) {
+      if (filterType == "title") {
+        return item.title.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "users") {
+        return item.users[0].name.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "taskType") {
+        return item.taskType.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "date") {
+        return item.sDate == filterValue;
+      }
+      if (filterType == "date") {
+        return item.eDate == filterValue;
+      }
+    });
+  }
+
+  res.json({ message: "done", page: ApiFeat.page,count: await taskModel.countDocuments(  { $and: [{ users: [req.params.id] }, { taskType: 'shared' }] }),
+  results });
+  if (!ApiFeat) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+
+});
+const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(taskModel.find(  { $and: [{ users: [req.params.id] }, { taskType: 'normal' }] }).populate("users"), req.query)
+    .pagination()
+    .sort()
+    .search()
+
+  let results = await ApiFeat.mongooseQuery;
+  results = JSON.stringify(results);
+  results = JSON.parse(results);
+  let { filterType, filterValue } = req.query;
+
+  if (filterType && filterValue) {
+    results = results.filter(function (item) {
+      if (filterType == "title") {
+        return item.title.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "users") {
+        return item.users[0].name.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "taskType") {
+        return item.taskType.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "date") {
+        return item.sDate == filterValue;
+      }
+      if (filterType == "date") {
+        return item.eDate == filterValue;
+      }
+    });
+  }
+
   res.json({ message: "done", page: ApiFeat.page,count: await taskModel.countDocuments(  { $and: [{ users: [req.params.id] }, { taskType: 'shared' }] }),
   results });
   if (!ApiFeat) {
@@ -86,9 +198,6 @@ if (req.body.documments || req.body.resources) {
   req.body.documments = req.files.documments.map((file) => `${process.env.BASE_URL}tasks/${file.filename}`);
   req.body.resources = req.files.resources.map((file) => `${process.env.BASE_URL}tasks/${file.filename}`);
 
-console.log(req.body.documments);
-console.log(req.body.resources);
-
   if (req.body.documments) {
     documments = req.body.documments;
   }
@@ -112,7 +221,9 @@ console.log(req.body.resources);
 });
 const updateTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
-
+  if(req.body.users.length > 1){ 
+    req.body.isShared = true;
+    }
   let updatedTask = await taskModel.findByIdAndUpdate(
     id,
     req.body,
@@ -185,4 +296,4 @@ console.log(req.body.resources);
 
 
 
-export { createTask, getAllTaskByAdmin, getTaskById, updateTask, deleteTask ,getAllTaskByUser,addPhotos,updateTaskPhoto,getAllTaskByUserShared };
+export { createTask, getAllTaskByAdmin, getTaskById, updateTask, deleteTask ,getAllTaskByUser,addPhotos,updateTaskPhoto,getAllTaskByUserShared ,getAllTaskByUserNormal};

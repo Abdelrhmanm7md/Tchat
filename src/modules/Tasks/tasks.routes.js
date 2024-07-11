@@ -7,6 +7,7 @@ import { uploadMixFile } from "../../utils/middleWare/fileUploads.js";
 taskRouter.get("/", taskController.getAllTaskByAdmin);
 taskRouter.get("/user/:id", taskController.getAllTaskByUser);
 taskRouter.get("/user/shared/:id", taskController.getAllTaskByUserShared);
+taskRouter.get("/user/norm/:id", taskController.getAllTaskByUserNormal);
 taskRouter.get("/:id", taskController.getTaskById);
 taskRouter.post(
   "/",

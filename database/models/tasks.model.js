@@ -26,7 +26,7 @@ const taskSchema = mongoose.Schema(
     },
     tasksPriority: {
       type: String,
-      required: true,
+      // required: true,  
     },
     resources: {
       type: [String],
