@@ -8,6 +8,7 @@ const httpServer = createServer();
 const io = new Server(httpServer, {
   cors: {
     origin: "*",
+    rejectUnauthorized: false,
   },
 });
 const app = express();
