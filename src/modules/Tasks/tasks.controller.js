@@ -196,9 +196,9 @@ const getTaskById = catchAsync(async (req, res, next) => {
 });
 const updateTaskPhoto = catchAsync(async (req, res, next) => {
   let { id } = req.params;
-if (req.body.documments || req.body.resources) {
   let resources = "";
   let documments = "";
+if (req.body.documments || req.body.resources) {
   req.body.documments = req.files.documments.map((file) => `${process.env.BASE_URL}tasks/${file.filename}`);
   req.body.resources = req.files.resources.map((file) => `${process.env.BASE_URL}tasks/${file.filename}`);
 
@@ -269,8 +269,8 @@ const addPhotos = catchAsync(async (req, res, next) => {
   req.body.documments = req.files.documments.map((file) => `${process.env.BASE_URL}tasks/${file.filename}`);
   req.body.resources = req.files.resources.map((file) => `${process.env.BASE_URL}tasks/${file.filename}`);
 
-console.log(req.body.documments);
-console.log(req.body.resources);
+// console.log(req.body.documments);
+// console.log(req.body.resources);
 
   if (req.body.documments) {
     documments = req.body.documments;

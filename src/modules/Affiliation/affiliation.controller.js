@@ -14,9 +14,25 @@ const createAff = catchAsync(async (req, res, next) => {
 const editAff = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 
-  const updatedAff = await affiliationModel.findByIdAndUpdate(id, req.body, {
-    new: true,
+  const updatedAff = await affiliationModel.findByIdAndUpdate(id,
+    req.body,
+     {new: true,});
+
+  if (!updatedAff) {
+    return res.status(404).json({ message: "Aff not found!" });
+  }
+
+  res.status(200).json({
+    message: "Affiliation updated successfully!",
+    updatedAff,
   });
+});
+const editAffReferrals = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+
+  const updatedAff = await affiliationModel.findByIdAndUpdate(id,
+    { $push: { referrals: req.body.referrals } },
+     {new: true,});
 
   if (!updatedAff) {
     return res.status(404).json({ message: "Aff not found!" });
@@ -68,4 +84,4 @@ const getAllAffs = catchAsync(async (req, res, next) => {
   }
 });
 
-export { createAff, editAff, deleteAff, getAllAffs };
+export { createAff, editAff, deleteAff, getAllAffs ,editAffReferrals };
