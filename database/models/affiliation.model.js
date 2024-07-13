@@ -2,16 +2,19 @@ import mongoose from "mongoose";
 
 const affiliationSchema = mongoose.Schema(
   {
-    title: {
+    code: {
       type: String,
       required: true,
     },
-    content: {
-      type: String,
+    reward: {
+      type: Number,
       required: true,
     },
-    receiver: {
-      type: mongoose.Schema.Types.ObjectId,
+    num: {
+      type: Number,
+    },
+    referrals: {
+      type: [mongoose.Schema.Types.ObjectId],
       ref: "user",
       required: true,
     },
