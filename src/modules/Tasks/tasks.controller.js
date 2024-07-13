@@ -4,11 +4,14 @@ import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 
 
 const createTask = catchAsync(async (req, res, next) => {
-  let newTask = new taskModel(req.body);
+  if(req.body.users){
+
   if(req.body.users.length > 1){ 
 req.body.isShared = true;
 req.body.taskType = "shared";
 }
+  }
+  let newTask = new taskModel(req.body);
   let addedTask = await newTask.save();
 
   res.status(201).json({
@@ -60,7 +63,6 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
 
 });
 const getAllTaskByUser = catchAsync(async (req, res, next) => {
-  console.log(req.params.id);
   let ApiFeat = new ApiFeature(taskModel.find({ users: req.params.id }).populate("users"), req.query)
     .pagination()
     .sort()
@@ -221,11 +223,17 @@ if (req.body.documments || req.body.resources) {
 
   res.status(200).json({ message: "Task updated successfully!",updatedTask });
 });
-const updateTask = catchAsync(async (req, res, next) => {
+const updateTask = 
+catchAsync(
+  async (req, res, next) => {
   let { id } = req.params;
+  if(req.body.users){
   if(req.body.users.length > 1){ 
     req.body.isShared = true;
+    req.body.taskType = "shared";
+
     }
+  }
   let updatedTask = await taskModel.findByIdAndUpdate(
     id,
     req.body,
@@ -239,7 +247,8 @@ const updateTask = catchAsync(async (req, res, next) => {
   }
 
   res.status(200).json({ message: "Task updated successfully!",updatedTask });
-});
+}
+);
 const deleteTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
 
