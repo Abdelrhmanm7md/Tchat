@@ -4,10 +4,11 @@ import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 
 
 const createTask = catchAsync(async (req, res, next) => {
+  let newTask = new taskModel(req.body);
   if(req.body.users.length > 1){ 
 req.body.isShared = true;
+req.body.taskType = "shared";
 }
-  let newTask = new taskModel(req.body);
   let addedTask = await newTask.save();
 
   res.status(201).json({
@@ -59,7 +60,8 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
 
 });
 const getAllTaskByUser = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find({ users: [req.params.id] }).populate("users"), req.query)
+  console.log(req.params.id);
+  let ApiFeat = new ApiFeature(taskModel.find({ users: req.params.id }).populate("users"), req.query)
     .pagination()
     .sort()
     .search()
@@ -90,7 +92,7 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
     });
   }
 
-  res.json({ message: "done", page: ApiFeat.page,count: await taskModel.countDocuments({ users: [req.params.id] }),
+  res.json({ message: "done", page: ApiFeat.page,count: await taskModel.countDocuments({ users: req.params.id }),
   results });
   if (!ApiFeat) {
     return res.status(404).json({
@@ -100,7 +102,7 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
 
 });
 const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find(  { $and: [{ users: [req.params.id] }, { taskType: 'shared' }] }).populate("users"), req.query)
+  let ApiFeat = new ApiFeature(taskModel.find(  { $and: [{ users: req.params.id }, { taskType: 'shared' },{isShared:true}] }).populate("users"), req.query)
     .pagination()
     .sort()
     .search()
@@ -130,7 +132,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
     });
   }
 
-  res.json({ message: "done", page: ApiFeat.page,count: await taskModel.countDocuments(  { $and: [{ users: [req.params.id] }, { taskType: 'shared' }] }),
+  res.json({ message: "done", page: ApiFeat.page,count: await taskModel.countDocuments(  { $and: [{ users: req.params.id }, { taskType: 'shared' },{isShared:true}] }),
   results });
   if (!ApiFeat) {
     return res.status(404).json({
@@ -140,7 +142,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
 
 });
 const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find(  { $and: [{ users: [req.params.id] }, { taskType: 'normal' }] }).populate("users"), req.query)
+  let ApiFeat = new ApiFeature(taskModel.find(  { $and: [{ users: req.params.id }, { taskType: 'normal' },{isShared:false}] }).populate("users"), req.query)
     .pagination()
     .sort()
     .search()
@@ -170,7 +172,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
     });
   }
 
-  res.json({ message: "done", page: ApiFeat.page,count: await taskModel.countDocuments(  { $and: [{ users: [req.params.id] }, { taskType: 'shared' }] }),
+  res.json({ message: "done", page: ApiFeat.page,count: await taskModel.countDocuments(  { $and: [{ users: req.params.id }, { taskType: 'shared' },{isShared:true}] }),
   results });
   if (!ApiFeat) {
     return res.status(404).json({

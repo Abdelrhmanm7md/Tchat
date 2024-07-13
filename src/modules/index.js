@@ -19,7 +19,7 @@ export function init(app) {
   });
 
   app.all("*", (req, res, next) => {
-    next(new AppError(`not found `, 404));
+    next(new AppError(`Not Found `, 404));
   });
 
   // app.use((err, req, res, next) => {
