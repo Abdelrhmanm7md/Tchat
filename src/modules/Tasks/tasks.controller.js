@@ -275,25 +275,6 @@ console.log(req.body.resources);
   });
 });
 
-// const searchTask = catchAsync(async (req, res, next) => {
-//   let { TaskTitle } = req.params;
-//   console.log(req.query.p);
-//   const page = req.query.p - 1 || 0;
-//   const numOfTaskPerPage = req.query.n || 5;
-//   let Task = await taskModel
-//     .find({ jobTitle: { $regex: `${TaskTitle}`, $options: "i" } })
-//     .skip(page * numOfTaskPerPage)
-//     .limit(numOfTaskPerPage);
-//   if (!Task) {
-//     return res.status(404).json({
-//       message: "No Task was found!",
-//       s,
-//     });
-//   }
-
-//   res.status(200).json({ Task });
-// });
-
 
 
 export { createTask, getAllTaskByAdmin, getTaskById, updateTask, deleteTask ,getAllTaskByUser,addPhotos,updateTaskPhoto,getAllTaskByUserShared ,getAllTaskByUserNormal};

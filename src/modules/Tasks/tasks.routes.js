@@ -32,6 +32,5 @@ taskRouter.put(
   ]),
   taskController.updateTaskPhoto
 );
-// taskRouter.get("/search/:task", taskController.searchtask);
 
 export default taskRouter;
