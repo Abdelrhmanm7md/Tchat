@@ -3,6 +3,8 @@ import jwt from "jsonwebtoken";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import AppError from "../../utils/appError.js";
 import { userModel } from "../../../database/models/user.model.js";
+import { affiliationModel } from "../../../database/models/affiliation.model.js";
+import generateUniqueId from "generate-unique-id";
 
 export const signUp = catchAsync(async (req, res, next) => {
   let phoneFormat = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/; //+XX XXXXX XXXXX
@@ -16,7 +18,14 @@ export const signUp = catchAsync(async (req, res, next) => {
   }
   let results = new userModel(req.body);
   await results.save();
-  res.json({ message: "added", results });
+  req.body.code = generateUniqueId({
+    length: 10,
+    useLetters: true,
+  });
+  const newAff = new affiliationModel({user:results._id,code:req.body.code});
+  const savedAff = await newAff.save();
+
+res.json({ message: "added", results ,savedAff});
 });
 
 export const signIn = catchAsync(async (req, res, next) => {

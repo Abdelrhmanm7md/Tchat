@@ -4,10 +4,11 @@ const affiliationSchema = mongoose.Schema(
   {
     code: {
       type: String,
-      required: true,
+      // required: true,
     },
     reward: {
       type: Number,
+      default:50,
       required: true,
     },
     num: {
@@ -15,6 +16,11 @@ const affiliationSchema = mongoose.Schema(
     },
     referrals: {
       type: [mongoose.Schema.Types.ObjectId],
+      ref: "user",
+      // required: true,
+    },
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
       ref: "user",
       required: true,
     },

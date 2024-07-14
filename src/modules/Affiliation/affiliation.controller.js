@@ -1,8 +1,13 @@
 import { affiliationModel } from "../../../database/models/affiliation.model.js";
 import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
+import generateUniqueId from "generate-unique-id";
 
 const createAff = catchAsync(async (req, res, next) => {
+  req.body.code = generateUniqueId({
+    length: 10,
+    useLetters: true,
+  });
   const newAff = new affiliationModel(req.body);
   const savedAff = await newAff.save();
   res.status(201).json({
@@ -13,10 +18,9 @@ const createAff = catchAsync(async (req, res, next) => {
 
 const editAff = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-
-  const updatedAff = await affiliationModel.findByIdAndUpdate(id,
-    req.body,
-     {new: true,});
+  const updatedAff = await affiliationModel.findByIdAndUpdate(id, req.body, {
+    new: true,
+  });
 
   if (!updatedAff) {
     return res.status(404).json({ message: "Aff not found!" });
@@ -30,9 +34,11 @@ const editAff = catchAsync(async (req, res, next) => {
 const editAffReferrals = catchAsync(async (req, res, next) => {
   const { id } = req.params;
 
-  const updatedAff = await affiliationModel.findByIdAndUpdate(id,
+  const updatedAff = await affiliationModel.findByIdAndUpdate(
+    id,
     { $push: { referrals: req.body.referrals } },
-     {new: true,});
+    { new: true }
+  );
 
   if (!updatedAff) {
     return res.status(404).json({ message: "Aff not found!" });
@@ -84,4 +90,4 @@ const getAllAffs = catchAsync(async (req, res, next) => {
   }
 });
 
-export { createAff, editAff, deleteAff, getAllAffs ,editAffReferrals };
+export { createAff, editAff, deleteAff, getAllAffs, editAffReferrals };
