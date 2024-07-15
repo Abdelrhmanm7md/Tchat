@@ -14,7 +14,7 @@ const addPhoto = catchAsync(async (req, res, next) => {
   }
   res.status(200).json({
     message: "Photo updated successfully!",
-    profilePic: `http://tchatpro.com/profilePic/${profilePic}`,
+    profilePic: `https://tchatpro.com/profilePic/${profilePic}`,
   });
 });
 
