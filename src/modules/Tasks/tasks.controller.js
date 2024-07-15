@@ -307,14 +307,12 @@ const addPhotos = catchAsync(async (req, res, next) => {
   req.body.documments =
     req.files.documments &&
     req.files.documments.map(
-      (file) => `https://tchatpro.com/tasks/${file.filename.split(" ")
-        .join("")}`
+      (file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
     );
   req.body.resources =
     req.files.resources &&
     req.files.resources.map(
-      (file) => `https://tchatpro.com/tasks/${file.filename.split(" ")
-        .join("")}`
+      (file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
     );
 
   // console.log(req.body.documments);
