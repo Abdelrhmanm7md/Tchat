@@ -11,8 +11,8 @@ const messageSchema = mongoose.Schema(
         type: String,
         required: true,
     },
-    image: {
-        type: String,
+    docs: {
+        type: [String],
     },
     sender: {
       type: mongoose.Schema.Types.ObjectId,

@@ -11,18 +11,21 @@ const createmessage = catchAsync(async (req, res, next) => {
     savedmessage,
   });
 });
-const addPhoto = catchAsync(async (req, res, next) => {
-  if (req.file) req.body.image = req.file.filename;
-  let image = "";
-  if (req.body.image) {
-    image = req.body.image;
+const addPhotos = catchAsync(async (req, res, next) => {
+  let docs = "";
+  req.body.docs =
+    req.files.docs &&
+    req.files.docs.map(
+      (file) => `https://tchatpro.com/image/${file.filename}`
+    );
+
+  if (req.body.docs) {
+    docs = req.body.docs;
   }
-  if (!req.body.image) {
-    return res.status(404).json({ message: "Couldn't update!  not found!" });
-  }
+
   res.status(200).json({
-    message: "Photo updated successfully!",
-    image: `https://tchatpro.com/image/${image}`,
+    message: "Photo created successfully!",
+    docs,
   });
 });
 const getAllmessage = catchAsync(async (req, res, next) => {
@@ -49,5 +52,5 @@ const getAllmessage = catchAsync(async (req, res, next) => {
 export {
   createmessage,
   getAllmessage,
-  addPhoto,
+  addPhotos,
 };
