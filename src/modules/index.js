@@ -19,7 +19,7 @@ export function init(app) {
   app.use("/trans", transRouter);
 
   app.use("/", (req, res, next) => {
-    res.send("hello world");
+    res.send("Hello World");
   });
 
   app.all("*", (req, res, next) => {
