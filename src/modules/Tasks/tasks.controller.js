@@ -304,16 +304,17 @@ const deleteTask = catchAsync(async (req, res, next) => {
 const addPhotos = catchAsync(async (req, res, next) => {
   let resources = "";
   let documments = "";
-
   req.body.documments =
     req.files.documments &&
     req.files.documments.map(
-      (file) => `https://tchatpro.com/tasks/${file.filename.replace(/\s/g, '')}`
+      (file) => `https://tchatpro.com/tasks/${file.filename.split(" ")
+        .join("")}`
     );
   req.body.resources =
     req.files.resources &&
     req.files.resources.map(
-      (file) => `https://tchatpro.com/tasks/${file.filename.replace(/\s/g, '')}`
+      (file) => `https://tchatpro.com/tasks/${file.filename.split(" ")
+        .join("")}`
     );
 
   // console.log(req.body.documments);
@@ -325,6 +326,8 @@ const addPhotos = catchAsync(async (req, res, next) => {
   if (req.body.resources) {
     resources = req.body.resources;
   }
+
+
 
   res.status(200).json({
     message: "Photo created successfully!",
