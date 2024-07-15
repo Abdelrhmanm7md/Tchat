@@ -22,7 +22,7 @@ const addPhoto = catchAsync(async (req, res, next) => {
   }
   res.status(200).json({
     message: "Photo updated successfully!",
-    image: `${process.env.BASE_URL}image/${image}`,
+    image: `${process.env.BASE_URLL}image/${image}`,
   });
 });
 const getAllmessage = catchAsync(async (req, res, next) => {

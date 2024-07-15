@@ -3,7 +3,6 @@ import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import AppError from "../../utils/appError.js";
 
-
 const addPhoto = catchAsync(async (req, res, next) => {
   if (req.file) req.body.profilePic = req.file.filename;
   let profilePic = "";
@@ -15,19 +14,23 @@ const addPhoto = catchAsync(async (req, res, next) => {
   }
   res.status(200).json({
     message: "Photo updated successfully!",
-    profilePic: `${process.env.BASE_URL}profilePic/${profilePic}`,
+    profilePic: `${process.env.BASE_URLL}profilePic/${profilePic}`,
   });
 });
-
 
 const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(userModel.find(), req.query)
     .pagination()
     .sort()
-    .search()
+    .search();
 
   let results = await ApiFeat.mongooseQuery;
-  res.json({ message: "done", page: ApiFeat.page,count: await userModel.countDocuments(), results });
+  res.json({
+    message: "done",
+    page: ApiFeat.page,
+    count: await userModel.countDocuments(),
+    results,
+  });
   if (!results) {
     return res.status(404).json({
       message: "No users was found! add a new user to get started!",
@@ -65,10 +68,4 @@ const deleteUser = catchAsync(async (req, res, next) => {
   res.status(200).json({ message: "User deleted successfully!" });
 });
 
-export {
-  getAllUsersByAdmin,
-  getUserById,
-  updateUser,
-  deleteUser,
-  addPhoto,
-};
+export { getAllUsersByAdmin, getUserById, updateUser, deleteUser, addPhoto };
