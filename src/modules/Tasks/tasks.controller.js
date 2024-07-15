@@ -246,10 +246,10 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
   let documments = "";
   if (req.body.documments || req.body.resources) {
     req.body.documments = req.files.documments && req.files.documments.map(
-      (file) => `https://tchatpro.com/tasks/${file.filename}`
+(file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
     );
     req.body.resources =  req.files.resources && req.files.resources.map(
-      (file) => `https://tchatpro.com/tasks/${file.filename}`
+(file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
     );
 
     if (req.body.documments) {
@@ -314,6 +314,10 @@ const addPhotos = catchAsync(async (req, res, next) => {
     req.files.resources.map(
       (file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
     );
+    req.body.resources =
+    req.files.resources &&
+    req.files.resources.map(
+      (file) => console.log(file.originalname.split(" ").join(""))  );
 
   // console.log(req.body.documments);
   // console.log(req.body.resources);
@@ -324,8 +328,6 @@ const addPhotos = catchAsync(async (req, res, next) => {
   if (req.body.resources) {
     resources = req.body.resources;
   }
-
-
 
   res.status(200).json({
     message: "Photo created successfully!",
