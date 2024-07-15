@@ -307,12 +307,12 @@ const addPhotos = catchAsync(async (req, res, next) => {
   req.body.documments =
     req.files.documments &&
     req.files.documments.map(
-      (file) => `${process.env.BASE_URLL}tasks/${file.filename}`
+      (file) => `https://tchatpro.com/tasks/${file.filename}`
     );
   req.body.resources =
     req.files.resources &&
     req.files.resources.map(
-      (file) => `${process.env.BASE_URLL}tasks/${file.filename}`
+      (file) => `https://tchatpro.com/tasks/${file.filename}`
     );
 
   // console.log(req.body.documments);
