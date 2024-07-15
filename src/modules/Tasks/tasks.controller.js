@@ -246,10 +246,10 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
   let documments = "";
   if (req.body.documments || req.body.resources) {
     req.body.documments = req.files.documments && req.files.documments.map(
-      (file) => `${process.env.BASE_URLL}tasks/${file.filename}`
+      (file) => `https://tchatpro.com//uploads/tasks/${file.filename}`
     );
     req.body.resources =  req.files.resources && req.files.resources.map(
-      (file) => `${process.env.BASE_URLL}tasks/${file.filename}`
+      (file) => `https://tchatpro.com/uploads/tasks/${file.filename}`
     );
 
     if (req.body.documments) {
