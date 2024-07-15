@@ -1,10 +1,14 @@
 import { messageModel } from "../../../database/models/message.model.js";
+import { sio } from "../../../server.js";
 import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 
 const createmessage = catchAsync(async (req, res, next) => {
   const newmessage = new messageModel(req.body);
   const savedmessage = await newmessage.save();
+
+  sio.emit(`message_${req.body.content}, ${ savedmessage.createdAt }`);
+
 
   res.status(201).json({
     message: "message created successfully!",

@@ -304,15 +304,16 @@ const deleteTask = catchAsync(async (req, res, next) => {
 const addPhotos = catchAsync(async (req, res, next) => {
   let resources = "";
   let documments = "";
+
   req.body.documments =
     req.files.documments &&
     req.files.documments.map(
-      (file) => `https://tchatpro.com/tasks/${file.filename}`
+      (file) => `https://tchatpro.com/tasks/${file.filename.replace(/\s/g, '')}`
     );
   req.body.resources =
     req.files.resources &&
     req.files.resources.map(
-      (file) => `https://tchatpro.com/tasks/${file.filename}`
+      (file) => `https://tchatpro.com/tasks/${file.filename.replace(/\s/g, '')}`
     );
 
   // console.log(req.body.documments);
