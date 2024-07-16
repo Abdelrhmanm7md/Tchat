@@ -1,5 +1,11 @@
 import mongoose from "mongoose";
 
+// const subTaskSchema =  mongoose.Schema({
+//   title: { type: String, required: true },
+//   desc: { type: String, required: true },
+//   isCompleted: { type: Boolean, default: false }
+// });
+
 const taskSchema = mongoose.Schema(
   {
     title: {
@@ -55,17 +61,22 @@ const taskSchema = mongoose.Schema(
       default: "normal",
       required: true,
     },
-    review: {
-      type: [
-        {
-          review: { type: String},
-          status: { type: String},
-          uId: { type: mongoose.Schema.Types.ObjectId, ref: "user"},
-          createdAt: { type: Date},
-        },
-      ],
-      // required: true,
-    },
+    // review: {
+    //   type: [
+    //     {
+    //       review: { type: String},
+    //       status: { type: String},
+    //       uId: { type: mongoose.Schema.Types.ObjectId, ref: "user"},
+    //       createdAt: { type: Date},
+    //     },
+    //   ],
+    //    required: true,
+    // },
+
+
+    // subTaskSchema:{type: [subTaskSchema],
+      //  required: true
+      // },
   },
   { timestamps: true }
 );
