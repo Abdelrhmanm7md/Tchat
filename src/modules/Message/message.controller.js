@@ -6,8 +6,8 @@ import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 const createmessage = catchAsync(async (req, res, next) => {
   const newmessage = new messageModel(req.body);
   const savedmessage = await newmessage.save();
-  let createdAt = savedmessage.createdAt
-  let content = req.body.content
+  let createdAt = savedmessage.createdAt.toString()
+  let content = req.body.content.toString()
   sio.emit(`message_${req.body.sender}_${req.body.taskId}`,{ createdAt },{content});
 
 
