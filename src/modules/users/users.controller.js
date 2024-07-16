@@ -2,7 +2,7 @@ import { userModel } from "../../../database/models/user.model.js";
 import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import AppError from "../../utils/appError.js";
-import path from 'path';
+import path from "path";
 import fsExtra from "fs-extra";
 
 // const addPhoto = catchAsync(async (req, res, next) => {
@@ -17,16 +17,16 @@ import fsExtra from "fs-extra";
 //   // );
 
 //     const directoryPath = path.join(profilePic, 'uploads/profilePic');
-    
+
 //     fsExtra.readdir(directoryPath, (err, files) => {
 //         if (err) {
 //             return console.error('Unable to scan directory: ' + err);
 //         }
-    
+
 //         files.forEach(file => {
 //             const oldPath = path.join(directoryPath, file);
 //             const newPath = path.join(directoryPath, file.replace(/\s+/g, ''));
-    
+
 //             fsExtra.rename(oldPath, newPath, (err) => {
 //                 if (err) {
 //                     console.error('Error renaming file: ', err);
@@ -36,7 +36,7 @@ import fsExtra from "fs-extra";
 //             });
 //         });
 //     });
-  
+
 //   if (!req.body.profilePic) {
 //     return res.status(404).json({ message: "Couldn't update!  not found!" });
 //   }
@@ -52,32 +52,30 @@ const addPhotos = catchAsync(async (req, res, next) => {
   req.body.profilePic =
     req.files.profilePic &&
     req.files.profilePic.map(
-      (file) => `https://tchatpro.com/profilePic/${file.filename.split(" ").join("")}`
+      (file) =>
+        `https://tchatpro.com/profilePic/${file.filename.split(" ").join("")}`
     );
 
+  const directoryPath = path.join(profilePic, "uploads/profilePic");
 
+  fsExtra.readdir(directoryPath, (err, files) => {
+    if (err) {
+      return console.error("Unable to scan directory: " + err);
+    }
 
-    const directoryPath = path.join(profilePic, 'uploads/profilePic');
-    
-    fsExtra.readdir(directoryPath, (err, files) => {
+    files.forEach((file) => {
+      const oldPath = path.join(directoryPath, file);
+      const newPath = path.join(directoryPath, file.replace(/\s+/g, ""));
+
+      fsExtra.rename(oldPath, newPath, (err) => {
         if (err) {
-            return console.error('Unable to scan directory: ' + err);
+          console.error("Error renaming file: ", err);
+        } else {
+          console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, "")}`);
         }
-    
-        files.forEach(file => {
-            const oldPath = path.join(directoryPath, file);
-            const newPath = path.join(directoryPath, file.replace(/\s+/g, ''));
-    
-            fsExtra.rename(oldPath, newPath, (err) => {
-                if (err) {
-                    console.error('Error renaming file: ', err);
-                } else {
-                    console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, '')}`);
-                }
-            });
-        });
+      });
     });
-    
+  });
 
   if (req.body.profilePic) {
     profilePic = req.body.profilePic;
@@ -89,15 +87,12 @@ const addPhotos = catchAsync(async (req, res, next) => {
 });
 
 const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(userModel.find(), req.query)
-    .pagination()
-    .sort()
-    .search();
+  let ApiFeat = new ApiFeature(userModel.find(), req.query).sort().search();
 
   let results = await ApiFeat.mongooseQuery;
   res.json({
     message: "done",
-    page: ApiFeat.page,
+
     count: await userModel.countDocuments(),
     results,
   });

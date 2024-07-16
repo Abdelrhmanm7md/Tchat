@@ -2,8 +2,7 @@ import { taskModel } from "../../../database/models/tasks.model.js";
 import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import fsExtra from "fs-extra";
-import path from 'path';
-
+import path from "path";
 
 const createTask = catchAsync(async (req, res, next) => {
   if (req.body.users) {
@@ -23,7 +22,7 @@ const createTask = catchAsync(async (req, res, next) => {
 
 const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(taskModel.find().populate("users"), req.query)
-    .pagination()
+
     .sort()
     .search();
 
@@ -55,7 +54,7 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
 
   res.json({
     message: "done",
-    page: ApiFeat.page,
+
     count: await taskModel.countDocuments(),
     results,
   });
@@ -70,7 +69,7 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
     taskModel.find({ users: req.params.id }).populate("users"),
     req.query
   )
-    .pagination()
+
     .sort()
     .search();
 
@@ -102,7 +101,7 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
 
   res.json({
     message: "done",
-    page: ApiFeat.page,
+
     count: await taskModel.countDocuments({ users: req.params.id }),
     results,
   });
@@ -125,7 +124,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
       .populate("users"),
     req.query
   )
-    .pagination()
+
     .sort()
     .search();
 
@@ -156,7 +155,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
 
   res.json({
     message: "done",
-    page: ApiFeat.page,
+
     count: await taskModel.countDocuments({
       $and: [
         { users: req.params.id },
@@ -185,7 +184,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
       .populate("users"),
     req.query
   )
-    .pagination()
+
     .sort()
     .search();
 
@@ -216,7 +215,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
 
   res.json({
     message: "done",
-    page: ApiFeat.page,
+
     count: await taskModel.countDocuments({
       $and: [
         { users: req.params.id },
@@ -249,57 +248,58 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
   let documments = "";
   if (req.body.documments || req.body.resources) {
     req.body.documments =
-    req.files.documments &&
-    req.files.documments.map(
-      (file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
-    );
+      req.files.documments &&
+      req.files.documments.map(
+        (file) =>
+          `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
+      );
 
-    
-  req.body.resources =
-    req.files.resources &&
-    req.files.resources.map(
-      (file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
-    );
+    req.body.resources =
+      req.files.resources &&
+      req.files.resources.map(
+        (file) =>
+          `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
+      );
 
-    const directoryPath = path.join(resources, 'uploads/tasks');
-    
+    const directoryPath = path.join(resources, "uploads/tasks");
+
     fsExtra.readdir(directoryPath, (err, files) => {
-        if (err) {
-            return console.error('Unable to scan directory: ' + err);
-        }
-    
-        files.forEach(file => {
-            const oldPath = path.join(directoryPath, file);
-            const newPath = path.join(directoryPath, file.replace(/\s+/g, ''));
-    
-            fsExtra.rename(oldPath, newPath, (err) => {
-                if (err) {
-                    console.error('Error renaming file: ', err);
-                } else {
-                    console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, '')}`);
-                }
-            });
+      if (err) {
+        return console.error("Unable to scan directory: " + err);
+      }
+
+      files.forEach((file) => {
+        const oldPath = path.join(directoryPath, file);
+        const newPath = path.join(directoryPath, file.replace(/\s+/g, ""));
+
+        fsExtra.rename(oldPath, newPath, (err) => {
+          if (err) {
+            console.error("Error renaming file: ", err);
+          } else {
+            console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, "")}`);
+          }
         });
+      });
     });
-    const directoryPathh = path.join(documments, 'uploads/tasks');
-    
+    const directoryPathh = path.join(documments, "uploads/tasks");
+
     fsExtra.readdir(directoryPathh, (err, files) => {
-        if (err) {
-            return console.error('Unable to scan directory: ' + err);
-        }
-    
-        files.forEach(file => {
-            const oldPath = path.join(directoryPathh, file);
-            const newPath = path.join(directoryPathh, file.replace(/\s+/g, ''));
-    
-            fsExtra.rename(oldPath, newPath, (err) => {
-                if (err) {
-                    console.error('Error renaming file: ', err);
-                } else {
-                    console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, '')}`);
-                }
-            });
+      if (err) {
+        return console.error("Unable to scan directory: " + err);
+      }
+
+      files.forEach((file) => {
+        const oldPath = path.join(directoryPathh, file);
+        const newPath = path.join(directoryPathh, file.replace(/\s+/g, ""));
+
+        fsExtra.rename(oldPath, newPath, (err) => {
+          if (err) {
+            console.error("Error renaming file: ", err);
+          } else {
+            console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, "")}`);
+          }
         });
+      });
     });
 
     if (req.body.documments) {
@@ -357,57 +357,57 @@ const addPhotos = catchAsync(async (req, res, next) => {
   req.body.documments =
     req.files.documments &&
     req.files.documments.map(
-      (file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
+      (file) =>
+        `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
     );
 
-    
   req.body.resources =
     req.files.resources &&
     req.files.resources.map(
-      (file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
+      (file) =>
+        `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
     );
 
-    const directoryPath = path.join(resources, 'uploads/tasks');
-    
-    fsExtra.readdir(directoryPath, (err, files) => {
+  const directoryPath = path.join(resources, "uploads/tasks");
+
+  fsExtra.readdir(directoryPath, (err, files) => {
+    if (err) {
+      return console.error("Unable to scan directory: " + err);
+    }
+
+    files.forEach((file) => {
+      const oldPath = path.join(directoryPath, file);
+      const newPath = path.join(directoryPath, file.replace(/\s+/g, ""));
+
+      fsExtra.rename(oldPath, newPath, (err) => {
         if (err) {
-            return console.error('Unable to scan directory: ' + err);
+          console.error("Error renaming file: ", err);
+        } else {
+          console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, "")}`);
         }
-    
-        files.forEach(file => {
-            const oldPath = path.join(directoryPath, file);
-            const newPath = path.join(directoryPath, file.replace(/\s+/g, ''));
-    
-            fsExtra.rename(oldPath, newPath, (err) => {
-                if (err) {
-                    console.error('Error renaming file: ', err);
-                } else {
-                    console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, '')}`);
-                }
-            });
-        });
+      });
     });
-    const directoryPathh = path.join(documments, 'uploads/tasks');
-    
-    fsExtra.readdir(directoryPathh, (err, files) => {
+  });
+  const directoryPathh = path.join(documments, "uploads/tasks");
+
+  fsExtra.readdir(directoryPathh, (err, files) => {
+    if (err) {
+      return console.error("Unable to scan directory: " + err);
+    }
+
+    files.forEach((file) => {
+      const oldPath = path.join(directoryPathh, file);
+      const newPath = path.join(directoryPathh, file.replace(/\s+/g, ""));
+
+      fsExtra.rename(oldPath, newPath, (err) => {
         if (err) {
-            return console.error('Unable to scan directory: ' + err);
+          console.error("Error renaming file: ", err);
+        } else {
+          console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, "")}`);
         }
-    
-        files.forEach(file => {
-            const oldPath = path.join(directoryPathh, file);
-            const newPath = path.join(directoryPathh, file.replace(/\s+/g, ''));
-    
-            fsExtra.rename(oldPath, newPath, (err) => {
-                if (err) {
-                    console.error('Error renaming file: ', err);
-                } else {
-                    console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, '')}`);
-                }
-            });
-        });
+      });
     });
-    
+  });
 
   if (req.body.documments) {
     documments = req.body.documments;
@@ -415,7 +415,6 @@ const addPhotos = catchAsync(async (req, res, next) => {
   if (req.body.resources) {
     resources = req.body.resources;
   }
-
 
   res.status(200).json({
     message: "Photo created successfully!",

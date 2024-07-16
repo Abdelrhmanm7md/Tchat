@@ -67,7 +67,7 @@ const getAllAffs = catchAsync(async (req, res, next) => {
     affiliationModel.find().populate("referrals"),
     req.query
   )
-    .pagination()
+
     .sort()
     .search();
 
@@ -79,7 +79,7 @@ const getAllAffs = catchAsync(async (req, res, next) => {
   }
   res.json({
     message: "done",
-    page: ApiFeat.page,
+
     count: await affiliationModel.countDocuments(),
     results,
   });
