@@ -32,7 +32,7 @@ const taskSchema = mongoose.Schema(
     },
     tasksPriority: {
       type: String,
-      // required: true,  
+      // required: true,
     },
     resources: {
       type: [String],
@@ -55,6 +55,14 @@ const taskSchema = mongoose.Schema(
       type: String,
       required: true,
     },
+    sTime: {
+      type: String,
+      required: true,
+    },
+    eTime: {
+      type: String,
+      required: true,
+    },
     taskType: {
       type: String,
       enum: ["normal", "shared"],
@@ -73,14 +81,11 @@ const taskSchema = mongoose.Schema(
     //    required: true,
     // },
 
-
     // subTaskSchema:{type: [subTaskSchema],
-      //  required: true
-      // },
+    //  required: true
+    // },
   },
   { timestamps: true }
 );
-
-
 
 export const taskModel = mongoose.model("task", taskSchema);
