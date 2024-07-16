@@ -17,15 +17,22 @@ export const signUp = catchAsync(async (req, res, next) => {
     return res.status(409).json({ message: "this phone is not valid" });
   }
   let results = new userModel(req.body);
+  let token = jwt.sign(
+    { name: results.name, userId: results._id },
+    process.env.JWT_SECRET_KEY
+  );
   await results.save();
   req.body.code = generateUniqueId({
     length: 10,
     useLetters: true,
   });
-  const newAff = new affiliationModel({user:results._id,code:req.body.code});
+  const newAff = new affiliationModel({
+    user: results._id,
+    code: req.body.code,
+  });
   const savedAff = await newAff.save();
 
-res.json({ message: "added", results ,savedAff});
+  res.json({ message: "added", token, results, savedAff });
 });
 
 export const signIn = catchAsync(async (req, res, next) => {
