@@ -4,11 +4,28 @@ import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 
 const createmessage = catchAsync(async (req, res, next) => {
+
+  function formatAMPM(date) {
+    let hours = date.getHours();
+    let minutes = date.getMinutes();
+    let ampm = hours >= 12 ? 'PM' : 'AM';
+    hours = hours % 12;
+    hours = hours ? hours : 12; // the hour '0' should be '12'
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    let strTime = hours + ':' + minutes + ' ' + ampm;
+    return strTime;
+  }
+  let currentTime = new Date();
+  let createdAt = formatAMPM(currentTime)
+  req.body.date = createdAt
+  let content = req.body.content.toString()
   const newmessage = new messageModel(req.body);
   const savedmessage = await newmessage.save();
-  let createdAt = savedmessage.createdAt.toString()
-  let content = req.body.content.toString()
+
+ 
   sio.emit(`message_${req.body.sender}_${req.body.taskId}`,{ createdAt },{content});
+
+
 
 
   res.status(201).json({
