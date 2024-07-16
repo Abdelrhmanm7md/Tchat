@@ -1,6 +1,9 @@
 import { taskModel } from "../../../database/models/tasks.model.js";
 import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
+import fsExtra from "fs-extra";
+import path from 'path';
+
 
 const createTask = catchAsync(async (req, res, next) => {
   if (req.body.users) {
@@ -245,12 +248,39 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
   let resources = "";
   let documments = "";
   if (req.body.documments || req.body.resources) {
-    req.body.documments = req.files.documments && req.files.documments.map(
-(file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
+    req.body.documments =
+    req.files.documments &&
+    req.files.documments.map(
+      (file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
     );
-    req.body.resources =  req.files.resources && req.files.resources.map(
-(file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
+
+    
+  req.body.resources =
+    req.files.resources &&
+    req.files.resources.map(
+      (file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
     );
+
+    const directoryPath = path.join(resources, 'uploads/tasks');
+    
+    fsExtra.readdir(directoryPath, (err, files) => {
+        if (err) {
+            return console.error('Unable to scan directory: ' + err);
+        }
+    
+        files.forEach(file => {
+            const oldPath = path.join(directoryPath, file);
+            const newPath = path.join(directoryPath, file.replace(/\s+/g, ''));
+    
+            fsExtra.rename(oldPath, newPath, (err) => {
+                if (err) {
+                    console.error('Error renaming file: ', err);
+                } else {
+                    console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, '')}`);
+                }
+            });
+        });
+    });
 
     if (req.body.documments) {
       documments = req.body.documments;
@@ -309,10 +339,6 @@ const addPhotos = catchAsync(async (req, res, next) => {
     req.files.documments.map(
       (file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
     );
-    // req.body.resources =
-    // req.files.resources &&
-    // req.files.resources.map(
-    //   (file) => file.originalname.split(" ").join("") );
 
     
   req.body.resources =
@@ -321,8 +347,27 @@ const addPhotos = catchAsync(async (req, res, next) => {
       (file) => `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
     );
 
-  // console.log(req.body.documments);
-  // console.log(req.body.resources);
+    const directoryPath = path.join(resources, 'uploads/tasks');
+    
+    fsExtra.readdir(directoryPath, (err, files) => {
+        if (err) {
+            return console.error('Unable to scan directory: ' + err);
+        }
+    
+        files.forEach(file => {
+            const oldPath = path.join(directoryPath, file);
+            const newPath = path.join(directoryPath, file.replace(/\s+/g, ''));
+    
+            fsExtra.rename(oldPath, newPath, (err) => {
+                if (err) {
+                    console.error('Error renaming file: ', err);
+                } else {
+                    console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, '')}`);
+                }
+            });
+        });
+    });
+    
 
   if (req.body.documments) {
     documments = req.body.documments;
@@ -330,6 +375,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
   if (req.body.resources) {
     resources = req.body.resources;
   }
+
 
   res.status(200).json({
     message: "Photo created successfully!",
