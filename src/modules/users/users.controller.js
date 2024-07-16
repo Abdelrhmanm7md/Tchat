@@ -52,7 +52,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
   req.body.profilePic =
     req.files.profilePic &&
     req.files.profilePic.map(
-      (file) => `http://localhost:8000/tasks/${file.filename.split(" ").join("")}`
+      (file) => `https://tchatpro.com/profilePic/${file.filename.split(" ").join("")}`
     );
 
 
@@ -82,9 +82,6 @@ const addPhotos = catchAsync(async (req, res, next) => {
   if (req.body.profilePic) {
     profilePic = req.body.profilePic;
   }
-
-
-
   res.status(200).json({
     message: "Photo created successfully!",
     profilePic,

@@ -281,6 +281,26 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
             });
         });
     });
+    const directoryPathh = path.join(documments, 'uploads/tasks');
+    
+    fsExtra.readdir(directoryPathh, (err, files) => {
+        if (err) {
+            return console.error('Unable to scan directory: ' + err);
+        }
+    
+        files.forEach(file => {
+            const oldPath = path.join(directoryPathh, file);
+            const newPath = path.join(directoryPathh, file.replace(/\s+/g, ''));
+    
+            fsExtra.rename(oldPath, newPath, (err) => {
+                if (err) {
+                    console.error('Error renaming file: ', err);
+                } else {
+                    console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, '')}`);
+                }
+            });
+        });
+    });
 
     if (req.body.documments) {
       documments = req.body.documments;
