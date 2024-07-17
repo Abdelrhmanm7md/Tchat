@@ -2,6 +2,8 @@ import { messageModel } from "../../../database/models/message.model.js";
 import { sio } from "../../../server.js";
 import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
+import path from "path";
+import fsExtra from "fs-extra";
 
 const createmessage = catchAsync(async (req, res, next) => {
   function formatAMPM(date) {
@@ -37,7 +39,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
         `https://tchatpro.com/image/${file.filename.split(" ").join("")}`
     );
 
-  const directoryPathh = path.join(docs, "uploads/tasks");
+  const directoryPathh = path.join(docs, "uploads/image");
 
   fsExtra.readdir(directoryPathh, (err, files) => {
     if (err) {

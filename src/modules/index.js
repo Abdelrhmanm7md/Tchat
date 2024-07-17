@@ -21,6 +21,9 @@ export function init(app) {
   
   app.use("/", (req, res, next) => {
     res.send("Hello World");
+    // next(   res
+    //   .status(404)
+    //     .json({ message: "Not Found" }))
   });
 
   app.all("*", (req, res, next) => {
@@ -28,8 +31,12 @@ export function init(app) {
   });
 
   // app.use((err, req, res, next) => {
+  //   if(err){
   //   res
   //     .status(err.statusCode)
   //     .json({ message: err.message, statusCode: err.statusCode });
+  // }else{
+  //   next();
+  // }
   // });
 }
