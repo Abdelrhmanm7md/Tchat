@@ -20,7 +20,9 @@ let options = (folderName) => {
     cb(null, true);
   }
 
-  return multer({ storage, fileFilter });
+  return multer({ storage,  limits: {
+    fileSize: 5000000 // 1MB
+  }, fileFilter });
 };
 
 export const uploadSingleFile = (folderName, fieldName) =>

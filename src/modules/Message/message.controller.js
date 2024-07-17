@@ -22,7 +22,7 @@ const createmessage = catchAsync(async (req, res, next) => {
   const savedmessage = await newmessage.save();
 
   sio.emit(
-    `message_${req.body.taskId}_${req.body.sender}`,
+    `message_${req.body.sender}_${req.body.taskId}`,
     { createdAt },
     { content }
   );
