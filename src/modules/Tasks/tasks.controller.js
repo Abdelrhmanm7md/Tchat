@@ -403,9 +403,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
       fsExtra.rename(oldPath, newPath, (err) => {
         if (err) {
           console.error("Error renaming file: ", err);
-        } else {
-          console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, "")}`);
-        }
+        } 
       });
     });
   });
@@ -423,9 +421,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
       fsExtra.rename(oldPath, newPath, (err) => {
         if (err) {
           console.error("Error renaming file: ", err);
-        } else {
-          console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, "")}`);
-        }
+        } 
       });
     });
   });

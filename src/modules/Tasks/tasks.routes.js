@@ -2,7 +2,7 @@ import express from "express";
 const taskRouter = express.Router();
 
 import * as taskController from "./tasks.controller.js";
-import { uploadMixFile } from "../../utils/middleWare/fileUploads.js";
+import { fileSizeLimitErrorHandler, uploadMixFile } from "../../utils/middleWare/fileUploads.js";
 
 taskRouter.get("/", taskController.getAllTaskByAdmin);
 taskRouter.get("/user/:id", taskController.getAllTaskByUser);
@@ -22,7 +22,7 @@ taskRouter.post(
   uploadMixFile("tasks", [
     { name: "resources", maxCount: 8 },
     { name: "documments", maxCount: 8 },
-  ]),
+  ]),fileSizeLimitErrorHandler,
   taskController.addPhotos
 );
 taskRouter.put(
