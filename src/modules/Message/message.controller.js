@@ -21,11 +21,7 @@ const createmessage = catchAsync(async (req, res, next) => {
   const newmessage = new messageModel(req.body);
   const savedmessage = await newmessage.save();
 
-  sio.emit(
-    `message_${req.body.sender}_${req.body.taskId}`,
-    { createdAt },
-    { content }
-  );
+  sio.emit(`message_${req.body.taskId}`, { createdAt }, { content });
 
   res.status(201).json({
     message: "message created successfully!",
@@ -55,7 +51,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
       fsExtra.rename(oldPath, newPath, (err) => {
         if (err) {
           console.error("Error renaming file: ", err);
-        } 
+        }
       });
     });
   });
@@ -89,7 +85,10 @@ const getAllmessage = catchAsync(async (req, res, next) => {
   }
 });
 const getAllmessageByTask = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(messageModel.find({ taskId: req.params.id }), req.query)
+  let ApiFeat = new ApiFeature(
+    messageModel.find({ taskId: req.params.id }),
+    req.query
+  );
 
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
@@ -107,4 +106,4 @@ const getAllmessageByTask = catchAsync(async (req, res, next) => {
   }
 });
 
-export { createmessage, getAllmessage, addPhotos,getAllmessageByTask };
+export { createmessage, getAllmessage, addPhotos, getAllmessageByTask };
