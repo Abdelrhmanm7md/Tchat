@@ -22,7 +22,7 @@ const createmessage = catchAsync(async (req, res, next) => {
   const savedmessage = await newmessage.save();
 
   sio.emit(
-    `message_${req.body.sender}_${req.body.taskId}`,
+    `message_${req.body.taskId}_${req.body.sender}`,
     { createdAt },
     { content }
   );
@@ -55,9 +55,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
       fsExtra.rename(oldPath, newPath, (err) => {
         if (err) {
           console.error("Error renaming file: ", err);
-        } else {
-          console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, "")}`);
-        }
+        } 
       });
     });
   });

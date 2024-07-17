@@ -8,7 +8,8 @@ import generateUniqueId from "generate-unique-id";
 
 export const signUp = catchAsync(async (req, res, next) => {
   let phoneFormat = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/; //+XX XXXXX XXXXX
-  if (req.body.phone !== "" && req.body.phone.match(phoneFormat)) {
+  // console.log(req.body.phone.length);
+  if (req.body.phone !== "" && req.body.phone.match(phoneFormat)&&req.body.phone.length>10) {
     let existUser = await userModel.findOne({ phone: req.body.phone });
     if (existUser) {
       return res.status(409).json({ message: "this phone already exist" });

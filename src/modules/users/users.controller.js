@@ -70,9 +70,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
       fsExtra.rename(oldPath, newPath, (err) => {
         if (err) {
           console.error("Error renaming file: ", err);
-        } else {
-          console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, "")}`);
-        }
+        } 
       });
     });
   });
@@ -80,10 +78,14 @@ const addPhotos = catchAsync(async (req, res, next) => {
   if (req.body.profilePic) {
     profilePic = req.body.profilePic;
   }
+  if(profilePic !== ""){
   res.status(200).json({
     message: "Photo created successfully!",
     profilePic,
   });
+}else {
+  res.status(400).json({ message: 'File upload failed.'});
+}
 });
 
 const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
