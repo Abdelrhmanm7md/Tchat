@@ -9,6 +9,7 @@ taskRouter.get("/user/:id", taskController.getAllTaskByUser);
 taskRouter.get("/user/shared/:id", taskController.getAllTaskByUserShared);
 taskRouter.get("/user/norm/:id", taskController.getAllTaskByUserNormal);
 taskRouter.get("/:id", taskController.getTaskById);
+taskRouter.get("/sub/:id", taskController.getAllSubTaskByUser);
 taskRouter.post(
   "/",
   taskController.createTask

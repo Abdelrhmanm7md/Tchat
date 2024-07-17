@@ -1,10 +1,5 @@
 import mongoose from "mongoose";
 
-// const subTaskSchema =  mongoose.Schema({
-//   title: { type: String, required: true },
-//   desc: { type: String, required: true },
-//   isCompleted: { type: Boolean, default: false }
-// });
 
 const taskSchema = mongoose.Schema(
   {
@@ -69,6 +64,11 @@ const taskSchema = mongoose.Schema(
       default: "normal",
       required: true,
     },
+    parentTask:{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "task",
+      // required: true,
+    }
     // review: {
     //   type: [
     //     {
@@ -81,9 +81,7 @@ const taskSchema = mongoose.Schema(
     //    required: true,
     // },
 
-    // subTaskSchema:{type: [subTaskSchema],
-    //  required: true
-    // },
+
   },
   { timestamps: true }
 );

@@ -111,6 +111,31 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
     });
   }
 });
+const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel.find({ parentTask: req.params.id }).populate("users"),
+    req.query
+  )
+    .sort()
+    .search();
+
+  let results = await ApiFeat.mongooseQuery;
+  results = JSON.stringify(results);
+  results = JSON.parse(results);
+
+
+  res.json({
+    message: "done",
+
+    count: await taskModel.countDocuments({ parentTask: req.params.id }),
+    results,
+  });
+  if (!ApiFeat) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+});
 const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
     taskModel
@@ -434,4 +459,5 @@ export {
   updateTaskPhoto,
   getAllTaskByUserShared,
   getAllTaskByUserNormal,
+  getAllSubTaskByUser,
 };
