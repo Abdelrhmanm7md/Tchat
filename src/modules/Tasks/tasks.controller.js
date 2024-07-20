@@ -11,6 +11,7 @@ const createTask = catchAsync(async (req, res, next) => {
       req.body.taskType = "shared";
     }
   }
+  req.body.users = []
   let newTask = new taskModel(req.body);
   let addedTask = await newTask.save();
 
