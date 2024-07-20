@@ -22,7 +22,7 @@ const createTask = catchAsync(async (req, res, next) => {
 });
 
 const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find().populate("users"), req.query)
+  let ApiFeat = new ApiFeature(taskModel.find().populate("users").populate("createdBy"), req.query)
 
     .sort()
     .search();
@@ -67,7 +67,7 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
 });
 const getAllTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.find({ createdBy: req.params.id }).populate("users"),
+    taskModel.find({ createdBy: req.params.id }).populate("users").populate("createdBy"),
     req.query
   )
 
@@ -114,7 +114,7 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
 });
 const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.find({ parentTask: req.params.id }).populate("users"),
+    taskModel.find({ parentTask: req.params.id }).populate("users").populate("createdBy"),
     req.query
   )
     .sort()
@@ -142,12 +142,12 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
     taskModel
       .find({
         $and: [
-          { createdBy: req.params.id },
+          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
           { taskType: "shared" },
           { isShared: true },
         ],
       })
-      .populate("users"),
+      .populate("users").populate("createdBy"),
     req.query
   )
 
@@ -182,13 +182,13 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
   res.json({
     message: "done",
 
-    count: await taskModel.countDocuments({
-      $and: [
-        { createdBy: req.params.id },
-        { taskType: "shared" },
-        { isShared: true },
-      ],
-    }),
+    // count: await taskModel.countDocuments({
+    //   $and: [
+    //     { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+    //     { taskType: "shared" },
+    //     { isShared: true },
+    //   ],
+    // }),
     results,
   });
   if (!ApiFeat) {
@@ -202,12 +202,12 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
     taskModel
       .find({
         $and: [
-          { createdBy: req.params.id },
+          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
           { taskType: "normal" },
           { isShared: false },
         ],
       })
-      .populate("users"),
+      .populate("users").populate("createdBy"),
     req.query
   )
 
@@ -242,13 +242,13 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
   res.json({
     message: "done",
 
-    count: await taskModel.countDocuments({
-      $and: [
-        { createdBy: req.params.id },
-        { taskType: "shared" },
-        { isShared: true },
-      ],
-    }),
+    // count: await taskModel.countDocuments({
+    //   $and: [
+    //     { createdBy: req.params.id },
+    //     { taskType: "shared" },
+    //     { isShared: true },
+    //   ],
+    // }),
     results,
   });
   if (!ApiFeat) {
