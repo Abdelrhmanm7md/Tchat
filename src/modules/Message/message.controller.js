@@ -41,7 +41,7 @@ const createmessage = catchAsync(async (req, res, next) => {
 // });
 
 
-  sio.emit(`message_${req.body.sender}_${req.body.taskId}`, { createdAt }, { content },{ docs });
+  sio.emit(`message_${req.body.sender}_${req.body.taskId}`, { createdAt }, { content });
 
   res.status(201).json({
     message: "message created successfully!",
