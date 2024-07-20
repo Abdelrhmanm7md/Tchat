@@ -6,7 +6,7 @@ import path from "path";
 
 const createTask = catchAsync(async (req, res, next) => {
   if (req.body.users) {
-    if (req.body.users.length > 1) {
+    if (req.body.users.length >= 1) {
       req.body.isShared = true;
       req.body.taskType = "shared";
     }
@@ -345,7 +345,7 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
 const updateTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
   if (req.body.users) {
-    if (req.body.users.length > 1) {
+    if (req.body.users.length >= 1) {
       req.body.isShared = true;
       req.body.taskType = "shared";
     }
