@@ -102,7 +102,7 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
   res.json({
     message: "done",
 
-    count: await taskModel.countDocuments({ users: req.params.id }),
+    count: await taskModel.countDocuments({ createdBy: req.params.id }),
     results,
   });
   if (!ApiFeat) {
