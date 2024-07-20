@@ -205,6 +205,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
           { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
           { taskType: "normal" },
           { isShared: false },
+          { parentTask: null },
         ],
       })
       .populate("users"),
