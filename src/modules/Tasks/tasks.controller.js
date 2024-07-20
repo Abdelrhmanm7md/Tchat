@@ -22,7 +22,7 @@ const createTask = catchAsync(async (req, res, next) => {
 });
 
 const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find().populate("users").populate("createdBy"), req.query)
+  let ApiFeat = new ApiFeature(taskModel.find().populate("users"), req.query)
 
     .sort()
     .search();
@@ -67,7 +67,7 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
 });
 const getAllTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.find({ createdBy: req.params.id }).populate("users").populate("createdBy"),
+    taskModel.find({ createdBy: req.params.id }).populate("users"),
     req.query
   )
 
@@ -114,7 +114,7 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
 });
 const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.find({ parentTask: req.params.id }).populate("users").populate("createdBy"),
+    taskModel.find({ parentTask: req.params.id }).populate("users"),
     req.query
   )
     .sort()
@@ -147,7 +147,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
           { isShared: true },
         ],
       })
-      .populate("users").populate("createdBy"),
+      .populate("users"),
     req.query
   )
 
@@ -207,7 +207,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
           { isShared: false },
         ],
       })
-      .populate("users").populate("createdBy"),
+      .populate("users"),
     req.query
   )
 
