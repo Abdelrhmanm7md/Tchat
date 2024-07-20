@@ -30,7 +30,8 @@ const createmessage = catchAsync(async (req, res, next) => {
   let createdAt = formatAMPM(currentTime);
   req.body.date = createdAt;
   let content = req.body.content.toString();
-  let docs = req.body.docs
+  // let docs = req.body.docs
+  let sender = req.body.sender
   const newmessage = new messageModel(req.body);
   const savedmessage = await newmessage.save();
 
@@ -41,7 +42,7 @@ const createmessage = catchAsync(async (req, res, next) => {
 // });
 
 
-  sio.emit(`message_${req.body.sender}_${req.body.taskId}`, { createdAt }, { content });
+  sio.emit(`message_${req.body.taskId}`, { createdAt }, { content },{sender});
 
   res.status(201).json({
     message: "message created successfully!",
