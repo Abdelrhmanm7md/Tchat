@@ -14,7 +14,8 @@ const createNotification = catchAsync(async (req, res, next) => {
   const newNotif = new notificationModel(req.body);
   const savedNotif = await newNotif.save();
   let message = req.body.content;
-  sio.emit(`notification_${req.body.receiver}`, { message });
+  let title = req.body.title;
+  sio.emit(`notification_${req.body.receiver}`, { message }, { title });
 
   res.status(201).json({
     message: "notification created successfully!",

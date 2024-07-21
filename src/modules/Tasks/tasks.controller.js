@@ -273,6 +273,7 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
   let { id } = req.params;
   let resources = "";
   let documments = "";
+  let users = "";
   if (req.body.documments || req.body.resources) {
     req.body.documments =
       req.files.documments &&
@@ -331,10 +332,13 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
     if (req.body.resources) {
       resources = req.body.resources;
     }
+    if (req.body.users) {
+      users = req.body.users;
+    }
   }
   let updatedTask = await taskModel.findByIdAndUpdate(
     id,
-    { $push: { documments: documments, resources: resources } },
+    { $push: { documments: documments, resources: resources ,users:users} },
     { new: true }
   );
 

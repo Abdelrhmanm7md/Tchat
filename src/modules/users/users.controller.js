@@ -118,7 +118,7 @@ const updateUser = catchAsync(async (req, res, next) => {
   let { id } = req.params;
 
   let results = await userModel.findByIdAndUpdate(id, req.body, { new: true });
-  !results && next(new AppError(`not found `, 404));
+  !results && res.status(404).json({ message: "couldn't update! not found!" });
   results && res.json({ message: "updatedd", results });
 });
 
