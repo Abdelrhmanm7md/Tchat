@@ -26,7 +26,7 @@ taskRouter.post(
   taskController.addPhotos
 );
 taskRouter.put(
-  "/images",
+  "/images/:id",
   uploadMixFile("tasks", [
     { name: "resources", maxCount: 8 },
     { name: "documments", maxCount: 8 },
