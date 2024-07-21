@@ -369,6 +369,28 @@ const updateTask = catchAsync(async (req, res, next) => {
 
   res.status(200).json({ message: "Task updated successfully!", updatedTask });
 });
+const updateTask2 = catchAsync(async (req, res, next) => {
+  let { id } = req.params;
+  if (req.body.users) {
+    if (req.body.users.length >= 1) {
+      req.body.isShared = true;
+      req.body.taskType = "shared";
+    }
+  }
+  let updatedTask = await taskModel.findByIdAndUpdate(
+    id,
+    req.body,
+    {
+      new: true,
+    }
+  );
+
+  if (!updatedTask) {
+    return res.status(404).json({ message: "Couldn't update!  not found!" });
+  }
+
+  res.status(200).json({ message: "Task updated successfully!", updatedTask });
+});
 const deleteTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
 
@@ -461,4 +483,5 @@ export {
   getAllTaskByUserShared,
   getAllTaskByUserNormal,
   getAllSubTaskByUser,
+  updateTask2,
 };

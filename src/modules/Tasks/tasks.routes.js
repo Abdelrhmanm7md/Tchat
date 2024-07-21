@@ -14,7 +14,8 @@ taskRouter.post(
   "/",
   taskController.createTask
 );
-taskRouter.put("/:id", taskController.updateTask);
+taskRouter.put("/update/users/:id", taskController.updateTask);
+taskRouter.put("/:id", taskController.updateTask2);
 taskRouter.delete("/:id", taskController.deleteTask);
 
 taskRouter.post(
