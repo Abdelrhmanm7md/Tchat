@@ -11,7 +11,7 @@ const createTask = catchAsync(async (req, res, next) => {
       req.body.taskType = "shared";
     }
   }
-  req.body.users = []
+  req.body.users = [];
   let newTask = new taskModel(req.body);
   let addedTask = await newTask.save();
 
@@ -123,7 +123,6 @@ const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
   results = JSON.parse(results);
-
 
   res.json({
     message: "done",
@@ -273,7 +272,6 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
   let { id } = req.params;
   let resources = "";
   let documments = "";
-  let users = "";
   if (req.body.documments || req.body.resources) {
     req.body.documments =
       req.files.documments &&
@@ -332,13 +330,10 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
     if (req.body.resources) {
       resources = req.body.resources;
     }
-    if (req.body.users) {
-      users = req.body.users;
-    }
   }
   let updatedTask = await taskModel.findByIdAndUpdate(
     id,
-    { $push: { documments: documments, resources: resources ,users:users} },
+    { $push: { documments: documments, resources: resources } },
     { new: true }
   );
 
@@ -350,15 +345,23 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
 });
 const updateTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
+  let users = "";
   if (req.body.users) {
     if (req.body.users.length >= 1) {
       req.body.isShared = true;
       req.body.taskType = "shared";
     }
   }
-  let updatedTask = await taskModel.findByIdAndUpdate(id, req.body, {
-    new: true,
-  });
+  if (req.body.users) {
+    users = req.body.users;
+  }
+  let updatedTask = await taskModel.findByIdAndUpdate(
+    id,
+    { $push: { users: users } },
+    {
+      new: true,
+    }
+  );
 
   if (!updatedTask) {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
@@ -409,7 +412,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
       fsExtra.rename(oldPath, newPath, (err) => {
         if (err) {
           console.error("Error renaming file: ", err);
-        } 
+        }
       });
     });
   });
@@ -427,7 +430,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
       fsExtra.rename(oldPath, newPath, (err) => {
         if (err) {
           console.error("Error renaming file: ", err);
-        } 
+        }
       });
     });
   });
