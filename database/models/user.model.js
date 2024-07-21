@@ -19,7 +19,7 @@ const userSchema = mongoose.Schema(
       type: String,
       // required: true,
     },
-    profilePic: [String],
+    profilePic: String,
     role: {
       type: String,
       enum: [ "admin","user"],

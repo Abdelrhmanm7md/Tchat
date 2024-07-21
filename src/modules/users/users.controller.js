@@ -79,10 +79,11 @@ const addPhotos = catchAsync(async (req, res, next) => {
     profilePic = req.body.profilePic;
   }
   if(profilePic !== ""){
-  res.status(200).json({
-    message: "Photo created successfully!",
-    profilePic,
-  });
+    profilePic =profilePic[0]
+    res.status(200).json({
+      message: "Photo created successfully!",
+      profilePic,
+    });
 }else {
   res.status(400).json({ message: 'File upload failed.'});
 }
