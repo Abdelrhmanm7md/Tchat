@@ -36,13 +36,13 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
   if (filterType && filterValue) {
     results = results.filter(function (item) {
       if (filterType == "title") {
-        return item.title.toLowerCase().includes(filterValue);
+        return item.title.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "users") {
-        return item.users[0].name.toLowerCase().includes(filterValue);
+        return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "taskType") {
-        return item.taskType.toLowerCase().includes(filterValue);
+        return item.taskType.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "date") {
         return item.sDate == filterValue;
@@ -70,10 +70,8 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
     taskModel.find({ createdBy: req.params.id }).populate("users"),
     req.query
   )
-
     .sort()
     .search();
-
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
   results = JSON.parse(results);
@@ -102,8 +100,6 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
 
   res.json({
     message: "done",
-
-    count: await taskModel.countDocuments({ createdBy: req.params.id }),
     results,
   });
   if (!ApiFeat) {
@@ -126,8 +122,6 @@ const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
 
   res.json({
     message: "done",
-
-    count: await taskModel.countDocuments({ parentTask: req.params.id }),
     results,
   });
   if (!ApiFeat) {
@@ -146,7 +140,8 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
           { isShared: true },
         ],
       })
-      .populate("users"),
+      .populate("users")
+      .populate("createdBy"),
     req.query
   )
 
@@ -161,13 +156,13 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
   if (filterType && filterValue) {
     results = results.filter(function (item) {
       if (filterType == "title") {
-        return item.title.toLowerCase().includes(filterValue);
+        return item.title.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "users") {
-        return item.users[0].name.toLowerCase().includes(filterValue);
+        return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "taskType") {
-        return item.taskType.toLowerCase().includes(filterValue);
+        return item.taskType.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "date") {
         return item.sDate == filterValue;
@@ -180,14 +175,6 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
 
   res.json({
     message: "done",
-
-    // count: await taskModel.countDocuments({
-    //   $and: [
-    //     { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-    //     { taskType: "shared" },
-    //     { isShared: true },
-    //   ],
-    // }),
     results,
   });
   if (!ApiFeat) {
@@ -222,13 +209,13 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
   if (filterType && filterValue) {
     results = results.filter(function (item) {
       if (filterType == "title") {
-        return item.title.toLowerCase().includes(filterValue);
+        return item.title.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "users") {
-        return item.users[0].name.toLowerCase().includes(filterValue);
+        return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "taskType") {
-        return item.taskType.toLowerCase().includes(filterValue);
+        return item.taskType.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "date") {
         return item.sDate == filterValue;
@@ -241,14 +228,6 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
 
   res.json({
     message: "done",
-
-    // count: await taskModel.countDocuments({
-    //   $and: [
-    //     { createdBy: req.params.id },
-    //     { taskType: "shared" },
-    //     { isShared: true },
-    //   ],
-    // }),
     results,
   });
   if (!ApiFeat) {

@@ -20,7 +20,7 @@ const messageSchema = mongoose.Schema(
         default:''
     },
     docs: {
-        type: [String],
+        type: String,
     },
     sender: {
       type: mongoose.Schema.Types.ObjectId,

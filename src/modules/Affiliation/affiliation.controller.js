@@ -18,9 +18,10 @@ const createAff = catchAsync(async (req, res, next) => {
 
 const editAff = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const updatedAff = await affiliationModel.findByIdAndUpdate(id, req.body, {
-    new: true,
-  });
+  const updatedAff = await affiliationModel.findByIdAndUpdate(id,
+  req.body,
+  {new: true,}
+);
 
   if (!updatedAff) {
     return res.status(404).json({ message: "Aff not found!" });

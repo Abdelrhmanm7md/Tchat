@@ -6,6 +6,4 @@ const transRouter = express.Router();
 transRouter.post("/", transController.createtrans);
 transRouter.get("/", transController.getAlltrans);
 
-
-
 export default transRouter;

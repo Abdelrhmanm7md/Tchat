@@ -29,10 +29,12 @@ const userSchema = mongoose.Schema(
       enum: [ "admin","user"],
       default: "user",
     },
-    // isActive: {
-    //   type: Boolean,
-    //   default: true,
-    // },
+    subscriptionType: {
+      type: String,
+      enum: [ "normal","permium"],
+      default: "normal",
+      default: true,
+    },
     verified: {
       type: Boolean,
       default: false,

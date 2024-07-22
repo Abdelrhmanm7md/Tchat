@@ -9,7 +9,7 @@ const affiliationSchema = mongoose.Schema(
     reward: {
       type: Number,
       default:50,
-      required: true,
+      required: true,  
     },
     num: {
       type: Number,
@@ -20,6 +20,11 @@ const affiliationSchema = mongoose.Schema(
       // required: true,
     },
     user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
+    referredBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
       required: true,

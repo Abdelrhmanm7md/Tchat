@@ -14,14 +14,11 @@ const createtrans = catchAsync(async (req, res, next) => {
 
 const getAlltrans = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(transModel.find(), req.query).search();
-
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
   results = JSON.parse(results);
   res.json({
     message: "done",
-
-    count: await transModel.countDocuments(),
     results,
   });
   if (!ApiFeat) {

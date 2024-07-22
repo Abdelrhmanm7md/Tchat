@@ -5,16 +5,6 @@ import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import path from "path";
 import fsExtra from "fs-extra";
 
-
-// import express from "express";
-// import socketio_file_upload from "socketio-file-upload";
-// var siofu = socketio_file_upload();
-// var app = express()
-//     .use(siofu.router)
-//     .listen(8001);
-
-
-
 const createmessage = catchAsync(async (req, res, next) => {
   function formatAMPM(date) {
     let hours = date.getHours();
@@ -30,19 +20,16 @@ const createmessage = catchAsync(async (req, res, next) => {
   let createdAt = formatAMPM(currentTime);
   req.body.date = createdAt;
   let content = req.body.content.toString();
-  // let docs = req.body.docs
-  let sender = req.body.sender
+  let sender = req.body.sender;
   const newmessage = new messageModel(req.body);
   const savedmessage = await newmessage.save();
 
-//   sio.on("connection", function(socket){
-//     var uploader = new siofu();
-//     uploader.dir = "../../uploads/chat";
-//     uploader.listen(socket);
-// });
-
-
-  sio.emit(`message_${req.body.taskId}`, { createdAt }, { content },{sender});
+  sio.emit(
+    `message_${req.body.taskId}`,
+    { createdAt },
+    { content },
+    { sender }
+  );
 
   res.status(201).json({
     message: "message created successfully!",
@@ -77,7 +64,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
     });
   });
 
-  if (req.body.docs) {
+  if (req.body.docs !== "") {
     docs = req.body.docs;
   }
 
