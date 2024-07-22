@@ -18,14 +18,6 @@ taskRouter.put("/update/users/:id", taskController.updateTask);
 taskRouter.put("/:id", taskController.updateTask2);
 taskRouter.delete("/:id", taskController.deleteTask);
 
-taskRouter.post(
-  "/images",
-  uploadMixFile("tasks", [
-    { name: "resources", maxCount: 8 },
-    { name: "documments", maxCount: 8 },
-  ]),fileSizeLimitErrorHandler,
-  taskController.addPhotos
-);
 taskRouter.put(
   "/images/:id",
   uploadMixFile("tasks", [

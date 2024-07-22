@@ -272,7 +272,7 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
   let { id } = req.params;
   let resources = "";
   let documments = "";
-  if (req.body.documments || req.body.resources) {
+  if (req.files.documments || req.files.resources) {
     req.body.documments =
       req.files.documments &&
       req.files.documments.map(
@@ -331,7 +331,6 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
       resources = req.body.resources;
     }
   }
-  console.log(req.files.documments, req.files.resources);
   let updatedTask = await taskModel.findByIdAndUpdate(
     id,
     { $push: { documments: documments, resources: resources } },
@@ -390,73 +389,6 @@ const deleteTask = catchAsync(async (req, res, next) => {
   res.status(200).json({ message: "Task deleted successfully!" });
 });
 
-const addPhotos = catchAsync(async (req, res, next) => {
-  let resources = "";
-  let documments = "";
-  req.body.documments =
-    req.files.documments &&
-    req.files.documments.map(
-      (file) =>
-        `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
-    );
-
-  req.body.resources =
-    req.files.resources &&
-    req.files.resources.map(
-      (file) =>
-        `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
-    );
-
-  const directoryPath = path.join(resources, "uploads/tasks");
-
-  fsExtra.readdir(directoryPath, (err, files) => {
-    if (err) {
-      return console.error("Unable to scan directory: " + err);
-    }
-
-    files.forEach((file) => {
-      const oldPath = path.join(directoryPath, file);
-      const newPath = path.join(directoryPath, file.replace(/\s+/g, ""));
-
-      fsExtra.rename(oldPath, newPath, (err) => {
-        if (err) {
-          console.error("Error renaming file: ", err);
-        }
-      });
-    });
-  });
-  const directoryPathh = path.join(documments, "uploads/tasks");
-
-  fsExtra.readdir(directoryPathh, (err, files) => {
-    if (err) {
-      return console.error("Unable to scan directory: " + err);
-    }
-
-    files.forEach((file) => {
-      const oldPath = path.join(directoryPathh, file);
-      const newPath = path.join(directoryPathh, file.replace(/\s+/g, ""));
-
-      fsExtra.rename(oldPath, newPath, (err) => {
-        if (err) {
-          console.error("Error renaming file: ", err);
-        }
-      });
-    });
-  });
-
-  if (req.body.documments) {
-    documments = req.body.documments;
-  }
-  if (req.body.resources) {
-    resources = req.body.resources;
-  }
-
-  res.status(200).json({
-    message: "Photo created successfully!",
-    documments,
-    resources,
-  });
-});
 
 export {
   createTask,
@@ -465,7 +397,6 @@ export {
   updateTask,
   deleteTask,
   getAllTaskByUser,
-  addPhotos,
   updateTaskPhoto,
   getAllTaskByUserShared,
   getAllTaskByUserNormal,

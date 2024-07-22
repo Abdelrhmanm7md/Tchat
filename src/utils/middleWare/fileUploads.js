@@ -1,8 +1,7 @@
 import multer from "multer";
-import AppError from "../appError.js";
 export const fileSizeLimitErrorHandler = (err, req, res, next) => {
   if (err) {
-    res.status(400).json({ message: "There is File more than 5 mb" });
+    res.status(400).json({ message: err.message });
   } else {
     next();
   }
