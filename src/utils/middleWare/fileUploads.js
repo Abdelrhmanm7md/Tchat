@@ -32,7 +32,7 @@ let options = (folderName) => {
 
   
   return multer({ storage,  limits: {
-    fileSize: 5000000 // 1MB
+    fileSize: 5000000 // 5MB
   }, fileFilter });
 };
 
