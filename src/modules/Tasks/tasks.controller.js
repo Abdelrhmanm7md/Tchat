@@ -331,7 +331,7 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
       resources = req.body.resources;
     }
   }
-  console.log(req.body.resources, req.body.documments);
+  console.log(req.files.documments, req.files.resources);
   let updatedTask = await taskModel.findByIdAndUpdate(
     id,
     { $push: { documments: documments, resources: resources } },
@@ -344,24 +344,17 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
 
   res.status(200).json({ message: "Task updated successfully!", updatedTask });
 });
+
 const updateTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
-  let users = "";
-  if (req.body.users) {
-    users = req.body.users;
-  }
   let updatedTask = await taskModel.findByIdAndUpdate(
     id,
-    { $push: { users: users } },
-    {
-      new: true,
-    }
+    { $push: { users: req.body.users } },
+    {new: true,}
   );
-  if (req.body.users) {
-    if (req.body.users.length >= 1) {
-      req.body.isShared = true;
-      req.body.taskType = "shared";
-    }
+  if (req.body.users.length >= 1) {
+    updatedTask.isShared = true;
+    updatedTask.taskType = "shared";
   }
 
   if (!updatedTask) {
