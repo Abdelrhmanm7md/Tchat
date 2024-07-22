@@ -341,7 +341,7 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
   }
 
-  res.status(200).json({ message: "Task updated successfully!", updatedTask });
+  res.status(200).json({ message: "Task updated successfully!",  documments, resources });
 });
 
 const updateTask = catchAsync(async (req, res, next) => {
