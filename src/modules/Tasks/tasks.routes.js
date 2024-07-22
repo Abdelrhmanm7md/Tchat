@@ -31,7 +31,7 @@ taskRouter.put(
   uploadMixFile("tasks", [
     { name: "resources", maxCount: 8 },
     { name: "documments", maxCount: 8 },
-  ]),
+  ]),fileSizeLimitErrorHandler, 
   taskController.updateTaskPhoto
 );
 
