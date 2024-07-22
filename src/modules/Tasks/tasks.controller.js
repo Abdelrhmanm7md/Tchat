@@ -324,10 +324,10 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
       });
     });
 
-    if (req.body.documments) {
+    if (req.body.documments !== "") {
       documments = req.body.documments;
     }
-    if (req.body.resources) {
+    if (req.body.resources !== "") {
       resources = req.body.resources;
     }
   }
