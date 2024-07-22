@@ -347,15 +347,12 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
 
 const updateTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
+
   let updatedTask = await taskModel.findByIdAndUpdate(
     id,
-    { $push: { users: req.body.users } },
-    {new: true,}
+    { isShared: true, taskType: "shared", $push: { users: req.body.users } },
+    { new: true }
   );
-  if (req.body.users.length >= 1) {
-    updatedTask.isShared = true;
-    updatedTask.taskType = "shared";
-  }
 
   if (!updatedTask) {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
@@ -371,13 +368,9 @@ const updateTask2 = catchAsync(async (req, res, next) => {
       req.body.taskType = "shared";
     }
   }
-  let updatedTask = await taskModel.findByIdAndUpdate(
-    id,
-    req.body,
-    {
-      new: true,
-    }
-  );
+  let updatedTask = await taskModel.findByIdAndUpdate(id, req.body, {
+    new: true,
+  });
 
   if (!updatedTask) {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
