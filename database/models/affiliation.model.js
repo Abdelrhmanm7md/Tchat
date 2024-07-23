@@ -27,7 +27,7 @@ const affiliationSchema = mongoose.Schema(
     referredBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
-      required: true,
+      // required: true,
     },
   },
   { timestamps: true }
