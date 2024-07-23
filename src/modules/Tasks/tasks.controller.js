@@ -139,7 +139,6 @@ const getAllPeopleTask = catchAsync(async (req, res, next) => {
     .search();
 
   let results = await ApiFeat.mongooseQuery;
-  console.log(results, "results");
   if (!ApiFeat || !results) {
     return res.status(404).json({
       message: "No Task was found!",
