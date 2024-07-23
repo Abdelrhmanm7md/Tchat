@@ -14,6 +14,7 @@ const messageSchema = mongoose.Schema(
     isSender: {
         type: Boolean,
         default: false,
+        required: true,
     },
     date: {
         type: String,
