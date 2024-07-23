@@ -23,8 +23,8 @@ taskRouter.delete("/:id", taskController.deleteTask);
 taskRouter.put(
   "/images/:id",
   uploadMixFile("tasks", [
-    { name: "resources", maxCount: 8 },
-    { name: "documments", maxCount: 8 },
+    { name: "resources", },
+    { name: "documments",  },
   ]),fileSizeLimitErrorHandler, 
   taskController.updateTaskPhoto
 );

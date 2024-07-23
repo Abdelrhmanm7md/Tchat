@@ -235,7 +235,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
           { parentTask: null },
         ],
       })
-      .populate("users"),
+      .populate("users").populate("createdBy"),
     req.query
   )
 
