@@ -33,7 +33,7 @@ const userSchema = mongoose.Schema(
       type: String,
       enum: [ "normal","permium"],
       default: "normal",
-      default: true,
+      required: true,
     },
     verified: {
       type: Boolean,

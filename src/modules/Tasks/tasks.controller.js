@@ -130,6 +130,48 @@ const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
     });
   }
 });
+const getAllPeopleTask = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel.findById(req.params.id).populate("users"),
+    req.query
+  )
+    .sort()
+    .search();
+
+  let results = await ApiFeat.mongooseQuery;
+  res.json({
+    message: "done",
+    results : results.users,
+  });
+  if (!ApiFeat) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+});
+const getAllDocsTask = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel.findById(req.params.id),
+    req.query
+  )
+    .sort()
+    .search();
+
+  
+    let results = await ApiFeat.mongooseQuery;
+    let documments = results.documments;
+    let resources = results.resources;
+  res.json({
+    message: "done",
+    documments,
+    resources
+  });
+  if (!ApiFeat) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+});
 const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
     taskModel
@@ -172,7 +214,6 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
       }
     });
   }
-
   res.json({
     message: "done",
     results,
@@ -381,4 +422,6 @@ export {
   getAllTaskByUserNormal,
   getAllSubTaskByUser,
   updateTask2,
+  getAllPeopleTask,
+  getAllDocsTask,
 };

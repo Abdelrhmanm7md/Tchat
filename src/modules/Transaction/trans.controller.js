@@ -13,7 +13,7 @@ const createtrans = catchAsync(async (req, res, next) => {
 });
 
 const getAlltrans = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(transModel.find(), req.query).search();
+  let ApiFeat = new ApiFeature(transModel.find(), req.query).search();p
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
   results = JSON.parse(results);
