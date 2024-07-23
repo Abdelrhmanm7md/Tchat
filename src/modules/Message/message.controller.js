@@ -21,6 +21,7 @@ const createmessage = catchAsync(async (req, res, next) => {
   req.body.date = createdAt;
   let content = req.body.content.toString();
   let sender = req.body.sender;
+  let senderName = req.body.senderName;
   const newmessage = new messageModel(req.body);
   const savedmessage = await newmessage.save();
 
@@ -28,7 +29,8 @@ const createmessage = catchAsync(async (req, res, next) => {
     `message_${req.body.taskId}`,
     { createdAt },
     { content },
-    { sender }
+    { sender },
+    { senderName },
   );
 
   res.status(201).json({
