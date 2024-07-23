@@ -110,7 +110,7 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
 });
 const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.find({ parentTask: req.params.id }).populate("users"),
+    taskModel.find({ parentTask: req.params.id }).populate("users").populate("createdBy"),
     req.query
   )
     .sort()
@@ -266,7 +266,6 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
       }
     });
   }
-
   res.json({
     message: "done",
     results,
