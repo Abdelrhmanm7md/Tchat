@@ -31,9 +31,18 @@ export const signUp = catchAsync(async (req, res, next) => {
     length: 10,
     useLetters: true,
   });
+  let codeUser = null
+  if (req.query.code) {
+    codeUser = await affiliationModel.findOne({ code: req.query.code }).populate("user");
+    let total = await affiliationModel.findByIdAndUpdate({_id:codeUser._id},{
+      $inc:{amount:codeUser.reward}
+    })
+    codeUser = codeUser.user._id
+  }
   const newAff = new affiliationModel({
     user: results._id,
     code: req.body.code,
+    referredBy:codeUser
   });
   const savedAff = await newAff.save();
 

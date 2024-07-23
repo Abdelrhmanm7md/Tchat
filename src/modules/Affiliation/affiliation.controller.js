@@ -3,18 +3,18 @@ import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import generateUniqueId from "generate-unique-id";
 
-const createAff = catchAsync(async (req, res, next) => {
-  req.body.code = generateUniqueId({
-    length: 10,
-    useLetters: true,
-  });
-  const newAff = new affiliationModel(req.body);
-  const savedAff = await newAff.save();
-  res.status(201).json({
-    message: "Affiliation created successfully!",
-    savedAff,
-  });
-});
+// const createAff = catchAsync(async (req, res, next) => {
+//   req.body.code = generateUniqueId({
+//     length: 10,
+//     useLetters: true,
+//   });
+//   const newAff = new affiliationModel(req.body);
+//   const savedAff = await newAff.save();
+//   res.status(201).json({
+//     message: "Affiliation created successfully!",
+//     savedAff,
+//   });
+// });
 
 const editAff = catchAsync(async (req, res, next) => {
   const { id } = req.params;
@@ -65,23 +65,15 @@ const deleteAff = catchAsync(async (req, res, next) => {
 
 const getAllAffs = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    affiliationModel.find().populate("referrals"),
+    affiliationModel.findOne({user:req.params.id}),
     req.query
   )
-
     .sort()
     .search();
 
   let results = await ApiFeat.mongooseQuery;
-  let num = 0;
-  for (let j = 0; j < results.length; j++) {
-    num = results[j].referrals.length;
-    results[j].num = num;
-  }
   res.json({
     message: "done",
-
-    count: await affiliationModel.countDocuments(),
     results,
   });
   if (!ApiFeat) {
@@ -91,4 +83,4 @@ const getAllAffs = catchAsync(async (req, res, next) => {
   }
 });
 
-export { createAff, editAff, deleteAff, getAllAffs, editAffReferrals };
+export {  editAff, deleteAff, getAllAffs, editAffReferrals };

@@ -14,10 +14,9 @@ const affiliationSchema = mongoose.Schema(
     num: {
       type: Number,
     },
-    referrals: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "user",
-      // required: true,
+    amount: {
+      type: Number,
+      default:0
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
