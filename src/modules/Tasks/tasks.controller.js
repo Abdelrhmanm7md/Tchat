@@ -166,17 +166,38 @@ const getAllDocsTask = catchAsync(async (req, res, next) => {
       });
     }
       let documments = []
-      let resources = []
       if(results.documments){
         documments = results.documments
       }
+    
+  res.json({
+    message: "done",
+    documments,
+  });
+});
+const getAllResTask = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel.findById(req.params.id),
+    req.query
+  )
+    .sort()
+    .search();
+
+  
+    let results = await ApiFeat.mongooseQuery;
+
+    if (!ApiFeat || !results) {
+      return res.status(404).json({
+        message: "No Task was found!",
+      });
+    }
+      let resources = []
       if(results.resources){
         resources = results.resources
       }
     
   res.json({
     message: "done",
-    documments,
     resources
   });
 });
@@ -431,4 +452,5 @@ export {
   updateTask2,
   getAllPeopleTask,
   getAllDocsTask,
+  getAllResTask,
 };

@@ -12,6 +12,7 @@ taskRouter.get("/:id", taskController.getTaskById);
 taskRouter.get("/sub/:id", taskController.getAllSubTaskByUser);
 taskRouter.get("/people/:id", taskController.getAllPeopleTask);
 taskRouter.get("/docs/:id", taskController.getAllDocsTask);
+taskRouter.get("/res/:id", taskController.getAllResTask);
 taskRouter.post(
   "/",
   taskController.createTask
