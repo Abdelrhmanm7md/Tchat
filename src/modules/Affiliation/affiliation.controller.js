@@ -80,7 +80,7 @@ const getAllAffs = catchAsync(async (req, res, next) => {
   )
     .sort()
     .search();
-
+    let Usedcode = null
   let results = await ApiFeat.mongooseQuery;
   if (!ApiFeat || !results) {
     return res.status(404).json({
@@ -89,11 +89,12 @@ const getAllAffs = catchAsync(async (req, res, next) => {
   }
   if(results.referredBy){
 let code =  await affiliationModel.findOne({ user: results.referredBy._id });
-results.code = code.code
+Usedcode = code.code
 }
   res.json({
     message: "done",
     results,
+    Usedcode
   });
 });
 
