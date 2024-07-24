@@ -3,18 +3,28 @@ import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import generateUniqueId from "generate-unique-id";
 
-// const createAff = catchAsync(async (req, res, next) => {
-//   req.body.code = generateUniqueId({
-//     length: 10,
-//     useLetters: true,
-//   });
-//   const newAff = new affiliationModel(req.body);
-//   const savedAff = await newAff.save();
-//   res.status(201).json({
-//     message: "Affiliation created successfully!",
-//     savedAff,
-//   });
-// });
+const createAff = catchAsync(async (req, res, next) => {
+  req.body.code = generateUniqueId({
+    length: 10,
+    useLetters: true,
+  });
+  const newAff = new affiliationModel(req.body);
+  const savedAff = await newAff.save();
+  let codeUser = null
+  let code = null
+  if (req.query.code) {
+    codeUser = await affiliationModel.findOne({ code: req.query.code }).populate("user");
+    let total = await affiliationModel.findByIdAndUpdate({_id:codeUser._id},{
+      $inc:{amount:codeUser.reward}
+    })
+    code = codeUser.code
+  }
+  res.status(201).json({
+    message: "Affiliation created successfully!",
+    savedAff,
+    code
+  });
+});
 
 const editAff = catchAsync(async (req, res, next) => {
   const { id } = req.params;
@@ -87,4 +97,4 @@ results.code = code.code
   });
 });
 
-export {  editAff, deleteAff, getAllAffs, editAffReferrals };
+export { createAff, editAff, deleteAff, getAllAffs, editAffReferrals };
