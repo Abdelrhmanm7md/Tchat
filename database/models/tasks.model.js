@@ -71,8 +71,8 @@ const taskSchema = mongoose.Schema(
     },
     taskStatus: {
       type: String,
-      enum: ["Done", "In Progress", "Cancelled"],
-      default: "In Progress",
+      enum: ["Done", "InProgress", "Cancelled"],
+      default: "InProgress",
       required: true,
     },
     parentTask: {

@@ -22,11 +22,9 @@ const createmessage = catchAsync(async (req, res, next) => {
   let content = req.body.content.toString();
   let sender = req.body.sender;
   let senderName = req.body.senderName;
-  let docs = null
-  if(req.files){
-    
-     docs = req.body.docs
-
+  let docs = null;
+  if (req.files) {
+    docs = req.body.docs;
   }
   const newmessage = new messageModel(req.body);
   const savedmessage = await newmessage.save();
