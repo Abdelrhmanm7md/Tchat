@@ -83,10 +83,11 @@ const addPhotos = catchAsync(async (req, res, next) => {
 
 const getAllmessageByTask = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    messageModel.find({ taskId: req.params.id }).sort({ $natural: -1 }),
+    messageModel.find({ taskId: req.params.id }),
     req.query
-  ).pagination()
-
+  );
+  // .sort({ $natural: -1 })  for latest message
+  // .pagination()
 
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
@@ -98,8 +99,8 @@ const getAllmessageByTask = catchAsync(async (req, res, next) => {
   }
   res.json({
     message: "done",
-    page: ApiFeat.page,
-    count: await messageModel.countDocuments({ taskId: req.params.id }),
+    // page: ApiFeat.page,
+    // count: await messageModel.countDocuments({ taskId: req.params.id }),
     results,
   });
 });
