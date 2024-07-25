@@ -199,19 +199,15 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
   results = JSON.parse(results);
-  let { filterType, filterValue } = req.query;
   if (!ApiFeat || !results) {
     return res.status(404).json({
       message: "No Task was found!",
     });
   }
-
-  if (filterType && filterValue) {
+  let { filterValue } = req.query;
+  if ( filterValue) {
     let filter = await taskModel.find({
-      $and: [
-        { taskType: filterType.toLowerCase() },
-        { eDate: filterValue },
-      ]
+        eDate: filterValue 
     })
     results = filter  
   }
@@ -235,26 +231,22 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
       .populate("users").populate("createdBy"),
     req.query
   )
-
     .sort()
     .search();
 
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
   results = JSON.parse(results);
-  let { filterType, filterValue } = req.query;
+  let {filterValue } = req.query;
   if (!ApiFeat || !results) {
     return res.status(404).json({
       message: "No Task was found!",
     });
   }
 
-  if (filterType && filterValue) {
+  if ( filterValue) {
     let filter = await taskModel.find({
-      $and: [
-        { taskType: filterType.toLowerCase() },
-        { eDate: filterValue },
-      ]
+        eDate: filterValue 
     })
     results = filter  
   }
