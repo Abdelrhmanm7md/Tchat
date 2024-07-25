@@ -390,6 +390,37 @@ const deleteTask = catchAsync(async (req, res, next) => {
   res.status(200).json({ message: "Task deleted successfully!" });
 });
 
+const getAnalysis  = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(taskModel.find().populate("users"), req.query)
+    .sort()
+    .search();
+
+  let results = await ApiFeat.mongooseQuery;
+  results = JSON.stringify(results);
+  results = JSON.parse(results);
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+  let { filterType, filterValue } = req.query;
+
+  if (filterType && filterValue) {
+    let filter = await taskModel.find({
+      $and: [
+        {  },
+        { eDate: filterValue },
+      ]
+    })
+    results = filter  
+  }
+
+  res.json({
+    message: "done",
+    results,
+  });
+
+});
 
 export {
   createTask,
@@ -406,4 +437,5 @@ export {
   getAllPeopleTask,
   getAllDocsTask,
   getAllResTask,
+  getAnalysis,
 };

@@ -11,7 +11,7 @@ messageRouter.get("/:id", messageController.getAllmessageByTask);
 messageRouter.post(
   "/images",
   uploadMixFile("image", [
-    { name: "docs", maxCount: 1 },
+    { name: "docs" },
   ]),fileSizeLimitErrorHandler,
   messageController.addPhotos
 );

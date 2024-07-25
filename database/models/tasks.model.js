@@ -69,6 +69,12 @@ const taskSchema = mongoose.Schema(
       default: "normal",
       required: true,
     },
+    taskStatus: {
+      type: String,
+      enum: ["Done", "In Progress", "Cancelled"],
+      default: "In Progress",
+      required: true,
+    },
     parentTask: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "task",

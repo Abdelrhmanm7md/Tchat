@@ -8,6 +8,7 @@ taskRouter.get("/", taskController.getAllTaskByAdmin);
 taskRouter.get("/user/:id", taskController.getAllTaskByUser);
 taskRouter.get("/user/shared/:id", taskController.getAllTaskByUserShared);
 taskRouter.get("/user/norm/:id", taskController.getAllTaskByUserNormal);
+taskRouter.get("/analytics/:id", taskController.getAnalysis);
 taskRouter.get("/:id", taskController.getTaskById);
 taskRouter.get("/sub/:id", taskController.getAllSubTaskByUser);
 taskRouter.get("/people/:id", taskController.getAllPeopleTask);
