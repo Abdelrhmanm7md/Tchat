@@ -186,6 +186,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
           { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
           { taskType: "shared" },
           { isShared: true },
+          { parentTask: null },
         ],
       })
       .populate("users")
@@ -204,12 +205,13 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-  let { filterValue } = req.query;
-  if ( filterValue) {
-    let filter = await taskModel.find({
-        eDate: filterValue 
-    })
-    results = filter  
+  let { filterType, filterValue } = req.query;
+  if (filterType && filterValue) {
+    results = results.filter(function (item) {
+      if (filterType == "date") {
+        return item.eDate == filterValue;
+      }
+    });
   }
   res.json({
     message: "done",
@@ -237,18 +239,19 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
   results = JSON.parse(results);
-  let {filterValue } = req.query;
   if (!ApiFeat || !results) {
     return res.status(404).json({
       message: "No Task was found!",
     });
   }
 
-  if ( filterValue) {
-    let filter = await taskModel.find({
-        eDate: filterValue 
-    })
-    results = filter  
+  let { filterType, filterValue } = req.query;
+  if (filterType && filterValue) {
+    results = results.filter(function (item) {
+      if (filterType == "date") {
+          return item.eDate == filterValue;
+      }
+    });
   }
   res.json({
     message: "done",
