@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-
 const taskSchema = mongoose.Schema(
   {
     title: {
@@ -70,11 +69,11 @@ const taskSchema = mongoose.Schema(
       default: "normal",
       required: true,
     },
-    parentTask:{
+    parentTask: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "task",
       // required: true,
-    }
+    },
     // review: {
     //   type: [
     //     {
@@ -86,8 +85,6 @@ const taskSchema = mongoose.Schema(
     //   ],
     //    required: true,
     // },
-
-
   },
   { timestamps: true }
 );

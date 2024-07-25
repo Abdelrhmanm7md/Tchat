@@ -30,40 +30,29 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
   results = JSON.parse(results);
-
-  let { filterType, filterValue } = req.query;
-
-  if (filterType && filterValue) {
-    results = results.filter(function (item) {
-      if (filterType == "title") {
-        return item.title.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      if (filterType == "users") {
-        return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      if (filterType == "taskType") {
-        return item.taskType.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      if (filterType == "date") {
-        return item.sDate == filterValue;
-      }
-      if (filterType == "date") {
-        return item.eDate == filterValue;
-      }
-    });
-  }
-
-  res.json({
-    message: "done",
-
-    count: await taskModel.countDocuments(),
-    results,
-  });
-  if (!ApiFeat) {
+  if (!ApiFeat || !results) {
     return res.status(404).json({
       message: "No Task was found!",
     });
   }
+  let { filterType, filterValue } = req.query;
+
+  if (filterType && filterValue) {
+    let filter = await taskModel.find({
+      $and: [
+        { taskType: filterType.toLowerCase() },
+        { eDate: filterValue },
+      ]
+    })
+    results = filter  
+  }
+
+  res.json({
+    message: "done",
+    // count: await taskModel.countDocuments(),
+    results,
+  });
+
 });
 const getAllTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
@@ -75,38 +64,28 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
   results = JSON.parse(results);
-
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
   let { filterType, filterValue } = req.query;
 
   if (filterType && filterValue) {
-    results = results.filter(function (item) {
-      if (filterType == "title") {
-        return item.title.toLowerCase().includes(filterValue);
-      }
-      if (filterType == "users") {
-        return item.users[0].name.toLowerCase().includes(filterValue);
-      }
-      if (filterType == "taskType") {
-        return item.taskType.toLowerCase().includes(filterValue);
-      }
-      if (filterType == "date") {
-        return item.sDate == filterValue;
-      }
-      if (filterType == "date") {
-        return item.eDate == filterValue;
-      }
-    });
+    let filter = await taskModel.find({
+      $and: [
+        { taskType: filterType.toLowerCase() },
+        { eDate: filterValue },
+      ]
+    })
+    results = filter  
   }
 
   res.json({
     message: "done",
     results,
   });
-  if (!ApiFeat) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
-  }
+
 });
 const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
@@ -119,16 +98,15 @@ const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
   results = JSON.parse(results);
-
-  res.json({
-    message: "done",
-    results,
-  });
-  if (!ApiFeat) {
+  if (!ApiFeat || !results) {
     return res.status(404).json({
       message: "No Task was found!",
     });
   }
+  res.json({
+    message: "done",
+    results,
+  });
 });
 const getAllPeopleTask = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
@@ -157,7 +135,6 @@ const getAllDocsTask = catchAsync(async (req, res, next) => {
     .sort()
     .search();
 
-  
     let results = await ApiFeat.mongooseQuery;
 
     if (!ApiFeat || !results) {
@@ -223,35 +200,26 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
   results = JSON.stringify(results);
   results = JSON.parse(results);
   let { filterType, filterValue } = req.query;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
 
   if (filterType && filterValue) {
-    results = results.filter(function (item) {
-      if (filterType == "title") {
-        return item.title.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      if (filterType == "users") {
-        return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      if (filterType == "taskType") {
-        return item.taskType.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      if (filterType == "date") {
-        return item.sDate == filterValue;
-      }
-      if (filterType == "date") {
-        return item.eDate == filterValue;
-      }
-    });
+    let filter = await taskModel.find({
+      $and: [
+        { taskType: filterType.toLowerCase() },
+        { eDate: filterValue },
+      ]
+    })
+    results = filter  
   }
   res.json({
     message: "done",
     results,
   });
-  if (!ApiFeat) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
-  }
+
 });
 const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
@@ -275,35 +243,25 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
   results = JSON.stringify(results);
   results = JSON.parse(results);
   let { filterType, filterValue } = req.query;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
 
   if (filterType && filterValue) {
-    results = results.filter(function (item) {
-      if (filterType == "title") {
-        return item.title.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      if (filterType == "users") {
-        return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      if (filterType == "taskType") {
-        return item.taskType.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      if (filterType == "date") {
-        return item.sDate == filterValue;
-      }
-      if (filterType == "date") {
-        return item.eDate == filterValue;
-      }
-    });
+    let filter = await taskModel.find({
+      $and: [
+        { taskType: filterType.toLowerCase() },
+        { eDate: filterValue },
+      ]
+    })
+    results = filter  
   }
   res.json({
     message: "done",
     results,
   });
-  if (!ApiFeat) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
-  }
 });
 
 const getTaskById = catchAsync(async (req, res, next) => {
