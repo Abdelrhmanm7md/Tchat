@@ -19,7 +19,7 @@ const createmessage = catchAsync(async (req, res, next) => {
   let currentTime = new Date();
   let createdAt = formatAMPM(currentTime);
   req.body.date = createdAt;
-  let content = req.body.content.toString();
+  let content = req.body.content;
   let sender = req.body.sender;
   let senderName = req.body.senderName;
   let docs = null;
