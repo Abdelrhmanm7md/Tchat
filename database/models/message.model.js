@@ -8,20 +8,21 @@ const messageSchema = mongoose.Schema(
       required: true,
     },
     content: {
-        type: String,
-        required: true,
+      type: String,
+      default: "",
+      required: true,
     },
     isSender: {
-        type: Boolean,
-        default: false,
-        required: true,
+      type: Boolean,
+      default: false,
+      required: true,
     },
     date: {
-        type: String,
-        default:''
+      type: String,
+      default: "",
     },
     docs: {
-        type: [String],
+      type: [String],
     },
     sender: {
       type: mongoose.Schema.Types.ObjectId,
