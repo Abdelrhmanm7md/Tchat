@@ -83,7 +83,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
 
 const getAllmessageByTask = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    messageModel.find({ taskId: req.params.id }),
+    messageModel.find({ taskId: req.params.id }).sort({ $natural: -1 }),
     req.query
   ).pagination()
 
@@ -91,17 +91,17 @@ const getAllmessageByTask = catchAsync(async (req, res, next) => {
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
   results = JSON.parse(results);
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No message was found!",
+    });
+  }
   res.json({
     message: "done",
     page: ApiFeat.page,
     count: await messageModel.countDocuments({ taskId: req.params.id }),
     results,
   });
-  if (!ApiFeat) {
-    return res.status(404).json({
-      message: "No message was found!",
-    });
-  }
 });
 
 export { createmessage, addPhotos, getAllmessageByTask };
