@@ -81,36 +81,19 @@ const addPhotos = catchAsync(async (req, res, next) => {
   });
 });
 
-const getAllmessage = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(messageModel.find(), req.query).search();
-
-  let results = await ApiFeat.mongooseQuery;
-  results = JSON.stringify(results);
-  results = JSON.parse(results);
-  res.json({
-    message: "done",
-
-    count: await messageModel.countDocuments(),
-    results,
-  });
-  if (!ApiFeat) {
-    return res.status(404).json({
-      message: "No message was found!",
-    });
-  }
-});
 const getAllmessageByTask = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
     messageModel.find({ taskId: req.params.id }),
     req.query
-  );
+  ).pagination()
+
 
   let results = await ApiFeat.mongooseQuery;
   results = JSON.stringify(results);
   results = JSON.parse(results);
   res.json({
     message: "done",
-
+    page: ApiFeat.page,
     count: await messageModel.countDocuments({ taskId: req.params.id }),
     results,
   });
@@ -121,4 +104,4 @@ const getAllmessageByTask = catchAsync(async (req, res, next) => {
   }
 });
 
-export { createmessage, getAllmessage, addPhotos, getAllmessageByTask };
+export { createmessage, addPhotos, getAllmessageByTask };
