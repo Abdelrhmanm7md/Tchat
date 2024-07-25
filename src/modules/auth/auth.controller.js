@@ -26,26 +26,37 @@ export const signUp = catchAsync(async (req, res, next) => {
     { name: results.name, userId: results._id },
     process.env.JWT_SECRET_KEY
   );
-  await results.save();
+
   req.body.code = generateUniqueId({
     length: 10,
     useLetters: true,
   });
   let codeUser = null
+  let savedAff = null
   if (req.query.code) {
     codeUser = await affiliationModel.findOne({ code: req.query.code }).populate("user");
-    let total = await affiliationModel.findByIdAndUpdate({_id:codeUser._id},{
-      $inc:{amount:codeUser.reward}
-    })
-    codeUser = codeUser.user._id
+    if(codeUser){
+      let total = await affiliationModel.findByIdAndUpdate({_id:codeUser._id},{
+        $inc:{amount:codeUser.reward}
+      })
+      codeUser = codeUser.user._id
+      const newAff = new affiliationModel({
+        user: results._id,
+        code: req.body.code,
+        referredBy:codeUser
+      });
+      savedAff = await newAff.save();
+    }else{
+      return res.status(401).json({ message: "invalid code" });
+    }
+  }else{
+    const newAff = new affiliationModel({
+      user: results._id,
+      code: req.body.code,
+    });
+    savedAff = await newAff.save();
   }
-  const newAff = new affiliationModel({
-    user: results._id,
-    code: req.body.code,
-    referredBy:codeUser
-  });
-  const savedAff = await newAff.save();
-
+  await results.save();
   res.json({ message: "added", token, results, savedAff });
 });
 

@@ -391,7 +391,7 @@ const deleteTask = catchAsync(async (req, res, next) => {
 });
 
 const getAnalysis  = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find().populate("users"), req.query)
+  let ApiFeat = new ApiFeature(taskModel.findById(id).populate("users"), req.query)
     .sort()
     .search();
 
