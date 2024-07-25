@@ -22,8 +22,8 @@ const createmessage = catchAsync(async (req, res, next) => {
   let content = req.body.content;
   let sender = req.body.sender;
   let senderName = req.body.senderName;
-  let docs = null;
-  if (req.files) {
+  let docs = [];
+  if (req.body.docs) {
     docs = req.body.docs;
   }
   const newmessage = new messageModel(req.body);
