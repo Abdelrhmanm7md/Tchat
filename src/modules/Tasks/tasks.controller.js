@@ -261,7 +261,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
 
 const getTaskById = catchAsync(async (req, res, next) => {
   let { id } = req.params;
-  let results = await taskModel.findById(id);
+  let results = await taskModel.findById(id).populate("users").populate("createdBy");
 
   if (!results) {
     return res.status(404).json({ message: "Task not found!" });
