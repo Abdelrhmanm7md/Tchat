@@ -4,6 +4,7 @@ import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import AppError from "../../utils/appError.js";
 import path from "path";
 import fsExtra from "fs-extra";
+import { sendEmail } from "../../email/sendEmail.js";
 
 // const addPhoto = catchAsync(async (req, res, next) => {
 //   if (req.file) req.body.profilePic = req.file.originalname;
@@ -121,6 +122,15 @@ const updateUser = catchAsync(async (req, res, next) => {
   !results && res.status(404).json({ message: "couldn't update! not found!" });
   results && res.json({ message: "updatedd", results });
 });
+const postMessage = catchAsync(async (req, res, next) => {
+  let { id } = req.params;
+  // let {message} = req.body
+
+  let results = await userModel.findById(id);
+  !results && res.status(404).json({ message: "couldn't post! not found!" });
+  sendEmail(req.body.message ,results.name, results.phone);
+  res.json({ message: "Message sent to admin" ,results});
+});
 
 const deleteUser = catchAsync(async (req, res, next) => {
   let { id } = req.params;
@@ -136,4 +146,4 @@ const deleteUser = catchAsync(async (req, res, next) => {
   res.status(200).json({ message: "User deleted successfully!" });
 });
 
-export { getAllUsersByAdmin, getUserById, updateUser, deleteUser, addPhotos };
+export { getAllUsersByAdmin, getUserById, updateUser, deleteUser, addPhotos ,postMessage };

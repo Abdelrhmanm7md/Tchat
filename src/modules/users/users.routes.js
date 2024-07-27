@@ -1,7 +1,4 @@
 import express from "express";
-import multer  from'multer'
-
-const app = express();
 
 const usersRouter = express.Router();
 
@@ -11,6 +8,7 @@ import { fileSizeLimitErrorHandler, uploadMixFile, uploadSingleFile } from "../.
 usersRouter.get("/", usersController.getAllUsersByAdmin);
 usersRouter.get("/:id", usersController.getUserById);
 usersRouter.put("/:id", usersController.updateUser);
+usersRouter.post("/:id", usersController.postMessage);
 usersRouter.delete("/:id", usersController.deleteUser);
 // usersRouter.post(
 //   "/image",
