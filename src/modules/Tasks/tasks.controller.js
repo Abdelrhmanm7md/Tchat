@@ -261,14 +261,16 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
 
 const getTaskById = catchAsync(async (req, res, next) => {
   let { id } = req.params;
-  let Task = await taskModel.findById(id);
+  let results = await taskModel.findById(id);
 
-  if (!Task) {
+  if (!results) {
     return res.status(404).json({ message: "Task not found!" });
   }
 
-  res.status(200).json({ Task });
-});
+  res.json({
+    message: "done",
+    results,
+  });});
 const updateTaskPhoto = catchAsync(async (req, res, next) => {
   let { id } = req.params;
   let resources = "";
