@@ -392,37 +392,131 @@ const deleteTask = catchAsync(async (req, res, next) => {
   res.status(200).json({ message: "Task deleted successfully!" });
 });
 
-const getAnalysis  = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.findById(id).populate("users"), req.query)
+
+// Admin
+const getAllTasksByAdmin  = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(taskModel.find({}), req.query)
     .sort()
     .search();
-
   let results = await ApiFeat.mongooseQuery;
-  results = JSON.stringify(results);
-  results = JSON.parse(results);
   if (!ApiFeat || !results) {
     return res.status(404).json({
       message: "No Task was found!",
     });
   }
-  let { filterType, filterValue } = req.query;
-
-  if (filterType && filterValue) {
-    let filter = await taskModel.find({
-      $and: [
-        {  },
-        { eDate: filterValue },
-      ]
-    })
-    results = filter  
-  }
-
   res.json({
     message: "done",
-    results,
-  });
+    count: await taskModel.countDocuments(),
+    });
 
 });
+const getCancelTasksByAdmin  = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"Cancelled"}), req.query)
+    .sort()
+    .search();
+  let results = await ApiFeat.mongooseQuery;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+  res.json({
+    message: "done",
+    count: await taskModel.countDocuments({taskStatus:"Cancelled"}),
+    });
+
+});
+const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"InProgress"}), req.query)
+    .sort()
+    .search();
+  let results = await ApiFeat.mongooseQuery;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+  res.json({
+    message: "done",
+    count: await taskModel.countDocuments({taskStatus:"InProgress"}),
+    });
+
+  });
+    ///////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
+
+    const getAllTasksByUser  = catchAsync(async (req, res, next) => {
+      let ApiFeat = new ApiFeature(taskModel.find(
+            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+        ), req.query)
+        .sort()
+        .search();
+      let results = await ApiFeat.mongooseQuery;
+      if (!ApiFeat || !results) {
+        return res.status(404).json({
+          message: "No Task was found!",
+        });
+      }
+      res.json({
+        message: "done",
+        count: await taskModel.countDocuments( { $or: [{ createdBy: req.params.id }, { users: req.params.id }] }),
+        });
+    
+    });
+    const getCancelTasksByUser  = catchAsync(async (req, res, next) => {
+      let ApiFeat = new ApiFeature(taskModel
+        .find({
+          $and: [
+            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+            {taskStatus:"Cancelled"}
+          ],
+        }), req.query)
+        .sort()
+        .search();
+      let results = await ApiFeat.mongooseQuery;
+      if (!ApiFeat || !results) {
+        return res.status(404).json({
+          message: "No Task was found!",
+        });
+      }
+      res.json({
+        message: "done",
+        count: await taskModel.countDocuments({
+          $and: [
+            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+            {taskStatus:"Cancelled"}
+          ],
+        }),
+        });
+    
+    });
+    const getInProgressTasksByUser = catchAsync(async (req, res, next) => {
+      let ApiFeat = new ApiFeature(taskModel
+        .find({
+          $and: [
+            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+            {taskStatus:"InProgress"}
+          ],
+        }), req.query)
+        .sort()
+        .search();
+      let results = await ApiFeat.mongooseQuery;
+      if (!ApiFeat || !results) {
+        return res.status(404).json({
+          message: "No Task was found!",
+        });
+      }
+      res.json({
+        message: "done",
+        count: await taskModel.countDocuments({
+          $and: [
+            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+            {taskStatus:"InProgress"}
+          ],
+        }),
+        });
+    });
+
 
 export {
   createTask,
@@ -439,5 +533,10 @@ export {
   getAllPeopleTask,
   getAllDocsTask,
   getAllResTask,
-  getAnalysis,
+  getAllTasksByAdmin,
+  getCancelTasksByAdmin,
+  getInProgressTasksByAdmin,
+  getAllTasksByUser,
+  getCancelTasksByUser,
+  getInProgressTasksByUser,
 };
