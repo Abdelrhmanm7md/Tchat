@@ -7,13 +7,14 @@ import { affiliationModel } from "../../../database/models/affiliation.model.js"
 import generateUniqueId from "generate-unique-id";
 
 export const signUp = catchAsync(async (req, res, next) => {
-  let phoneFormat = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/; //+XX XXXXX XXXXX
+  // let phoneFormat = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/; //+XX XXXXX XXXXX
   // console.log(req.body.phone.length);
-  if (
-    req.body.phone !== "" &&
-    req.body.phone.match(phoneFormat) &&
-    req.body.phone.length > 10
-  ) {
+  // if (
+  //   req.body.phone !== "" &&
+  //   req.body.phone.match(phoneFormat) &&
+  //   req.body.phone.length > 10
+  // )
+  if (req.body.phone !== "") {
     let existUser = await userModel.findOne({ phone: req.body.phone });
     if (existUser) {
       return res.status(409).json({ message: "this phone already exist" });
@@ -31,25 +32,30 @@ export const signUp = catchAsync(async (req, res, next) => {
     length: 10,
     useLetters: true,
   });
-  let codeUser = null
-  let savedAff = null
+  let codeUser = null;
+  let savedAff = null;
   if (req.query.code) {
-    codeUser = await affiliationModel.findOne({ code: req.query.code }).populate("user");
-    if(codeUser){
-      let total = await affiliationModel.findByIdAndUpdate({_id:codeUser._id},{
-        $inc:{amount:codeUser.reward}
-      })
-      codeUser = codeUser.user._id
+    codeUser = await affiliationModel
+      .findOne({ code: req.query.code })
+      .populate("user");
+    if (codeUser) {
+      let total = await affiliationModel.findByIdAndUpdate(
+        { _id: codeUser._id },
+        {
+          $inc: { amount: codeUser.reward },
+        }
+      );
+      codeUser = codeUser.user._id;
       const newAff = new affiliationModel({
         user: results._id,
         code: req.body.code,
-        referredBy:codeUser
+        referredBy: codeUser,
       });
       savedAff = await newAff.save();
-    }else{
+    } else {
       return res.status(401).json({ message: "invalid code" });
     }
-  }else{
+  } else {
     const newAff = new affiliationModel({
       user: results._id,
       code: req.body.code,
@@ -61,7 +67,8 @@ export const signUp = catchAsync(async (req, res, next) => {
 });
 
 export const signIn = catchAsync(async (req, res, next) => {
-  let phoneFormat = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/; //+XX XXXXX XXXXX
+  // let phoneFormat = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/; //+XX XXXXX XXXXX
+  // if (req.body.phone !== "" && req.body.phone.match(phoneFormat)) {
   if (req.body.phone !== "" && req.body.phone.match(phoneFormat)) {
     let { phone } = req.body;
     let isFound = await userModel.findOne({ phone });

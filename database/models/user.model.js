@@ -12,7 +12,7 @@ const userSchema = mongoose.Schema(
     phone: {
       type: String,
       required: [true, "Phone is a required field."],
-      minLength: 11,
+      // minLength: 11,
       unique: [true, "Phone must be unique."],
     },
     otp: {
