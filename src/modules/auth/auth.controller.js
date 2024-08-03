@@ -69,7 +69,7 @@ export const signUp = catchAsync(async (req, res, next) => {
 export const signIn = catchAsync(async (req, res, next) => {
   // let phoneFormat = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/; //+XX XXXXX XXXXX
   // if (req.body.phone !== "" && req.body.phone.match(phoneFormat)) {
-  if (req.body.phone !== "" && req.body.phone.match(phoneFormat)) {
+  if (req.body.phone !== "") {
     let { phone } = req.body;
     let isFound = await userModel.findOne({ phone });
     if (!isFound) return res.status(404).json({ message: "User Not Found" });
