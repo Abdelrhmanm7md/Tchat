@@ -8,7 +8,7 @@ import { fileSizeLimitErrorHandler, uploadMixFile, uploadSingleFile } from "../.
 usersRouter.get("/", usersController.getAllUsersByAdmin);
 usersRouter.get("/:id", usersController.getUserById);
 usersRouter.put("/:id", usersController.updateUser);
-usersRouter.post("/:id", usersController.postMessage);
+usersRouter.post("/email/:id", usersController.postMessage);
 usersRouter.delete("/:id", usersController.deleteUser);
 // usersRouter.post(
 //   "/image",
@@ -18,7 +18,7 @@ usersRouter.delete("/:id", usersController.deleteUser);
 usersRouter.post(
   "/image",
   uploadMixFile("profilePic", [
-    { name: "profilePic", maxCount: 1},
+    { name: "profilePic"},
   ]),fileSizeLimitErrorHandler,
   usersController.addPhotos
 );
