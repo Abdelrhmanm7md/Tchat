@@ -6,6 +6,18 @@ export const fileSizeLimitErrorHandler = (err, req, res, next) => {
     next();
   }
 };
+export function fileFilterHandler(file,req, cb) {
+  const filetypes = /jpeg|jpg|png/;
+  const mimetype = filetypes.test(file.files.profilePic[0].mimetype);
+  // console.log(file.files.profilePic[0].mimetype,"mmmmm");
+  // console.log(mimetype,"mmmmm");
+  
+  if (mimetype) {
+    return cb(null, true);
+  } else {
+    return cb(new AppError("Please, Upload a Valid Image JPEG or PNG or JPG", 400), false);
+  }
+}
 
 let options = (folderName) => {
   const storage = multer.diskStorage({
