@@ -426,6 +426,8 @@ const getCancelTasksByAdmin  = catchAsync(async (req, res, next) => {
 
 });
 const getDoneTasksByAdmin  = catchAsync(async (req, res, next) => {
+  // console.log(req.params.id,"dddd");
+  
   let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"Done"}).populate("users").populate("createdBy"), req.query)
     .sort()
     .search();
@@ -433,6 +435,14 @@ const getDoneTasksByAdmin  = catchAsync(async (req, res, next) => {
   if (!ApiFeat || !results) {
     return res.status(404).json({
       message: "No Task was found!",
+    });
+  }
+  let { filterType, filterValue } = req.query;
+  if (filterType && filterValue) {
+    results = results.filter(function (item) {
+      if (filterType == "date") {
+          return item.eDate == filterValue;
+      }
     });
   }
   res.json({
@@ -521,6 +531,14 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
       if (!ApiFeat || !results) {
         return res.status(404).json({
           message: "No Task was found!",
+        });
+      }
+      let { filterType, filterValue } = req.query;
+      if (filterType && filterValue) {
+        results = results.filter(function (item) {
+          if (filterType == "date") {
+              return item.eDate == filterValue;
+          }
         });
       }
       res.json({
