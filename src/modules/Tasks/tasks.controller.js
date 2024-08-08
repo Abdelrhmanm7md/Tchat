@@ -425,6 +425,22 @@ const getCancelTasksByAdmin  = catchAsync(async (req, res, next) => {
     });
 
 });
+const getDoneTasksByAdmin  = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"Done"}), req.query)
+    .sort()
+    .search();
+  let results = await ApiFeat.mongooseQuery;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+  res.json({
+    message: "done",
+    count: await taskModel.countDocuments({taskStatus:"Done"}),
+    });
+
+});
 const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"InProgress"}), req.query)
     .sort()
@@ -490,6 +506,33 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
         });
     
     });
+    const getDoneTasksByUser  = catchAsync(async (req, res, next) => {
+      let ApiFeat = new ApiFeature(taskModel
+        .find({
+          $and: [
+            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+            {taskStatus:"Done"}
+          ],
+        }), req.query)
+        .sort()
+        .search();
+      let results = await ApiFeat.mongooseQuery;
+      if (!ApiFeat || !results) {
+        return res.status(404).json({
+          message: "No Task was found!",
+        });
+      }
+      res.json({
+        message: "done",
+        count: await taskModel.countDocuments({
+          $and: [
+            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+            {taskStatus:"Done"}
+          ],
+        }),
+        });
+    
+    });
     const getInProgressTasksByUser = catchAsync(async (req, res, next) => {
       let ApiFeat = new ApiFeature(taskModel
         .find({
@@ -534,9 +577,11 @@ export {
   getAllDocsTask,
   getAllResTask,
   getAllTasksByAdmin,
+  getDoneTasksByAdmin,
   getCancelTasksByAdmin,
   getInProgressTasksByAdmin,
   getAllTasksByUser,
   getCancelTasksByUser,
   getInProgressTasksByUser,
+  getDoneTasksByUser,
 };
