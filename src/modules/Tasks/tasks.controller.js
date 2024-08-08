@@ -437,6 +437,7 @@ const getDoneTasksByAdmin  = catchAsync(async (req, res, next) => {
   }
   res.json({
     message: "done",
+    results,
     count: await taskModel.countDocuments({taskStatus:"Done"}),
     });
 
@@ -524,6 +525,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
       }
       res.json({
         message: "done",
+        results,
         count: await taskModel.countDocuments({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
