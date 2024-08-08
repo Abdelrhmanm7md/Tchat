@@ -426,7 +426,7 @@ const getCancelTasksByAdmin  = catchAsync(async (req, res, next) => {
 
 });
 const getDoneTasksByAdmin  = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"Done"}), req.query)
+  let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"Done"}).populate("users").populate("createdBy"), req.query)
     .sort()
     .search();
   let results = await ApiFeat.mongooseQuery;
@@ -514,7 +514,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
             {taskStatus:"Done"}
           ],
-        }), req.query)
+        }).populate("users").populate("createdBy"), req.query)
         .sort()
         .search();
       let results = await ApiFeat.mongooseQuery;
