@@ -56,7 +56,7 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
 });
 const getAllTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.find({ $or: [{ createdBy: req.params.id }, { users: req.params.id }] }).populate("users"),
+    taskModel.find({ $or: [{ createdBy: req.params.id }, { users: req.params.id }] }).populate("users").populate("createdBy"),
     req.query
   )
     .sort()
