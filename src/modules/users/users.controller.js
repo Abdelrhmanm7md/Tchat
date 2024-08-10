@@ -91,7 +91,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
 });
 
 const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(userModel.find(), req.query).sort().search();
+  let ApiFeat = new ApiFeature(userModel.find().sort({ $natural: -1 }), req.query).sort().search();
 
   let results = await ApiFeat.mongooseQuery;
   res.json({

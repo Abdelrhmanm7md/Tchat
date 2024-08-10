@@ -22,7 +22,7 @@ const createTask = catchAsync(async (req, res, next) => {
 });
 
 const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find().populate("users"), req.query)
+  let ApiFeat = new ApiFeature(taskModel.find().populate("users").sort({ $natural: -1 }), req.query)
 
     .sort()
     .search();
