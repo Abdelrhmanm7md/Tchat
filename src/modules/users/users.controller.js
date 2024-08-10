@@ -91,20 +91,41 @@ const addPhotos = catchAsync(async (req, res, next) => {
 });
 
 const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(userModel.find(), req.query).sort().search();
-
+  let ApiFeat = new ApiFeature(userModel.find().sort({ $natural: -1 }), req.query).sort().search();
+  
   let results = await ApiFeat.mongooseQuery;
+  if (!results || !ApiFeat) {
+    return res.status(404).json({
+      message: "No users was found! add a new user to get started!",
+    });
+  }
+    let { filterType, filterValue } = req.query;
+  if(filterType&& filterValue){
+    results = results.filter(function (item) {
+      if (filterType == "name") {
+        return item.name.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "phone") {
+        return item.phone.toLowerCase().includes(filterValue);
+      }
+      if (filterType == "subscriptionType") {
+        return item.subscriptionType.toLowerCase().includes(filterValue);
+      }
+
+      
+    });
+  }
+  
+    if (filterType == "sort") {
+      let filter = await userModel.find()      
+      results = filter  
+    }
   res.json({
     message: "done",
 
     count: await userModel.countDocuments(),
     results,
   });
-  if (!results) {
-    return res.status(404).json({
-      message: "No users was found! add a new user to get started!",
-    });
-  }
 });
 
 const getUserById = catchAsync(async (req, res, next) => {
