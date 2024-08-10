@@ -11,6 +11,11 @@ const groupSchema = mongoose.Schema(
       ref: "task",
       required: true,
     },
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "user",
+      required: true,
+    },
     
   },
   { timestamps: true }

@@ -36,7 +36,7 @@ const deleteGroup = catchAsync(async (req, res, next) => {
     return res.status(404).json({ message: "Group not found!" });
   }
   const deletedGroup = await groupModel.findByIdAndDelete(id);
-  
+
   res.status(200).json({ message: "Group deleted successfully!" });
 });
 
@@ -51,5 +51,16 @@ const getAllGroups = catchAsync(async (req, res, next) => {
     });
   }
 });
+const getAllGroupsByUser = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(groupModel.find({createdBy:req.params.id}).populate("tasks tasks.users tasks.createdBy"), req.query).sort().search();
 
-export { createGroup, editGroup, deleteGroup, getAllGroups };
+  let results = await ApiFeat.mongooseQuery;
+  res.json({ message: "done", results });
+  if (!ApiFeat) {
+    return res.status(404).json({
+      message: "No Group was found!",
+    });
+  }
+});
+
+export { createGroup, editGroup, deleteGroup, getAllGroups,getAllGroupsByUser };
