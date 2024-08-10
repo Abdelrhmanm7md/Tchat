@@ -1,5 +1,6 @@
 import AppError from "../utils/appError.js";
 import affRouter from "./Affiliation/affiliation.routes.js";
+import groupRouter from "./Group/group.routes.js";
 import messageRouter from "./Message/message.routes.js";
 import notiticationRouter from "./Notification/notification.routes.js";
 import subRouter from "./Subscription/sub.routes.js";
@@ -18,6 +19,7 @@ export function init(app) {
   app.use("/aff", affRouter);
   app.use("/trans", transRouter);
   app.use("/message", messageRouter);
+  app.use("/group", groupRouter);
   
   app.use("/", (req, res, next) => {
     res.send("Hello World");
