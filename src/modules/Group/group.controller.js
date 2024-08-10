@@ -44,23 +44,23 @@ const getAllGroups = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(groupModel.find().populate("tasks tasks.users tasks.createdBy"), req.query).sort().search();
 
   let results = await ApiFeat.mongooseQuery;
-  res.json({ message: "done", results });
-  if (!ApiFeat) {
+  if (!ApiFeat || !results) {
     return res.status(404).json({
       message: "No Group was found!",
     });
   }
+  res.json({ message: "done", results });
 });
 const getAllGroupsByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(groupModel.find({createdBy:req.params.id}).populate("tasks tasks.users tasks.createdBy"), req.query).sort().search();
 
   let results = await ApiFeat.mongooseQuery;
-  res.json({ message: "done", results });
-  if (!ApiFeat) {
+  if (!ApiFeat || !results) {
     return res.status(404).json({
       message: "No Group was found!",
     });
   }
+  res.json({ message: "done", results });
 });
 
 export { createGroup, editGroup, deleteGroup, getAllGroups,getAllGroupsByUser };

@@ -477,7 +477,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
 
     const getAllTasksByUser  = catchAsync(async (req, res, next) => {
       let ApiFeat = new ApiFeature(taskModel.find(
-            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+            { $or: [{ createdBy: req.params.id }, { users: req.params.id }]  },
         ), req.query)
         .sort()
         .search();
@@ -489,7 +489,12 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
       }
       res.json({
         message: "done",
-        count: await taskModel.countDocuments( { $or: [{ createdBy: req.params.id }, { users: req.params.id }] }),
+        count: await taskModel.countDocuments({
+          $and: [
+            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] }
+            ,{parentTask:null}
+          ],
+        })
         });
     
     });
@@ -498,7 +503,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
         .find({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-            {taskStatus:"Cancelled"}
+            {taskStatus:"Cancelled"},{parentTask:null}
           ],
         }), req.query)
         .sort()
@@ -514,7 +519,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
         count: await taskModel.countDocuments({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-            {taskStatus:"Cancelled"}
+            {taskStatus:"Cancelled"},{parentTask:null}
           ],
         }),
         });
@@ -525,7 +530,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
         .find({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-            {taskStatus:"Done"}
+            {taskStatus:"Done"},{parentTask:null}
           ],
         }).populate("users").populate("createdBy"), req.query)
         .sort()
@@ -550,7 +555,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
         count: await taskModel.countDocuments({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-            {taskStatus:"Done"}
+            {taskStatus:"Done"},{parentTask:null}
           ],
         }),
         });
@@ -561,7 +566,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
         .find({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-            {taskStatus:"InProgress"}
+            {taskStatus:"InProgress"},{parentTask:null}
           ],
         }), req.query)
         .sort()
@@ -577,7 +582,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
         count: await taskModel.countDocuments({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-            {taskStatus:"InProgress"}
+            {taskStatus:"InProgress"},{parentTask:null}
           ],
         }),
         });
