@@ -9,7 +9,7 @@ const groupSchema = mongoose.Schema(
     tasks: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "task",
-      required: true,
+      // required: true,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

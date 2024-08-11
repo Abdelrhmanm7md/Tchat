@@ -14,7 +14,6 @@ const createGroup = catchAsync(async (req, res, next) => {
 
 const editGroup = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-
   const updatedGroup = await groupModel.findByIdAndUpdate(id, req.body, {
     new: true,
   });
@@ -22,26 +21,43 @@ const editGroup = catchAsync(async (req, res, next) => {
   if (!updatedGroup) {
     return res.status(404).json({ message: "Group not found!" });
   }
-
   res.status(200).json({
     message: "Group updated successfully!",
     updatedGroup,
   });
 });
+const deleteTaskGroup = catchAsync(async (req, res, next) => {
+  let { id,taskId } = req.params;
 
-const deleteGroup = catchAsync(async (req, res, next) => {
-  const { id } = req.params;
-  
-  if (!deletedGroup) {
+  let deleteTaskGroup = await groupModel.findOneAndUpdate(
+    { _id: id },
+    { $pull: { tasks:  taskId  } },
+    { new: true }  );  
+  if (!deleteTaskGroup) {
     return res.status(404).json({ message: "Group not found!" });
   }
-  const deletedGroup = await groupModel.findByIdAndDelete(id);
 
-  res.status(200).json({ message: "Group deleted successfully!" });
+  res.status(200).json({ message: "task deleted successfully!", deleteTaskGroup });
+});
+
+const deleteGroup = catchAsync(async (req, res, next) => {
+  let { id,taskId } = req.params;
+
+  let deleteGroup = await groupModel.findOneAndUpdate(
+    { _id: id },
+    { $pull: { tasks: { _id: taskId } } },
+    false,
+    true
+  );  
+  if (!deleteGroup) {
+    return res.status(404).json({ message: "Group not found!" });
+  }
+
+  res.status(200).json({ message: "task deleted successfully!" });
 });
 
 const getAllGroups = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(groupModel.find().populate("tasks tasks.users tasks.createdBy"), req.query).sort().search();
+  let ApiFeat = new ApiFeature(groupModel.find().populate("tasks").populate("tasks.users").populate("tasks.createdBy"), req.query).sort().search();
 
   let results = await ApiFeat.mongooseQuery;
   if (!ApiFeat || !results) {
@@ -63,4 +79,4 @@ const getAllGroupsByUser = catchAsync(async (req, res, next) => {
   res.json({ message: "done", results });
 });
 
-export { createGroup, editGroup, deleteGroup, getAllGroups,getAllGroupsByUser };
+export { createGroup, editGroup, deleteGroup, getAllGroups,getAllGroupsByUser,deleteTaskGroup };

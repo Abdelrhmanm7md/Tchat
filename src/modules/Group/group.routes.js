@@ -8,5 +8,6 @@ groupRouter.get("/user/:id", GroupController.getAllGroupsByUser);
 groupRouter.post("/", GroupController.createGroup);
 groupRouter.put("/:id", GroupController.editGroup);
 groupRouter.delete("/:id", GroupController.deleteGroup);
+groupRouter.delete("/:id/task/:taskId", GroupController.deleteTaskGroup);
 
 export default groupRouter;
