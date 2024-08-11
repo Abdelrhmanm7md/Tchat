@@ -80,6 +80,11 @@ const taskSchema = mongoose.Schema(
       ref: "task",
       // required: true,
     },
+    group: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "group",
+      // required: true,
+    },
     // review: {
     //   type: [
     //     {
