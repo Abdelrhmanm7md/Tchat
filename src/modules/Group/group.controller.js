@@ -99,7 +99,7 @@ const getAllGroupsByUser = catchAsync(async (req, res, next) => {
 const getAllTasksByGroup = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
     taskModel
-      .find({ group: req.params.id }),
+      .find({ group: req.params.id }).populate("createdBy").populate("users"),
     req.query
   )
     .sort()
