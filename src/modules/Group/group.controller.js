@@ -65,7 +65,7 @@ const getAllGroups = catchAsync(async (req, res, next) => {
   res.json({ message: "done", results });
 });
 const getAllGroupsByUser = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(groupModel.find({createdBy:req.params.id}).populate("tasks").populate("tasks.createdBy").populate("tasks.users"), req.query).sort().search();
+  let ApiFeat = new ApiFeature(groupModel.find({createdBy:req.params.id}).populate("tasks").populate("tasks.createdBy").populate("tasks.users").populate("createdBy"), req.query).sort().search();
 
   let results = await ApiFeat.mongooseQuery;
   if (!ApiFeat || !results) {

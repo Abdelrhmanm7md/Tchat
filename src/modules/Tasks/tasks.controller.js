@@ -588,6 +588,26 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
         });
     });
 
+    const deleteUserTask = catchAsync(async (req, res, next) => {
+      let { id,userId } = req.params;
+    
+      let deleteUserTask = await taskModel.findOneAndUpdate(
+        { _id: id },
+        { $pull: { users:  userId  } },
+        { new: true }  );  
+      if (!deleteUserTask) {
+        return res.status(404).json({ message: "tasks not found!" });
+      }
+      if(deleteUserTask.users.length == 0){
+        deleteUserTask = await taskModel.findOneAndUpdate(
+          { _id: id },
+          { isShared: false, taskType: "normal"},
+          { new: true }  );
+      }
+      
+      res.status(200).json({ message: "user deleted successfully!", deleteUserTask });
+    });
+
 
 export {
   createTask,
@@ -612,4 +632,5 @@ export {
   getCancelTasksByUser,
   getInProgressTasksByUser,
   getDoneTasksByUser,
+  deleteUserTask,
 };
