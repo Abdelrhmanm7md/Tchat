@@ -47,7 +47,7 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
     results = filter  
   }
   if (filterType == "sort") {
-    let filter = await userModel.find()      
+    let filter = await taskModel.find()      
     results = filter  
   }
   res.json({
