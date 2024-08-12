@@ -78,10 +78,7 @@ const getAllGroupsByAdmin = catchAsync(async (req, res, next) => {
 const getAllGroupsByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
     groupModel
-      .find({ createdBy: req.params.id })
-      .populate("tasks")
-      .populate("tasks.createdBy")
-      .populate("tasks.users"),
+      .find({ createdBy: req.params.id }),
     req.query
   )
     .sort()
