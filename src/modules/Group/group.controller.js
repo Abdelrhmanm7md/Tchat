@@ -53,8 +53,8 @@ const deleteGroup = catchAsync(async (req, res, next) => {
   res.status(200).json({ message: "task deleted successfully!" });
 });
 
-const getAllGroups = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(groupModel.find().populate("tasks").populate("tasks.users").populate("tasks.createdBy"), req.query).sort().search();
+const getAllGroupsByAdmin = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(groupModel.find().populate("tasks").populate("tasks.users").populate("tasks.createdBy"), req.query).pagination().sort().search();
 
   let results = await ApiFeat.mongooseQuery;
   if (!ApiFeat || !results) {
@@ -62,10 +62,10 @@ const getAllGroups = catchAsync(async (req, res, next) => {
       message: "No Group was found!",
     });
   }
-  res.json({ message: "done", results });
+  res.json({ message: "done",page:ApiFeat.page, results });
 });
 const getAllGroupsByUser = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(groupModel.find({createdBy:req.params.id}).populate("tasks").populate("tasks.createdBy").populate("tasks.users").populate("createdBy"), req.query).sort().search();
+  let ApiFeat = new ApiFeature(groupModel.find({createdBy:req.params.id}).populate("tasks").populate("tasks.createdBy").populate("tasks.users"), req.query).sort().search();
 
   let results = await ApiFeat.mongooseQuery;
   if (!ApiFeat || !results) {
@@ -76,4 +76,4 @@ const getAllGroupsByUser = catchAsync(async (req, res, next) => {
   res.json({ message: "done", results });
 });
 
-export { createGroup, editGroup, deleteGroup, getAllGroups,getAllGroupsByUser,deleteTaskGroup };
+export { createGroup, editGroup, deleteGroup, getAllGroupsByAdmin,getAllGroupsByUser,deleteTaskGroup };

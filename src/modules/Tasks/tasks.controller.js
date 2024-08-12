@@ -22,7 +22,7 @@ const createTask = catchAsync(async (req, res, next) => {
 });
 
 const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find().populate("users").sort({ $natural: -1 }), req.query)
+  let ApiFeat = new ApiFeature(taskModel.find().populate("users").populate("createdBy").sort({ $natural: -1 }), req.query).pagination()
 
     .sort()
     .search();
@@ -38,13 +38,30 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
   let { filterType, filterValue } = req.query;
 
   if (filterType && filterValue) {
-    let filter = await taskModel.find({
-      $and: [
-        { taskType: filterType.toLowerCase() },
-        { eDate: filterValue },
-      ]
-    })
-    results = filter  
+    results = results.filter(function (item) {
+      if (filterType == "title") {
+          return item.title.toLowerCase().includes(filterValue.toLowerCase());
+      }
+      if (filterType == "description") {
+          return item.desc.toLowerCase().includes(filterValue.toLowerCase());
+      }
+      if (filterType == "taskStatus") {
+        return item.taskStatus.toLowerCase().includes(filterValue.toLowerCase());
+      }
+      if (filterType == "isCompleted") {
+        return item.isCompleted.toString().includes(filterValue.toLowerCase())
+      }
+      if (filterType == "date") {        
+        return item.eDate.includes(filterValue)
+      }
+      if (filterType == "taskType") {
+        return item.taskType.toLowerCase().includes(filterValue.toLowerCase());
+      }
+      if (filterType == "users") {
+        if(item.users[0]){
+          return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
+        }      }
+    });
   }
   if (filterType == "sort") {
     let filter = await taskModel.find()      
@@ -52,7 +69,8 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
   }
   res.json({
     message: "done",
-    // count: await taskModel.countDocuments(),
+    page: ApiFeat.page,
+    count: await taskModel.countDocuments(),
     results,
   });
 
