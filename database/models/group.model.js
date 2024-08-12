@@ -6,11 +6,6 @@ const groupSchema = mongoose.Schema(
       type: String,
       required: true,
     },
-    tasks: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "task",
-      // required: true,
-    },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
