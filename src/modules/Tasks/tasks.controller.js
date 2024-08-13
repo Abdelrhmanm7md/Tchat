@@ -382,6 +382,21 @@ const updateTask = catchAsync(async (req, res, next) => {
 
   res.status(200).json({ message: "Task updated successfully!", updatedTask });
 });
+const updateTask3 = catchAsync(async (req, res, next) => {
+  let { id } = req.params;
+
+  let updatedTask = await taskModel.findByIdAndUpdate(
+    id,
+    {  $push: { group: req.body.users } },
+    { new: true }
+  );
+
+  if (!updatedTask) {
+    return res.status(404).json({ message: "Couldn't update!  not found!" });
+  }
+
+  res.status(200).json({ message: "Task updated successfully!", updatedTask });
+});
 const updateTask2 = catchAsync(async (req, res, next) => {
   let { id } = req.params;
   if (req.body.users) {
@@ -651,4 +666,5 @@ export {
   getInProgressTasksByUser,
   getDoneTasksByUser,
   deleteUserTask,
+  updateTask3,
 };

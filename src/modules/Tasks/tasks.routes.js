@@ -27,6 +27,7 @@ taskRouter.post(
 );
 taskRouter.put("/update/users/:id", taskController.updateTask);
 taskRouter.put("/:id", taskController.updateTask2);
+taskRouter.put("/group/:id", taskController.updateTask3);
 
 taskRouter.put(
   "/images/:id",
