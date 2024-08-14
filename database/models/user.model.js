@@ -31,7 +31,7 @@ const userSchema = mongoose.Schema(
     },
     subscriptionType: {
       type: String,
-      enum: [ "normal","permium"],
+      enum: [ "normal","premium"],
       default: "normal",
       required: true,
     },

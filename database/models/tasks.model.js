@@ -80,6 +80,12 @@ const taskSchema = mongoose.Schema(
       ref: "task",
       // required: true,
     },
+    priority: {
+      type: String,
+      enum: [ "low","normal","high"],
+      default: "normal",
+      required: true,
+    },
     group: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "group",

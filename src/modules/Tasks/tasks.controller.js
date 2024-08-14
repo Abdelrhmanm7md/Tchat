@@ -90,17 +90,45 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-  let { filterType, filterValue } = req.query;
+  let { filterType, filterValue, filterValue2 } = req.query;
 
-  if (filterType && filterValue) {
-    let filter = await taskModel.find({
-      $and: [
-        { taskType: filterType.toLowerCase() },
-        { eDate: filterValue },
-      ]
-    })
-    results = filter  
+  if (filterType && filterValue && filterValue2) {
+    if(filterType=='taskStatus'){
+      let filter = await taskModel.find({
+        $and: [
+          { taskStatus: filterValue.toLowerCase() },
+          { eDate: filterValue2 },
+        ]
+      })
+      results = filter  
+    }
+    if(filterType=='priority'){
+      let filter = await taskModel.find({
+        $and: [
+          { priority: filterValue.toLowerCase() },
+          { eDate: filterValue2 },
+        ]
+      })
+      results = filter  
+    }
   }
+if (filterType && filterValue) {
+  results = results.filter(function (item) {
+    if (filterType == "taskStatus") {
+      return item.taskStatus.toLowerCase().includes(filterValue.toLowerCase());
+    }
+    if (filterType == "date") {        
+      return item.eDate.includes(filterValue)
+    }
+    if (filterType == "priority") {
+      return item.priority.toLowerCase().includes(filterValue.toLowerCase());
+    }
+    // if (filterType == "users") {
+    //   if(item.users[0]){
+    //     return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
+    //   }      }
+  });
+}
   res.json({
     message: "done",
     results,
@@ -225,14 +253,45 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-  let { filterType, filterValue } = req.query;
-  if (filterType && filterValue) {
-    results = results.filter(function (item) {
-      if (filterType == "date") {
-        return item.eDate == filterValue;
-      }
-    });
+  let { filterType, filterValue, filterValue2 } = req.query;
+
+  if (filterType && filterValue && filterValue2) {
+    if(filterType=='taskStatus'){
+      let filter = await taskModel.find({
+        $and: [
+          { taskStatus: filterValue.toLowerCase() },
+          { eDate: filterValue2 },
+        ]
+      })
+      results = filter  
+    }
+    if(filterType=='priority'){
+      let filter = await taskModel.find({
+        $and: [
+          { priority: filterValue.toLowerCase() },
+          { eDate: filterValue2 },
+        ]
+      })
+      results = filter  
+    }
   }
+if (filterType && filterValue) {
+  results = results.filter(function (item) {
+    if (filterType == "taskStatus") {
+      return item.taskStatus.toLowerCase().includes(filterValue.toLowerCase());
+    }
+    if (filterType == "date") {        
+      return item.eDate.includes(filterValue)
+    }
+    if (filterType == "priority") {
+      return item.priority.toLowerCase().includes(filterValue.toLowerCase());
+    }
+    // if (filterType == "users") {
+    //   if(item.users[0]){
+    //     return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
+    //   }      }
+  });
+}
   res.json({
     message: "done",
     results,
@@ -265,14 +324,45 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
     });
   }
 
-  let { filterType, filterValue } = req.query;
-  if (filterType && filterValue) {
-    results = results.filter(function (item) {
-      if (filterType == "date") {
-          return item.eDate == filterValue;
-      }
-    });
+  let { filterType, filterValue, filterValue2 } = req.query;
+
+  if (filterType && filterValue && filterValue2) {
+    if(filterType=='taskStatus'){
+      let filter = await taskModel.find({
+        $and: [
+          { taskStatus: filterValue.toLowerCase() },
+          { eDate: filterValue2 },
+        ]
+      })
+      results = filter  
+    }
+    if(filterType=='priority'){
+      let filter = await taskModel.find({
+        $and: [
+          { priority: filterValue.toLowerCase() },
+          { eDate: filterValue2 },
+        ]
+      })
+      results = filter  
+    }
   }
+if (filterType && filterValue) {
+  results = results.filter(function (item) {
+    if (filterType == "taskStatus") {
+      return item.taskStatus.toLowerCase().includes(filterValue.toLowerCase());
+    }
+    if (filterType == "date") {        
+      return item.eDate.includes(filterValue)
+    }
+    if (filterType == "priority") {
+      return item.priority.toLowerCase().includes(filterValue.toLowerCase());
+    }
+    // if (filterType == "users") {
+    //   if(item.users[0]){
+    //     return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
+    //   }      }
+  });
+}
   res.json({
     message: "done",
     results,
