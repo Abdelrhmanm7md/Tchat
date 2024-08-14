@@ -259,7 +259,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
     if(filterType=='taskStatus'){
       let filter = await taskModel.find({
         $and: [
-          { taskStatus: filterValue.toLowerCase() },
+          { taskStatus: filterValue },
           { eDate: filterValue2 },
         ]
       })
@@ -278,7 +278,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
 if (filterType && filterValue) {
   results = results.filter(function (item) {
     if (filterType == "taskStatus") {
-      return item.taskStatus.toLowerCase().includes(filterValue.toLowerCase());
+      return item.taskStatus.includes(filterValue);
     }
     if (filterType == "date") {        
       return item.eDate.includes(filterValue)
@@ -330,7 +330,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
     if(filterType=='taskStatus'){
       let filter = await taskModel.find({
         $and: [
-          { taskStatus: filterValue.toLowerCase() },
+          { taskStatus: filterValue },
           { eDate: filterValue2 },
         ]
       })
@@ -349,7 +349,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
 if (filterType && filterValue) {
   results = results.filter(function (item) {
     if (filterType == "taskStatus") {
-      return item.taskStatus.toLowerCase().includes(filterValue.toLowerCase());
+      return item.taskStatus.includes(filterValue);
     }
     if (filterType == "date") {        
       return item.eDate.includes(filterValue)
