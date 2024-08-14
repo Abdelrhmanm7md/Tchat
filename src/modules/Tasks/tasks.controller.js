@@ -237,8 +237,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
           { parentTask: null },
         ],
       })
-      .populate("users")
-      .populate("createdBy"),
+      .populate("createdBy").populate("users"),
     req.query
   )
 
@@ -309,7 +308,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
           { parentTask: null },
         ],
       })
-      .populate("users").populate("createdBy"),
+      .populate("createdBy").populate("users"),
     req.query
   )
     .sort()
