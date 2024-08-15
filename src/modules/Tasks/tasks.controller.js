@@ -274,7 +274,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
   let query = await taskModel.find({
     $and: filter
 
-  })
+  }).populate("createdBy").populate("users").populate("users.createdBy")
   
   results = query 
 }
@@ -333,7 +333,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
     }
     let query = await taskModel.find({
     $and: filter
-    })
+    }).populate("createdBy").populate("users")
     results = query 
   }
 
