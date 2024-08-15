@@ -90,14 +90,14 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-  let { filterType, filterValue, filterValue2 } = req.query;
+  let { filterType, filterValue, filterDate } = req.query;
 
-  if (filterType && filterValue && filterValue2) {
+  if (filterType && filterValue && filterDate) {
     if(filterType=='taskStatus'){
       let filter = await taskModel.find({
         $and: [
           { taskStatus: filterValue.toLowerCase() },
-          { eDate: filterValue2 },
+          { eDate: filterDate },
         ]
       })
       results = filter  
@@ -106,7 +106,7 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
       let filter = await taskModel.find({
         $and: [
           { priority: filterValue.toLowerCase() },
-          { eDate: filterValue2 },
+          { eDate: filterDate },
         ]
       })
       results = filter  
@@ -237,10 +237,9 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
           { parentTask: null },
         ],
       })
-      .populate("createdBy").populate("users"),
+      .populate("createdBy").populate("users").populate("users.createdBy"),
     req.query
   )
-
     .sort()
     .search();
 
@@ -252,44 +251,32 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-  let { filterType, filterValue, filterValue2 } = req.query;
-
-  if (filterType && filterValue && filterValue2) {
-    if(filterType=='taskStatus'){
-      let filter = await taskModel.find({
-        $and: [
-          { taskStatus: filterValue },
-          { eDate: filterValue2 },
-        ]
-      })
-      results = filter  
-    }
-    if(filterType=='priority'){
-      let filter = await taskModel.find({
-        $and: [
-          { priority: filterValue.toLowerCase() },
-          { eDate: filterValue2 },
-        ]
-      })
-      results = filter  
-    }
+  let { filterType, filterValue, filterDate } = req.query;
+  let filter = [
+    { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+    { taskType: "shared" },
+    { isShared: true },
+    { parentTask: null },
+  ]
+  if ((filterType && filterValue) || filterDate) {
+  if(filterType=='taskStatus'){
+    filter.push({ taskStatus: filterValue }) 
   }
-if (filterType && filterValue) {
-  results = results.filter(function (item) {
-    if (filterType == "taskStatus") {
-      return item.taskStatus.includes(filterValue);
-    }
-    if (filterType == "date") {        
-      return item.eDate.includes(filterValue)
-    }
-    if (filterType == "priority") {
-      return item.priority.toLowerCase().includes(filterValue.toLowerCase());
-    }
-    // if (filterType == "users") {
-    //   if(item.users[0]){
-    //     return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
-    //   }      }
-  });
+  if(filterType=='priority'){
+    filter.push({ priority: filterValue }) 
+  }
+  if (filterType == "date") {        
+    filter.push({ eDate: filterValue }) 
+  }
+  if(filterDate){
+    filter.push({ eDate: filterDate })
+  }
+  let query = await taskModel.find({
+    $and: filter
+
+  })
+  
+  results = query 
 }
   res.json({
     message: "done",
@@ -322,46 +309,34 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-
-  let { filterType, filterValue, filterValue2 } = req.query;
-
-  if (filterType && filterValue && filterValue2) {
+  
+  let filter = [
+    { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+    { taskType: "normal" },
+    { isShared: false },
+    { parentTask: null },
+  ]
+  let { filterType, filterValue, filterDate } = req.query;
+  
+  if ((filterType && filterValue) || filterDate) {
     if(filterType=='taskStatus'){
-      let filter = await taskModel.find({
-        $and: [
-          { taskStatus: filterValue },
-          { eDate: filterValue2 },
-        ]
-      })
-      results = filter  
+      filter.push({ taskStatus: filterValue }) 
     }
     if(filterType=='priority'){
-      let filter = await taskModel.find({
-        $and: [
-          { priority: filterValue.toLowerCase() },
-          { eDate: filterValue2 },
-        ]
-      })
-      results = filter  
-    }
-  }
-if (filterType && filterValue) {
-  results = results.filter(function (item) {
-    if (filterType == "taskStatus") {
-      return item.taskStatus.includes(filterValue);
+      filter.push({ priority: filterValue }) 
     }
     if (filterType == "date") {        
-      return item.eDate.includes(filterValue)
+      filter.push({ eDate: filterValue }) 
     }
-    if (filterType == "priority") {
-      return item.priority.toLowerCase().includes(filterValue.toLowerCase());
+    if(filterDate)  {
+      filter.push({ eDate: filterDate })
     }
-    // if (filterType == "users") {
-    //   if(item.users[0]){
-    //     return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
-    //   }      }
-  });
-}
+    let query = await taskModel.find({
+    $and: filter
+    })
+    results = query 
+  }
+
   res.json({
     message: "done",
     results,
