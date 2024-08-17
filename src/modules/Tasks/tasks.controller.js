@@ -17,7 +17,7 @@ const createTask = catchAsync(async (req, res, next) => {
   let addedTask = await newTask.save();
  
   if(req.body.parentTask ){
-    let newTaskLog = new taskLogModel({ taskId: addedTask._id,createdBy: req.body.createdBy, ...req.body });
+    let newTaskLog = new taskLogModel({ taskId: req.body.parentTask,createdBy: req.body.createdBy, ...req.body });
     let addedTaskLog = await newTaskLog.save();
     // console.log(addedTaskLog);
     res.status(201).json({
