@@ -1,89 +1,93 @@
 import mongoose from "mongoose";
 
-const taskSchema = mongoose.Schema(
+const taskLogSchema = mongoose.Schema(
   {
     title: {
       type: String,
-      required: true,
+      default:null,
     },
     desc: {
       type: String,
-      required: true,
+      default:null,
+
     },
     isCompleted: {
       type: Boolean,
-      default: false,
-      required: true,
+      default:null,
     },
     isShared: {
       type: Boolean,
-      default: false,
-      required: true,
+      default:null,
+
     },
     token: {
       type: String,
-      // required: true,
     },
     tasksPriority: {
       type: String,
-      // required: true,
+      default:null,
     },
     resources: {
       type: [String],
-      // required: true,
+      default:null,
+
     },
     documments: {
       type: [String],
-      // required: true,
+      default:null,
+
     },
     users: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "user",
-      default: [],
-      // required: true,
+      default:null,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
-      required: true,
+      default:null,
+
     },
     sDate: {
       type: String,
-      required: true,
+      default:null,
     },
     eDate: {
       type: String,
-      required: true,
+      default:null,
     },
     sTime: {
       type: String,
-      required: true,
+      default:null,
     },
     eTime: {
       type: String,
-      required: true,
+      default:null,
     },
     taskType: {
       type: String,
       enum: ["normal", "shared"],
-      default: "normal",
-      required: true,
+      default:null,
     },
     taskStatus: {
       type: String,
       enum: ["Done", "InProgress", "Cancelled"],
-      default: "InProgress",
-      required: true,
+      default:null,
     },
     parentTask: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "task",
-      // required: true,
+      default:null,
+    },
+    taskId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "task",
+      default:null,
     },
     priority: {
       type: String,
       enum: [ "low","normal","high"],
-      required: true,
+      default:null,
     },
     group: {
       type: [mongoose.Schema.Types.ObjectId],
@@ -91,9 +95,9 @@ const taskSchema = mongoose.Schema(
       default: null,
       // required: true,
     },
-    
+
   },
   { timestamps: true }
 );
 
-export const taskModel = mongoose.model("task", taskSchema);
+export const taskLogModel = mongoose.model("taskLog", taskLogSchema);

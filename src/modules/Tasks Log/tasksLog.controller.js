@@ -1,4 +1,4 @@
-import { taskModel } from "../../../database/models/tasks.model.js";
+import { taskLogModel } from "../../../database/models/tasksLog.model.js";
 import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import fsExtra from "fs-extra";
@@ -12,7 +12,7 @@ const createTask = catchAsync(async (req, res, next) => {
     }
   }
   req.body.users = [];  
-  let newTask = new taskModel(req.body);
+  let newTask = new taskLogModel(req.body);
   let addedTask = await newTask.save();
 
   res.status(201).json({
@@ -22,7 +22,7 @@ const createTask = catchAsync(async (req, res, next) => {
 });
 
 const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find().populate("users").populate("createdBy").sort({ $natural: -1 }), req.query).pagination()
+  let ApiFeat = new ApiFeature(taskLogModel.find().populate("users").populate("createdBy").sort({ $natural: -1 }), req.query).pagination()
 
     .sort()
     .search();
@@ -67,20 +67,20 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
     });
   }
   if (filterType == "sort") {
-    let filter = await taskModel.find()      
+    let filter = await taskLogModel.find()      
     results = filter  
   }
   res.json({
     message: "done",
     page: ApiFeat.page,
-    count: await taskModel.countDocuments(),
+    count: await taskLogModel.countDocuments(),
     results,
   });
 
 });
 const getAllTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.find({ $or: [{ createdBy: req.params.id }, { users: req.params.id }] }).populate("users").populate("createdBy"),
+    taskLogModel.find({ $or: [{ createdBy: req.params.id }, { users: req.params.id }] }).populate("users").populate("createdBy"),
     req.query
   )
     .sort()
@@ -97,7 +97,7 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
 
   if (filterType && filterValue && filterDate) {
     if(filterType=='taskStatus'){
-      let filter = await taskModel.find({
+      let filter = await taskLogModel.find({
         $and: [
           { taskStatus: filterValue.toLowerCase() },
           { eDate: filterDate },
@@ -106,7 +106,7 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
       results = filter  
     }
     if(filterType=='priority'){
-      let filter = await taskModel.find({
+      let filter = await taskLogModel.find({
         $and: [
           { priority: filterValue.toLowerCase() },
           { eDate: filterDate },
@@ -140,7 +140,7 @@ if (filterType && filterValue) {
 
 const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.find({ parentTask: req.params.id }).populate("users").populate("createdBy"),
+    taskLogModel.find({ parentTask: req.params.id }).populate("users").populate("createdBy"),
     req.query
   )
     .sort()
@@ -161,7 +161,7 @@ const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
 });
 const getAllPeopleTask = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.findById(req.params.id).populate("users"),
+    taskLogModel.findById(req.params.id).populate("users"),
     req.query
   )
     .sort()
@@ -180,7 +180,7 @@ const getAllPeopleTask = catchAsync(async (req, res, next) => {
 });
 const getAllDocsTask = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.findById(req.params.id),
+    taskLogModel.findById(req.params.id),
     req.query
   )
     .sort()
@@ -205,7 +205,7 @@ const getAllDocsTask = catchAsync(async (req, res, next) => {
 });
 const getAllResTask = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.findById(req.params.id),
+    taskLogModel.findById(req.params.id),
     req.query
   )
     .sort()
@@ -231,7 +231,7 @@ const getAllResTask = catchAsync(async (req, res, next) => {
 });
 const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel
+    taskLogModel
       .find({
         $and: [
           { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
@@ -274,7 +274,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
   if(filterDate){
     filter.push({ eDate: filterDate })
   }
-  let query = await taskModel.find({
+  let query = await taskLogModel.find({
     $and: filter
 
   }).populate("createdBy").populate("users").populate("users.createdBy")
@@ -289,7 +289,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
 });
 const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel
+    taskLogModel
       .find({
         $and: [
           { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
@@ -334,7 +334,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
     if(filterDate)  {
       filter.push({ eDate: filterDate })
     }
-    let query = await taskModel.find({
+    let query = await taskLogModel.find({
     $and: filter
     }).populate("createdBy").populate("users")
     results = query 
@@ -348,7 +348,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
 
 const getTaskById = catchAsync(async (req, res, next) => {
   let { id } = req.params;
-  let results = await taskModel.findById(id).populate("users").populate("createdBy");
+  let results = await taskLogModel.findById(id).populate("users").populate("createdBy");
 
   if (!results) {
     return res.status(404).json({ message: "Task not found!" });
@@ -421,7 +421,7 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
       resources = req.body.resources;
     }
   }
-  let updatedTask = await taskModel.findByIdAndUpdate(
+  let updatedTask = await taskLogModel.findByIdAndUpdate(
     id,
     { $push: { documments: documments, resources: resources } },
     { new: true }
@@ -437,7 +437,7 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
 const updateTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
 
-  let updatedTask = await taskModel.findByIdAndUpdate(
+  let updatedTask = await taskLogModel.findByIdAndUpdate(
     id,
     { isShared: true, taskType: "shared", $push: { users: req.body.users } },
     { new: true }
@@ -452,7 +452,7 @@ const updateTask = catchAsync(async (req, res, next) => {
 const updateTask3 = catchAsync(async (req, res, next) => {
   let { id } = req.params;
 
-  let updatedTask = await taskModel.findByIdAndUpdate(
+  let updatedTask = await taskLogModel.findByIdAndUpdate(
     id,
     {  $push: { group: req.body.group } },
     { new: true }
@@ -472,7 +472,7 @@ const updateTask2 = catchAsync(async (req, res, next) => {
       req.body.taskType = "shared";
     }
   }
-  let updatedTask = await taskModel.findByIdAndUpdate(id, req.body, {
+  let updatedTask = await taskLogModel.findByIdAndUpdate(id, req.body, {
     new: true,
   });
 
@@ -485,7 +485,7 @@ const updateTask2 = catchAsync(async (req, res, next) => {
 const deleteTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
 
-  let deletedTask = await taskModel.findByIdAndDelete({ _id: id });
+  let deletedTask = await taskLogModel.findByIdAndDelete({ _id: id });
 
   if (!deletedTask) {
     return res.status(404).json({ message: "Couldn't delete!  not found!" });
@@ -497,7 +497,7 @@ const deleteTask = catchAsync(async (req, res, next) => {
 
 // Admin
 const getAllTasksByAdmin  = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find({}), req.query)
+  let ApiFeat = new ApiFeature(taskLogModel.find({}), req.query)
     .sort()
     .search();
   let results = await ApiFeat.mongooseQuery;
@@ -508,12 +508,12 @@ const getAllTasksByAdmin  = catchAsync(async (req, res, next) => {
   }
   res.json({
     message: "done",
-    count: await taskModel.countDocuments(),
+    count: await taskLogModel.countDocuments(),
     });
 
 });
 const getCancelTasksByAdmin  = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"Cancelled"}), req.query)
+  let ApiFeat = new ApiFeature(taskLogModel.find({taskStatus:"Cancelled"}), req.query)
     .sort()
     .search();
   let results = await ApiFeat.mongooseQuery;
@@ -524,14 +524,14 @@ const getCancelTasksByAdmin  = catchAsync(async (req, res, next) => {
   }
   res.json({
     message: "done",
-    count: await taskModel.countDocuments({taskStatus:"Cancelled"}),
+    count: await taskLogModel.countDocuments({taskStatus:"Cancelled"}),
     });
 
 });
 const getDoneTasksByAdmin  = catchAsync(async (req, res, next) => {
   // console.log(req.params.id,"dddd");
   
-  let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"Done"}).populate("users").populate("createdBy"), req.query)
+  let ApiFeat = new ApiFeature(taskLogModel.find({taskStatus:"Done"}).populate("users").populate("createdBy"), req.query)
     .sort()
     .search();
   let results = await ApiFeat.mongooseQuery;
@@ -551,12 +551,12 @@ const getDoneTasksByAdmin  = catchAsync(async (req, res, next) => {
   res.json({
     message: "done",
     results,
-    count: await taskModel.countDocuments({taskStatus:"Done"}),
+    count: await taskLogModel.countDocuments({taskStatus:"Done"}),
     });
 
 });
 const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"InProgress"}), req.query)
+  let ApiFeat = new ApiFeature(taskLogModel.find({taskStatus:"InProgress"}), req.query)
     .sort()
     .search();
   let results = await ApiFeat.mongooseQuery;
@@ -567,7 +567,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
   }
   res.json({
     message: "done",
-    count: await taskModel.countDocuments({taskStatus:"InProgress"}),
+    count: await taskLogModel.countDocuments({taskStatus:"InProgress"}),
     });
 
   });
@@ -576,7 +576,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
 // User
 
     const getAllTasksByUser  = catchAsync(async (req, res, next) => {
-      let ApiFeat = new ApiFeature(taskModel.find(
+      let ApiFeat = new ApiFeature(taskLogModel.find(
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }]  },
         ), req.query)
         .sort()
@@ -589,7 +589,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
       }
       res.json({
         message: "done",
-        count: await taskModel.countDocuments({
+        count: await taskLogModel.countDocuments({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] }
             ,{parentTask:null}
@@ -599,7 +599,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
     
     });
     const getCancelTasksByUser  = catchAsync(async (req, res, next) => {
-      let ApiFeat = new ApiFeature(taskModel
+      let ApiFeat = new ApiFeature(taskLogModel
         .find({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
@@ -616,7 +616,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
       }
       res.json({
         message: "done",
-        count: await taskModel.countDocuments({
+        count: await taskLogModel.countDocuments({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
             {taskStatus:"Cancelled"},{parentTask:null}
@@ -626,7 +626,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
     
     });
     const getDoneTasksByUser  = catchAsync(async (req, res, next) => {
-      let ApiFeat = new ApiFeature(taskModel
+      let ApiFeat = new ApiFeature(taskLogModel
         .find({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
@@ -652,7 +652,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
       res.json({
         message: "done",
         results,
-        count: await taskModel.countDocuments({
+        count: await taskLogModel.countDocuments({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
             {taskStatus:"Done"},{parentTask:null}
@@ -662,7 +662,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
     
     });
     const getInProgressTasksByUser = catchAsync(async (req, res, next) => {
-      let ApiFeat = new ApiFeature(taskModel
+      let ApiFeat = new ApiFeature(taskLogModel
         .find({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
@@ -679,7 +679,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
       }
       res.json({
         message: "done",
-        count: await taskModel.countDocuments({
+        count: await taskLogModel.countDocuments({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
             {taskStatus:"InProgress"},{parentTask:null}
@@ -691,7 +691,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
     const deleteUserTask = catchAsync(async (req, res, next) => {
       let { id,userId } = req.params;
     
-      let deleteUserTask = await taskModel.findOneAndUpdate(
+      let deleteUserTask = await taskLogModel.findOneAndUpdate(
         { _id: id },
         { $pull: { users:  userId  } },
         { new: true }  );  
@@ -699,7 +699,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
         return res.status(404).json({ message: "tasks not found!" });
       }
       if(deleteUserTask.users.length == 0){
-        deleteUserTask = await taskModel.findOneAndUpdate(
+        deleteUserTask = await taskLogModel.findOneAndUpdate(
           { _id: id },
           { isShared: false, taskType: "normal"},
           { new: true }  );

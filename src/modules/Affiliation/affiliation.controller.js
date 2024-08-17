@@ -76,7 +76,7 @@ const deleteAff = catchAsync(async (req, res, next) => {
 
 const getAllAffs = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    affiliationModel.findOne({user:req.params.id}).populate("referredBy").sort({ $natural: -1 }),
+    affiliationModel.find({user:req.params.id}).populate("referredBy").sort({ $natural: -1 }),
     req.query
   )
     .sort()
@@ -97,7 +97,7 @@ Usedcode = code.code
     message: "done",
     results,
     Usedcode,
-    "refs": await affiliationModel.find({ referredBy: req.params.id })
+    "refs": await affiliationModel.find({ referredBy: req.params.id }).populate("user")
 
   });
 });

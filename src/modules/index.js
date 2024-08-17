@@ -4,6 +4,7 @@ import groupRouter from "./Group/group.routes.js";
 import messageRouter from "./Message/message.routes.js";
 import notiticationRouter from "./Notification/notification.routes.js";
 import subRouter from "./Subscription/sub.routes.js";
+import taskLogRouter from "./Tasks Log/tasksLog.routes.js";
 import taskRouter from "./Tasks/tasks.routes.js";
 import transRouter from "./Transaction/trans.routes.js";
 import authRouter from "./auth/auth.routes.js";
@@ -20,6 +21,7 @@ export function init(app) {
   app.use("/trans", transRouter);
   app.use("/message", messageRouter);
   app.use("/group", groupRouter);
+  app.use("/log", taskLogRouter);
   
   app.use("/", (req, res, next) => {
     res.send("Page Not Found");
