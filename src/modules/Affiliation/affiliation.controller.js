@@ -92,7 +92,7 @@ const getAllAffs = catchAsync(async (req, res, next) => {
 let code =  await affiliationModel.findOne({ user: results.referredBy._id });
 Usedcode = code.code
 }
-
+results=results[0]
   res.json({
     message: "done",
     results,
