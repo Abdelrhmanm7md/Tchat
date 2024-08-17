@@ -1,8 +1,6 @@
 import { taskLogModel } from "../../../database/models/tasksLog.model.js";
 import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
-import fsExtra from "fs-extra";
-import path from "path";
 
 // const createTask = catchAsync(async (req, res, next) => {
 //   let newTask = new taskLogModel(req.body);
@@ -57,43 +55,7 @@ const getAllTaskLogByTask = catchAsync(async (req, res, next) => {
 
 });
 
-const deleteTask = catchAsync(async (req, res, next) => {
-  let { id } = req.params;
-
-  let deletedTask = await taskLogModel.findByIdAndDelete({ _id: id });
-
-  if (!deletedTask) {
-    return res.status(404).json({ message: "Couldn't delete!  not found!" });
-  }
-
-  res.status(200).json({ message: "Task deleted successfully!" });
-});
-
-
-
-    const deleteUserTask = catchAsync(async (req, res, next) => {
-      let { id,userId } = req.params;
-    
-      let deleteUserTask = await taskLogModel.findOneAndUpdate(
-        { _id: id },
-        { $pull: { users:  userId  } },
-        { new: true }  );  
-      if (!deleteUserTask) {
-        return res.status(404).json({ message: "tasks not found!" });
-      }
-      if(deleteUserTask.users.length == 0){
-        deleteUserTask = await taskLogModel.findOneAndUpdate(
-          { _id: id },
-          { isShared: false, taskType: "normal"},
-          { new: true }  );
-      }
-      
-      res.status(200).json({ message: "user deleted successfully!", deleteUserTask });
-    });
-
-
 export {
-  getAllTaskLogByTask,  getAllTaskLogByAdmin,
-  deleteTask,
-  deleteUserTask,
+  getAllTaskLogByTask, 
+  getAllTaskLogByAdmin,
 };

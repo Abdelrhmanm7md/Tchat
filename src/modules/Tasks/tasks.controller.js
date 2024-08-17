@@ -676,7 +676,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
             {taskStatus:"Cancelled"},{parentTask:null}
           ],
-        }), req.query)
+        }).populate("users").populate("createdBy"), req.query)
         .sort()
         .search();
       let results = await ApiFeat.mongooseQuery;
