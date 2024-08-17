@@ -30,12 +30,10 @@ const taskLogSchema = mongoose.Schema(
     resources: {
       type: [String],
       // default:null,
-
     },
     documments: {
       type: [String],
       // default:null,
-
     },
     users: {
       type: [mongoose.Schema.Types.ObjectId],

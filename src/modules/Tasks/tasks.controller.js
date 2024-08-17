@@ -513,7 +513,7 @@ const getAllTasksByAdmin  = catchAsync(async (req, res, next) => {
 
 });
 const getAllTasksByAdminByDay  = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find({$or:[{eDate:req.params.date},{sDate:req.params.date}]}), req.query)
+  let ApiFeat = new ApiFeature(taskModel.find({$or:[{eDate:req.params.date},{sDate:req.params.date}]}).populate("users").populate("createdBy"), req.query)
     .sort()
     .search();
   let results = await ApiFeat.mongooseQuery;
@@ -620,7 +620,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
              { $or: [{ createdBy: req.params.id }, { users: req.params.id }]  },
              {$or:[{eDate:req.params.date},{sDate:req.params.date}]}
             ]
-    }), req.query)
+    }).populate("users").populate("createdBy"), req.query)
         .sort()
         .search();
       let results = await ApiFeat.mongooseQuery;
