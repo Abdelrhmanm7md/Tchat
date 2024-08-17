@@ -540,6 +540,7 @@ const getCancelTasksByAdmin  = catchAsync(async (req, res, next) => {
   }
   res.json({
     message: "done",
+    results,
     count: await taskModel.countDocuments({taskStatus:"Cancelled"}),
     });
 
@@ -583,6 +584,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
   }
   res.json({
     message: "done",
+    results,
     count: await taskModel.countDocuments({taskStatus:"InProgress"}),
     });
 
@@ -653,6 +655,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
       }
       res.json({
         message: "done",
+        results,
         count: await taskModel.countDocuments({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
@@ -716,6 +719,7 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
       }
       res.json({
         message: "done",
+        results,
         count: await taskModel.countDocuments({
           $and: [
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
