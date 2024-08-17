@@ -512,6 +512,22 @@ const getAllTasksByAdmin  = catchAsync(async (req, res, next) => {
     });
 
 });
+const getAllTasksByAdminByDay  = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(taskModel.find({$or:[{eDate:req.params.date},{sDate:req.params.date}]}), req.query)
+    .sort()
+    .search();
+  let results = await ApiFeat.mongooseQuery;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+  res.json({
+    message: "done",
+    results
+    });
+
+});
 const getCancelTasksByAdmin  = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"Cancelled"}), req.query)
     .sort()
@@ -595,6 +611,27 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
             ,{parentTask:null}
           ],
         })
+        });
+    
+    });
+    const getAllTasksByUserByDay  = catchAsync(async (req, res, next) => {
+      let ApiFeat = new ApiFeature(taskModel.find(
+            { $and: [
+             { $or: [{ createdBy: req.params.id }, { users: req.params.id }]  },
+             {$or:[{eDate:req.params.date},{sDate:req.params.date}]}
+            ]
+    }), req.query)
+        .sort()
+        .search();
+      let results = await ApiFeat.mongooseQuery;
+      if (!ApiFeat || !results) {
+        return res.status(404).json({
+          message: "No Task was found!",
+        });
+      }
+      res.json({
+        message: "done",
+        results,
         });
     
     });
@@ -734,4 +771,6 @@ export {
   getDoneTasksByUser,
   deleteUserTask,
   updateTask3,
+  getAllTasksByAdminByDay,
+  getAllTasksByUserByDay,
 };

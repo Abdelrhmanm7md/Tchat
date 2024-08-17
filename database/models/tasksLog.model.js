@@ -4,20 +4,20 @@ const taskLogSchema = mongoose.Schema(
   {
     title: {
       type: String,
-      default:null,
+      // default:null,
     },
     desc: {
       type: String,
-      default:null,
+      // default:null,
 
     },
     isCompleted: {
       type: Boolean,
-      default:null,
+      // default:null,
     },
     isShared: {
       type: Boolean,
-      default:null,
+      // default:null,
 
     },
     token: {
@@ -25,74 +25,74 @@ const taskLogSchema = mongoose.Schema(
     },
     tasksPriority: {
       type: String,
-      default:null,
+      // default:null,
     },
     resources: {
       type: [String],
-      default:null,
+      // default:null,
 
     },
     documments: {
       type: [String],
-      default:null,
+      // default:null,
 
     },
     users: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "user",
-      default:null,
+      // default:null,
     },
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
-      default:null,
+      // default:null,
 
     },
     sDate: {
       type: String,
-      default:null,
+      // default:null,
     },
     eDate: {
       type: String,
-      default:null,
+      // default:null,
     },
     sTime: {
       type: String,
-      default:null,
+      // default:null,
     },
     eTime: {
       type: String,
-      default:null,
+      // default:null,
     },
     taskType: {
       type: String,
       enum: ["normal", "shared"],
-      default:null,
+      // default:null,
     },
     taskStatus: {
       type: String,
       enum: ["Done", "InProgress", "Cancelled"],
-      default:null,
+      // default:null,
     },
     parentTask: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "task",
-      default:null,
+      // default:null,
     },
     taskId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "task",
-      default:null,
+      // default:null,
     },
     priority: {
       type: String,
       enum: [ "low","normal","high"],
-      default:null,
+      // default:null,
     },
     group: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "group",
-      default: null,
+      // default: null,
       // required: true,
     },
 
