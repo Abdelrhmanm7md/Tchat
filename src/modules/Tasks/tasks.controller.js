@@ -487,7 +487,7 @@ const updateTask2 = catchAsync(async (req, res, next) => {
     }
   }
   if (req.body.taskStatus) {
-    if (req.body.taskStatus === "done") {
+    if (req.body.taskStatus === "Done") {
       req.body.isCompleted = true;
     }
   }

@@ -37,7 +37,7 @@ const getAllTaskLogByAdmin = catchAsync(async (req, res, next) => {
 
 });
 const getAllTaskLogByTask = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskLogModel.find({taskId:req.params.id}).populate("users").populate("createdBy").sort({ $natural: -1 }), req.query).pagination()
+  let ApiFeat = new ApiFeature(taskLogModel.find({taskId:req.params.id}).populate("users").populate("createdBy").sort({ $natural: -1 }), req.query)
     .sort()
     .search();
 
@@ -52,8 +52,6 @@ const getAllTaskLogByTask = catchAsync(async (req, res, next) => {
   
   res.json({
     message: "done",
-    page: ApiFeat.page,
-    count: await taskLogModel.countDocuments(),
     results,
   });
 
