@@ -441,8 +441,9 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
   if (!updatedTask) {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
   }
-
-  res.status(200).json({ message: "Task updated successfully!",  documments, resources });
+  let newTaskLog = new taskLogModel({taskId: id, createdBy: req.query.id, documments, resources });
+  let addedTaskLog = await newTaskLog.save();
+  res.status(200).json({ message: "Task updated successfully!",  documments, resources ,addedTaskLog});
 });
 
 const updateTask = catchAsync(async (req, res, next) => {
