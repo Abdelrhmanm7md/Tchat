@@ -1,4 +1,5 @@
 import { taskModel } from "../../../database/models/tasks.model.js";
+import { taskLogModel } from "../../../database/models/tasksLog.model.js";
 import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import fsExtra from "fs-extra";
@@ -14,7 +15,17 @@ const createTask = catchAsync(async (req, res, next) => {
   req.body.users = [];  
   let newTask = new taskModel(req.body);
   let addedTask = await newTask.save();
-
+ 
+  if(req.body.parentTask ){
+    let newTaskLog = new taskLogModel({ taskId: addedTask._id,createdBy: req.body.createdBy, ...req.body });
+    let addedTaskLog = await newTaskLog.save();
+    // console.log(addedTaskLog);
+    res.status(201).json({
+      message: " Task has been created successfully!",
+      addedTask,
+      addedTaskLog
+    });
+  }
   res.status(201).json({
     message: " Task has been created successfully!",
     addedTask,
@@ -446,8 +457,9 @@ const updateTask = catchAsync(async (req, res, next) => {
   if (!updatedTask) {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
   }
-
-  res.status(200).json({ message: "Task updated successfully!", updatedTask });
+  let newTaskLog = new taskLogModel({taskId: id, createdBy: req.query.id, isShared: true, taskType: "shared", $push: { users: req.body.users } });
+  let addedTaskLog = await newTaskLog.save();
+  res.status(200).json({ message: "Task updated successfully!", updatedTask ,addedTaskLog });
 });
 const updateTask3 = catchAsync(async (req, res, next) => {
   let { id } = req.params;
@@ -462,7 +474,9 @@ const updateTask3 = catchAsync(async (req, res, next) => {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
   }
 
-  res.status(200).json({ message: "Task updated successfully!", updatedTask });
+  let newTaskLog = new taskLogModel({taskId: id, createdBy: req.query.id, $push: { group: req.body.group }  });
+  let addedTaskLog = await newTaskLog.save();
+  res.status(200).json({ message: "Task updated successfully!", updatedTask ,addedTaskLog });
 });
 const updateTask2 = catchAsync(async (req, res, next) => {
   let { id } = req.params;
@@ -472,6 +486,11 @@ const updateTask2 = catchAsync(async (req, res, next) => {
       req.body.taskType = "shared";
     }
   }
+  if (req.body.taskStatus) {
+    if (req.body.taskStatus === "done") {
+      req.body.isCompleted = true;
+    }
+  }
   let updatedTask = await taskModel.findByIdAndUpdate(id, req.body, {
     new: true,
   });
@@ -479,8 +498,9 @@ const updateTask2 = catchAsync(async (req, res, next) => {
   if (!updatedTask) {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
   }
-
-  res.status(200).json({ message: "Task updated successfully!", updatedTask });
+  let newTaskLog = new taskLogModel({taskId: id, ...req.body});
+  let addedTaskLog = await newTaskLog.save();
+  res.status(200).json({ message: "Task updated successfully!", updatedTask ,addedTaskLog });
 });
 const deleteTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;

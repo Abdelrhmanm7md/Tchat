@@ -41,7 +41,6 @@ const taskLogSchema = mongoose.Schema(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "user",
-      default:undefined,
     },
     sDate: {
       type: String,
@@ -77,7 +76,6 @@ const taskLogSchema = mongoose.Schema(
     taskId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "task",
-      default:undefined,
     },
     priority: {
       type: String,
