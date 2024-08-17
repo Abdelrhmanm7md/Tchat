@@ -612,6 +612,18 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
             { $or: [{ createdBy: req.params.id }, { users: req.params.id }] }
             ,{parentTask:null}
           ],
+        }),
+        countDone: await taskModel.countDocuments({
+          $and: [
+            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] }
+            ,{taskStatus:"Done"},{parentTask:null}
+          ],
+        }),
+        countCancel: await taskModel.countDocuments({
+          $and: [
+            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] }
+            ,{taskStatus:"Cancelled"},{parentTask:null}
+          ],
         })
         });
     
