@@ -34,7 +34,6 @@ taskRouter.put("/group/:id", taskController.updateTask3);
 taskRouter.put(
   "/images/:id",
   uploadMixFile("tasks", [
-    { name: "resources", },
     { name: "documments",  },
   ]),fileSizeLimitErrorHandler, 
   taskController.updateTaskPhoto

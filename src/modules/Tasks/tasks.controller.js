@@ -1,5 +1,7 @@
+import { log } from "console";
 import { taskModel } from "../../../database/models/tasks.model.js";
 import { taskLogModel } from "../../../database/models/tasksLog.model.js";
+import { userModel } from "../../../database/models/user.model.js";
 import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import fsExtra from "fs-extra";
@@ -15,20 +17,50 @@ const createTask = catchAsync(async (req, res, next) => {
   req.body.users = [];  
   let newTask = new taskModel(req.body);
   let addedTask = await newTask.save();
- 
-  if(req.body.parentTask ){
-    let newTaskLog = new taskLogModel({ taskId: req.body.parentTask,createdBy: req.body.createdBy, ...req.body });
-    let addedTaskLog = await newTaskLog.save();
-    // console.log(addedTaskLog);
+  let user = await userModel.findById(req.body.createdBy)
+
+// Create a new task log
+let newTaskLog = new taskLogModel({
+  taskId: addedTask._id,
+  updates: [
+      {
+          createdBy: req.body.createdBy,
+          changes: [`${user.name} Created a Task`],
+      },
+  ],
+});
+
+// Save the new task log
+let addedTaskLog = await newTaskLog.save();
+
+if(req.body.parentTask ){
+  let newSubTaskLog = await taskLogModel.findOneAndUpdate(
+  { taskId: req.body.parentTask },
+  {
+      $push: {
+          updates: [
+              {
+                  createdBy: req.body.createdBy,
+                  changes: [`${user.name} Created a Sub Task`],
+              },
+          ],
+      },
+  },{ new: true }
+);
+
+    console.log(newSubTaskLog);
+    
     res.status(201).json({
       message: " Task has been created successfully!",
       addedTask,
-      addedTaskLog
+      addedTaskLog,
+      newSubTaskLog
     });
   }
   res.status(201).json({
     message: " Task has been created successfully!",
     addedTask,
+    addedTaskLog
   });
 });
 
@@ -371,24 +403,15 @@ const getTaskById = catchAsync(async (req, res, next) => {
   });});
 const updateTaskPhoto = catchAsync(async (req, res, next) => {
   let { id } = req.params;
-  let resources = "";
   let documments = "";
-  if (req.files.documments || req.files.resources) {
+  if (req.files.documments) {
     req.body.documments =
       req.files.documments &&
       req.files.documments.map(
         (file) =>
-          `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
+          `https://tchatpro.com/tasks/${file.filename.split(" ").join("-")}`
       );
-
-    req.body.resources =
-      req.files.resources &&
-      req.files.resources.map(
-        (file) =>
-          `https://tchatpro.com/tasks/${file.filename.split(" ").join("")}`
-      );
-
-    const directoryPath = path.join(resources, "uploads/tasks");
+    const directoryPath = path.join(documments, "uploads/tasks");
 
     fsExtra.readdir(directoryPath, (err, files) => {
       if (err) {
@@ -397,25 +420,7 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
 
       files.forEach((file) => {
         const oldPath = path.join(directoryPath, file);
-        const newPath = path.join(directoryPath, file.replace(/\s+/g, ""));
-
-        fsExtra.rename(oldPath, newPath, (err) => {
-          if (err) {
-            console.error("Error renaming file: ", err);
-          }
-        });
-      });
-    });
-    const directoryPathh = path.join(documments, "uploads/tasks");
-
-    fsExtra.readdir(directoryPathh, (err, files) => {
-      if (err) {
-        return console.error("Unable to scan directory: " + err);
-      }
-
-      files.forEach((file) => {
-        const oldPath = path.join(directoryPathh, file);
-        const newPath = path.join(directoryPathh, file.replace(/\s+/g, ""));
+        const newPath = path.join(directoryPath, file.replace(/\s+/g, "-"));
 
         fsExtra.rename(oldPath, newPath, (err) => {
           if (err) {
@@ -428,22 +433,32 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
     if (req.body.documments !== "") {
       documments = req.body.documments;
     }
-    if (req.body.resources !== "") {
-      resources = req.body.resources;
-    }
+
   }
   let updatedTask = await taskModel.findByIdAndUpdate(
     id,
-    { $push: { documments: documments, resources: resources } },
+    { $push: { documments: documments, } },
     { new: true }
   );
 
   if (!updatedTask) {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
   }
-  let newTaskLog = new taskLogModel({taskId: id, createdBy: req.query.id, documments, resources });
-  let addedTaskLog = await newTaskLog.save();
-  res.status(200).json({ message: "Task updated successfully!",  documments, resources ,addedTaskLog});
+  let user = await userModel.findById(req.query.id)
+  let newTaskLog = await taskLogModel.findOneAndUpdate(
+    { taskId: id},
+    {
+        $push: {
+            updates: [
+                {
+                    createdBy: req.query.id,
+                    changes: [`${user.name} added Documments `],
+                },
+            ],
+        },
+    },{ new: true }
+  ); 
+  res.status(200).json({ message: "Task updated successfully!",  documments ,newTaskLog});
 });
 
 const updateTask = catchAsync(async (req, res, next) => {
@@ -458,9 +473,21 @@ const updateTask = catchAsync(async (req, res, next) => {
   if (!updatedTask) {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
   }
-  let newTaskLog = new taskLogModel({taskId: id, createdBy: req.query.id, isShared: true, taskType: "shared", $push: { users: req.body.users } });
-  let addedTaskLog = await newTaskLog.save();
-  res.status(200).json({ message: "Task updated successfully!", updatedTask ,addedTaskLog });
+  let user = await userModel.findById(req.query.id)
+  let newTaskLog = await taskLogModel.findOneAndUpdate(
+    { taskId: id},
+    {
+        $push: {
+            updates: [
+                {
+                    createdBy: req.query.id,
+                    changes: [`${user.name} added users`],
+                },
+            ],
+        },
+    },{ new: true }
+  ); 
+  res.status(200).json({ message: "Task updated successfully!", updatedTask ,newTaskLog });
 });
 const updateTask3 = catchAsync(async (req, res, next) => {
   let { id } = req.params;
@@ -475,9 +502,7 @@ const updateTask3 = catchAsync(async (req, res, next) => {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
   }
 
-  let newTaskLog = new taskLogModel({taskId: id, createdBy: req.query.id, $push: { group: req.body.group }  });
-  let addedTaskLog = await newTaskLog.save();
-  res.status(200).json({ message: "Task updated successfully!", updatedTask ,addedTaskLog });
+  res.status(200).json({ message: "Task updated successfully!", updatedTask  });
 });
 const updateTask2 = catchAsync(async (req, res, next) => {
   let { id } = req.params;
@@ -499,9 +524,40 @@ const updateTask2 = catchAsync(async (req, res, next) => {
   if (!updatedTask) {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
   }
-  let newTaskLog = new taskLogModel({taskId: id, ...req.body});
-  let addedTaskLog = await newTaskLog.save();
-  res.status(200).json({ message: "Task updated successfully!", updatedTask ,addedTaskLog });
+  let user = await userModel.findById(req.query.id)
+  let changes = []
+  if(req.body.title){
+    changes.push(`${user.name} updated title`)
+  }
+  if(req.body.sDate){
+    changes.push(`${user.name} updated Start Date`)
+  }
+  if(req.body.eDate){
+    changes.push(`${user.name} updated End Date`)
+  }
+  if(req.body.sTime){
+    changes.push(`${user.name} updated Start Time`)
+  }
+  if(req.body.eTime){
+    changes.push(`${user.name} updated End Time`)
+  }
+  if(req.body.desc){
+    changes.push(`${user.name} updated Description`)
+  }
+  let newTaskLog = await taskLogModel.findOneAndUpdate(
+    { taskId: id},
+    {
+        $push: {
+            updates: [
+                {
+                    createdBy: req.query.id,
+                    changes: changes,
+                },
+            ],
+        },
+    },{ new: true }
+  ); 
+  res.status(200).json({ message: "Task updated successfully!", updatedTask ,newTaskLog });
 });
 const deleteTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;

@@ -13,7 +13,7 @@ import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 // });
 
 const getAllTaskLogByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskLogModel.find().populate("users").populate("createdBy").sort({ $natural: -1 }), req.query).pagination()
+  let ApiFeat = new ApiFeature(taskLogModel.find().populate("updates.createdBy").sort({ $natural: -1 }), req.query).pagination()
     .sort()
     .search();
 
@@ -35,7 +35,7 @@ const getAllTaskLogByAdmin = catchAsync(async (req, res, next) => {
 
 });
 const getAllTaskLogByTask = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskLogModel.find({taskId:req.params.id}).populate("users").populate("createdBy").sort({ $natural: -1 }), req.query)
+  let ApiFeat = new ApiFeature(taskLogModel.find({taskId:req.params.id}).populate("updates.createdBy").sort({ $natural: -1 }), req.query)
     .sort()
     .search();
 
