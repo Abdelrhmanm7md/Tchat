@@ -59,10 +59,10 @@ const userSchema = mongoose.Schema(
 // });
 userSchema.pre(/^delete/, { document: false, query: true }, async function() {
   const doc = await this.model.findOne(this.getFilter());
-  console.log(doc.profilePic);
+  console.log(doc.profilePic.replace("http://localhost:8000", "uploads"));
   if (doc) {
     await taskModel.deleteMany({ createdBy: doc._id });
-    fsExtra.unlink(doc.profilePic, (err) => {
+    fsExtra.unlink(doc.profilePic.replace("http://localhost:8000", "../uploads"), (err) => {
       if (err) {
         // An error occurred while deleting the file
         if (err.code === 'ENOENT') {

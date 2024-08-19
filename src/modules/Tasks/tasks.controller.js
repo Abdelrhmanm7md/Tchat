@@ -476,7 +476,7 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
   );
   res
     .status(200)
-    .json({ message: "Task updated successfully!", documments, newTaskLog });
+    .json({ message: "Task updated successfully!", documments, });
 });
 
 const updateTask = catchAsync(async (req, res, next) => {
@@ -499,6 +499,36 @@ const updateTask = catchAsync(async (req, res, next) => {
         updates: [
           {
             changes: [`${user.name} added users`],
+          },
+        ],
+      },
+    },
+    { new: true }
+  );
+  res
+    .status(200)
+    .json({ message: "Task updated successfully!", updatedTask, });
+});
+const updateTask4 = catchAsync(async (req, res, next) => {
+  let { id } = req.params;
+
+  let updatedTask = await taskModel.findByIdAndUpdate(
+    id,
+    { $push: { resources: req.body.resources } },
+    { new: true }
+  );
+
+  if (!updatedTask) {
+    return res.status(404).json({ message: "Couldn't update!  not found!" });
+  }
+  let user = await userModel.findById(req.query.id);
+  let newTaskLog = await taskLogModel.findOneAndUpdate(
+    { taskId: id },
+    {
+      $push: {
+        updates: [
+          {
+            changes: [`${user.name} added resources`],
           },
         ],
       },
@@ -900,6 +930,24 @@ const deleteUserTask = catchAsync(async (req, res, next) => {
     .status(200)
     .json({ message: "user deleted successfully!", deleteUserTask });
 });
+const deleteresourcesTask = catchAsync(async (req, res, next) => {
+  let { id, resourcesId } = req.params;
+console.log(id,resourcesId);
+
+  let deleteUserTask = await taskModel.findOneAndUpdate(
+    { _id: id },
+    { $pull: { resources: { _id: resourcesId } } },
+    { new: true }
+  );
+  // console.log(deleteUserTask.resources[0]._id);
+  
+  if (!deleteUserTask) {
+    return res.status(404).json({ message: "tasks not found!" });
+  }
+  res
+    .status(200)
+    .json({ message: "resources deleted successfully!", deleteUserTask });
+});
 
 export {
   createTask,
@@ -926,6 +974,8 @@ export {
   getDoneTasksByUser,
   deleteUserTask,
   updateTask3,
+  updateTask4,
   getAllTasksByAdminByDay,
   getAllTasksByUserByDay,
+  deleteresourcesTask,
 };

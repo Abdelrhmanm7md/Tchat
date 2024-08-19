@@ -5,49 +5,7 @@ import AppError from "../../utils/appError.js";
 import path from "path";
 import fsExtra from "fs-extra";
 import { sendEmail } from "../../email/sendEmail.js";
-import { taskModel } from "../../../database/models/tasks.model.js";
 
-// const addPhoto = catchAsync(async (req, res, next) => {
-//   if (req.file) req.body.profilePic = req.file.originalname;
-//   let profilePic = "";
-//   if (req.body.profilePic) {
-//     profilePic = req.body.profilePic;
-//   }
-
-//   // profilePic = profilePic.map(
-//   //   (file) => `http://localhost:8000/tasks/${file.originalname.split(" ").join("")}`
-//   // );
-
-//     const directoryPath = path.join(profilePic, 'uploads/profilePic');
-
-//     fsExtra.readdir(directoryPath, (err, files) => {
-//         if (err) {
-//             return console.error('Unable to scan directory: ' + err);
-//         }
-
-//         files.forEach(file => {
-//             const oldPath = path.join(directoryPath, file);
-//             const newPath = path.join(directoryPath, file.replace(/\s+/g, ''));
-
-//             fsExtra.rename(oldPath, newPath, (err) => {
-//                 if (err) {
-//                     console.error('Error renaming file: ', err);
-//                 } else {
-//                     console.log(`Renamed: ${file} -> ${file.replace(/\s+/g, '')}`);
-//                 }
-//             });
-//         });
-//     });
-
-//   if (!req.body.profilePic) {
-//     return res.status(404).json({ message: "Couldn't update!  not found!" });
-//   }
-//   res.status(200).json({
-//     message: "Photo updated successfully!",
-//     // profilePic: `http://localhost:8000/profilePic/${profilePic}`,
-//     profilePic
-//   });
-// });
 
 const addPhotos = catchAsync(async (req, res, next) => {
   let profilePic = "";

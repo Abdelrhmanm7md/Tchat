@@ -30,6 +30,7 @@ taskRouter.post(
 taskRouter.put("/update/users/:id", taskController.updateTask);
 taskRouter.put("/:id", taskController.updateTask2);
 taskRouter.put("/group/:id", taskController.updateTask3);
+taskRouter.put("/resources/:id", taskController.updateTask4);
 
 taskRouter.put(
   "/images/:id",
@@ -40,6 +41,7 @@ taskRouter.put(
 );
 taskRouter.delete("/:id", taskController.deleteTask);
 taskRouter.delete("/:id/user/:userId", taskController.deleteUserTask);
+taskRouter.delete("/:id/resources/:resourcesId", taskController.deleteresourcesTask);
 
 
 export default taskRouter;

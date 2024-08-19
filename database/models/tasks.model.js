@@ -25,17 +25,13 @@ const taskSchema = mongoose.Schema(
       type: String,
       // required: true,
     },
-    // resources:[
-    //   {
-    //     lng: { type: String},
-    //     lat: { type: String},
-    //     name: {type: String},
-    //   },
-    // ],
-    resources: {
-      type: [String],
-      // required: true,
-    },
+    resources:[
+      {
+        lng: { type: String},
+        lat: { type: String},
+        name: {type: String},
+      },
+    ],
     documments: {
       type: [String],
       // required: true,
