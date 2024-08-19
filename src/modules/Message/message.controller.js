@@ -49,7 +49,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
     req.files.docs &&
     req.files.docs.map(
       (file) =>
-        `https://tchatpro.com/image/${file.filename.split(" ").join("")}`
+        `https://tchatpro.com/image/${file.filename.split(" ").join("-")}`
     );
 
   const directoryPathh = path.join(docs, "uploads/image");
@@ -61,7 +61,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
 
     files.forEach((file) => {
       const oldPath = path.join(directoryPathh, file);
-      const newPath = path.join(directoryPathh, file.replace(/\s+/g, ""));
+      const newPath = path.join(directoryPathh, file.replace(/\s+/g, "-"));
 
       fsExtra.rename(oldPath, newPath, (err) => {
         if (err) {

@@ -11,7 +11,7 @@ export const signUp = catchAsync(async (req, res, next) => {
   // console.log(req.body.phone.length);
   // if (
   //   req.body.phone !== "" &&
-  //   req.body.phone.match(phoneFormat) &&
+    // req.body.phone.match(phoneFormat) &&
   //   req.body.phone.length > 10
   // )
   if (req.body.phone !== "") {

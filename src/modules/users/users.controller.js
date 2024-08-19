@@ -5,6 +5,7 @@ import AppError from "../../utils/appError.js";
 import path from "path";
 import fsExtra from "fs-extra";
 import { sendEmail } from "../../email/sendEmail.js";
+import { taskModel } from "../../../database/models/tasks.model.js";
 
 // const addPhoto = catchAsync(async (req, res, next) => {
 //   if (req.file) req.body.profilePic = req.file.originalname;
@@ -54,7 +55,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
     req.files.profilePic &&
     req.files.profilePic.map(
       (file) =>
-        `https://tchatpro.com/profilePic/${file.filename.split(" ").join("")}`
+        `https://tchatpro.com/profilePic/${file.filename.split(" ").join("-")}`
     );
 
   const directoryPath = path.join(profilePic, "uploads/profilePic");
@@ -66,7 +67,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
 
     files.forEach((file) => {
       const oldPath = path.join(directoryPath, file);
-      const newPath = path.join(directoryPath, file.replace(/\s+/g, ""));
+      const newPath = path.join(directoryPath, file.replace(/\s+/g, "-"));
 
       fsExtra.rename(oldPath, newPath, (err) => {
         if (err) {
@@ -161,14 +162,16 @@ const postMessage = catchAsync(async (req, res, next) => {
 const deleteUser = catchAsync(async (req, res, next) => {
   let { id } = req.params;
 
-  let deletedUser = await userModel.findByIdAndDelete(id);
+  let deletedUser = await userModel.deleteOne({_id:id});
 
   if (!deletedUser) {
     return res
       .status(404)
       .json({ message: "Couldn't delete! User not found!" });
   }
-
+  // let deletedTask = await taskModel.deleteMany({ createdBy: id });
+  // console.log(deletedTask);
+  
   res.status(200).json({ message: "User deleted successfully!" });
 });
 

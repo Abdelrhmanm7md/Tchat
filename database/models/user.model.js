@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
+import { taskModel } from "./tasks.model.js";
+import fsExtra from "fs-extra";
 
 const userSchema = mongoose.Schema(
   {
@@ -55,5 +57,27 @@ const userSchema = mongoose.Schema(
 //   this._update.password = bcrypt.hashSync(this._update.password, 10);
 //   }
 // });
+userSchema.pre(/^delete/, { document: false, query: true }, async function() {
+  const doc = await this.model.findOne(this.getFilter());
+  console.log(doc.profilePic);
+  if (doc) {
+    await taskModel.deleteMany({ createdBy: doc._id });
+    fsExtra.unlink(doc.profilePic, (err) => {
+      if (err) {
+        // An error occurred while deleting the file
+        if (err.code === 'ENOENT') {
+          // The file does not exist
+          console.error('The file does not exist');
+        } else {
+          // Some other error
+          console.error(err.message);
+        }
+      } else {
+        // The file was deleted successfully
+        console.log('The file was deleted');
+      }
+    });
+  }
+});
 
 export const userModel = mongoose.model("user", userSchema);

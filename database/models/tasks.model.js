@@ -92,17 +92,17 @@ const taskSchema = mongoose.Schema(
     group: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "group",
-      default: null,
+      default: undefined,
       // required: true,
     },
-    
   },
   { timestamps: true }
 );
 
-taskSchema.pre('findByIdAndDelete', async function () {
+taskSchema.pre(/^delete/, { document: false, query: true }, async function() {
   const doc = await this.model.findOne(this.getFilter());
-  await taskLogModel.deleteMany({ taskId: doc._id });
+  if (doc) {
+    await taskLogModel.deleteMany({ taskId: doc._id });
+  }
 });
-
 export const taskModel = mongoose.model("task", taskSchema);
