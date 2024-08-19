@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { taskLogModel } from "./tasksLog.model.js";
 
 const taskSchema = mongoose.Schema(
   {
@@ -24,10 +25,13 @@ const taskSchema = mongoose.Schema(
       type: String,
       // required: true,
     },
-    tasksPriority: {
-      type: String,
-      // required: true,
-    },
+    // resources:[
+    //   {
+    //     lng: { type: String},
+    //     lat: { type: String},
+    //     name: {type: String},
+    //   },
+    // ],
     resources: {
       type: [String],
       // required: true,
@@ -95,5 +99,10 @@ const taskSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
+
+taskSchema.pre('findByIdAndDelete', async function () {
+  const doc = await this.model.findOne(this.getFilter());
+  await taskLogModel.deleteMany({ taskId: doc._id });
+});
 
 export const taskModel = mongoose.model("task", taskSchema);

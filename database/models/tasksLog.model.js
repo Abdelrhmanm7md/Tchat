@@ -4,7 +4,6 @@ const taskLogSchema = mongoose.Schema(
   {
     updates: [
       {
-        createdBy: { type: mongoose.Schema.Types.ObjectId,ref: "user",required: true, },
         changes: { type: [String] , },
         date: {type: Date,default: Date.now,required: true,},
       },

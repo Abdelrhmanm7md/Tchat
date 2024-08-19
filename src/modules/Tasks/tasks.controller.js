@@ -14,58 +14,60 @@ const createTask = catchAsync(async (req, res, next) => {
       req.body.taskType = "shared";
     }
   }
-  req.body.users = [];  
+  req.body.users = [];
   let newTask = new taskModel(req.body);
   let addedTask = await newTask.save();
-  let user = await userModel.findById(req.body.createdBy)
+  let user = await userModel.findById(req.body.createdBy);
 
-// Create a new task log
-let newTaskLog = new taskLogModel({
-  taskId: addedTask._id,
-  updates: [
+  // Create a new task log
+  let newTaskLog = new taskLogModel({
+    taskId: addedTask._id,
+    updates: [
       {
-          createdBy: req.body.createdBy,
-          changes: [`${user.name} Created a Task`],
+        changes: [`${user.name} Created a Task`],
       },
-  ],
-});
+    ],
+  });
 
-// Save the new task log
-let addedTaskLog = await newTaskLog.save();
+  // Save the new task log
+  let addedTaskLog = await newTaskLog.save();
 
-if(req.body.parentTask ){
-  let newSubTaskLog = await taskLogModel.findOneAndUpdate(
-  { taskId: req.body.parentTask },
-  {
-      $push: {
+  if (req.body.parentTask) {
+    let newSubTaskLog = await taskLogModel.findOneAndUpdate(
+      { taskId: req.body.parentTask },
+      {
+        $push: {
           updates: [
-              {
-                  createdBy: req.body.createdBy,
-                  changes: [`${user.name} Created a Sub Task`],
-              },
+            {
+              changes: [`${user.name} Created a Sub Task`],
+            },
           ],
+        },
       },
-  },{ new: true }
-);
+      { new: true }
+    );
 
-    console.log(newSubTaskLog);
-    
     res.status(201).json({
       message: " Task has been created successfully!",
       addedTask,
-      addedTaskLog,
-      newSubTaskLog
     });
   }
   res.status(201).json({
     message: " Task has been created successfully!",
     addedTask,
-    addedTaskLog
   });
 });
 
 const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find().populate("users").populate("createdBy").sort({ $natural: -1 }), req.query).pagination()
+  let ApiFeat = new ApiFeature(
+    taskModel
+      .find()
+      .populate("users")
+      .populate("createdBy")
+      .sort({ $natural: -1 }),
+    req.query
+  )
+    .pagination()
 
     .sort()
     .search();
@@ -83,47 +85,54 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
   if (filterType && filterValue) {
     results = results.filter(function (item) {
       if (filterType == "title") {
-          return item.title.toLowerCase().includes(filterValue.toLowerCase());
+        return item.title.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "description") {
-          return item.desc.toLowerCase().includes(filterValue.toLowerCase());
+        return item.desc.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "taskStatus") {
-        return item.taskStatus.toLowerCase().includes(filterValue.toLowerCase());
+        return item.taskStatus
+          .toLowerCase()
+          .includes(filterValue.toLowerCase());
       }
       if (filterType == "priority") {
         return item.priority.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "isCompleted") {
-        return item.isCompleted.toString().includes(filterValue.toLowerCase())
+        return item.isCompleted.toString().includes(filterValue.toLowerCase());
       }
-      if (filterType == "date") {        
-        return item.eDate.includes(filterValue)
+      if (filterType == "date") {
+        return item.eDate.includes(filterValue);
       }
       if (filterType == "taskType") {
         return item.taskType.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "users") {
-        if(item.users[0]){
-          return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
-        }      }
+        if (item.users[0]) {
+          return item.users[0].name
+            .toLowerCase()
+            .includes(filterValue.toLowerCase());
+        }
+      }
     });
   }
   if (filterType == "sort") {
-    let filter = await taskModel.find()      
-    results = filter  
+    let filter = await taskModel.find();
+    results = filter;
   }
   res.json({
-    message: "done",
+    message: "Done",
     page: ApiFeat.page,
     count: await taskModel.countDocuments(),
     results,
   });
-
 });
 const getAllTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.find({ $or: [{ createdBy: req.params.id }, { users: req.params.id }] }).populate("users").populate("createdBy"),
+    taskModel
+      .find({ $or: [{ createdBy: req.params.id }, { users: req.params.id }] })
+      .populate("users")
+      .populate("createdBy"),
     req.query
   )
     .sort()
@@ -139,51 +148,53 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
   let { filterType, filterValue, filterDate } = req.query;
 
   if (filterType && filterValue && filterDate) {
-    if(filterType=='taskStatus'){
+    if (filterType == "taskStatus") {
       let filter = await taskModel.find({
         $and: [
           { taskStatus: filterValue.toLowerCase() },
           { eDate: filterDate },
-        ]
-      })
-      results = filter  
-    }
-    if(filterType=='priority'){
-      let filter = await taskModel.find({
-        $and: [
-          { priority: filterValue.toLowerCase() },
-          { eDate: filterDate },
-        ]
-      })
-      results = filter  
-    }
-  }
-if (filterType && filterValue) {
-  results = results.filter(function (item) {
-    if (filterType == "taskStatus") {
-      return item.taskStatus.toLowerCase().includes(filterValue.toLowerCase());
-    }
-    if (filterType == "date") {        
-      return item.eDate.includes(filterValue)
+        ],
+      });
+      results = filter;
     }
     if (filterType == "priority") {
-      return item.priority.toLowerCase().includes(filterValue.toLowerCase());
+      let filter = await taskModel.find({
+        $and: [{ priority: filterValue.toLowerCase() }, { eDate: filterDate }],
+      });
+      results = filter;
     }
-    // if (filterType == "users") {
-    //   if(item.users[0]){
-    //     return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
-    //   }      }
-  });
-}
+  }
+  if (filterType && filterValue) {
+    results = results.filter(function (item) {
+      if (filterType == "taskStatus") {
+        return item.taskStatus
+          .toLowerCase()
+          .includes(filterValue.toLowerCase());
+      }
+      if (filterType == "date") {
+        return item.eDate.includes(filterValue);
+      }
+      if (filterType == "priority") {
+        return item.priority.toLowerCase().includes(filterValue.toLowerCase());
+      }
+      // if (filterType == "users") {
+      //   if(item.users[0]){
+      //     return item.users[0].name.toLowerCase().includes(filterValue.toLowerCase());
+      //   }      }
+    });
+  }
   res.json({
-    message: "done",
+    message: "Done",
     results,
   });
 });
 
 const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.find({ parentTask: req.params.id }).populate("users").populate("createdBy"),
+    taskModel
+      .find({ parentTask: req.params.id })
+      .populate("users")
+      .populate("createdBy"),
     req.query
   )
     .sort()
@@ -198,7 +209,7 @@ const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
     });
   }
   res.json({
-    message: "done",
+    message: "Done",
     results,
   });
 });
@@ -217,59 +228,52 @@ const getAllPeopleTask = catchAsync(async (req, res, next) => {
     });
   }
   res.json({
-    message: "done",
-    results : results.users,
+    message: "Done",
+    results: results.users,
   });
 });
 const getAllDocsTask = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(
-    taskModel.findById(req.params.id),
-    req.query
-  )
+  let ApiFeat = new ApiFeature(taskModel.findById(req.params.id), req.query)
     .sort()
     .search();
 
-    let results = await ApiFeat.mongooseQuery;
+  let results = await ApiFeat.mongooseQuery;
 
-    if (!ApiFeat || !results) {
-      return res.status(404).json({
-        message: "No Task was found!",
-      });
-    }
-      let documments = []
-      if(results.documments){
-        documments = results.documments
-      }
-    
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+  let documments = [];
+  if (results.documments) {
+    documments = results.documments;
+  }
+
   res.json({
-    message: "done",
+    message: "Done",
     documments,
   });
 });
 const getAllResTask = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(
-    taskModel.findById(req.params.id),
-    req.query
-  )
+  let ApiFeat = new ApiFeature(taskModel.findById(req.params.id), req.query)
     .sort()
     .search();
 
-  
-    let results = await ApiFeat.mongooseQuery;
+  let results = await ApiFeat.mongooseQuery;
 
-    if (!ApiFeat || !results) {
-      return res.status(404).json({
-        message: "No Task was found!",
-      });
-    }
-      let resources = []
-      if(results.resources){
-        resources = results.resources
-      }
-    
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+  let resources = [];
+  if (results.resources) {
+    resources = results.resources;
+  }
+
   res.json({
-    message: "done",
-    resources
+    message: "Done",
+    resources,
   });
 });
 const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
@@ -283,7 +287,9 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
           { parentTask: null },
         ],
       })
-      .populate("createdBy").populate("users").populate("users.createdBy"),
+      .populate("createdBy")
+      .populate("users")
+      .populate("users.createdBy"),
     req.query
   )
     .sort()
@@ -303,32 +309,34 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
     { taskType: "shared" },
     { isShared: true },
     { parentTask: null },
-  ]
+  ];
   if ((filterType && filterValue) || filterDate) {
-  if(filterType=='taskStatus'){
-    filter.push({ taskStatus: filterValue }) 
-  }
-  if(filterType=='priority'){
-    filter.push({ priority: filterValue }) 
-  }
-  if (filterType == "date") {        
-    filter.push({ eDate: filterValue }) 
-  }
-  if(filterDate){
-    filter.push({ eDate: filterDate })
-  }
-  let query = await taskModel.find({
-    $and: filter
+    if (filterType == "taskStatus") {
+      filter.push({ taskStatus: filterValue });
+    }
+    if (filterType == "priority") {
+      filter.push({ priority: filterValue });
+    }
+    if (filterType == "date") {
+      filter.push({ eDate: filterValue });
+    }
+    if (filterDate) {
+      filter.push({ eDate: filterDate });
+    }
+    let query = await taskModel
+      .find({
+        $and: filter,
+      })
+      .populate("createdBy")
+      .populate("users")
+      .populate("users.createdBy");
 
-  }).populate("createdBy").populate("users").populate("users.createdBy")
-  
-  results = query 
-}
+    results = query;
+  }
   res.json({
-    message: "done",
+    message: "Done",
     results,
   });
-
 });
 const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
@@ -341,7 +349,8 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
           { parentTask: null },
         ],
       })
-      .populate("createdBy").populate("users"),
+      .populate("createdBy")
+      .populate("users"),
     req.query
   )
     .sort()
@@ -355,52 +364,59 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-  
+
   let filter = [
     { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
     { taskType: "normal" },
     { isShared: false },
     { parentTask: null },
-  ]
+  ];
   let { filterType, filterValue, filterDate } = req.query;
-  
+
   if ((filterType && filterValue) || filterDate) {
-    if(filterType=='taskStatus'){
-      filter.push({ taskStatus: filterValue }) 
+    if (filterType == "taskStatus") {
+      filter.push({ taskStatus: filterValue });
     }
-    if(filterType=='priority'){
-      filter.push({ priority: filterValue }) 
+    if (filterType == "priority") {
+      filter.push({ priority: filterValue });
     }
-    if (filterType == "date") {        
-      filter.push({ eDate: filterValue }) 
+    if (filterType == "date") {
+      filter.push({ eDate: filterValue });
     }
-    if(filterDate)  {
-      filter.push({ eDate: filterDate })
+    if (filterDate) {
+      filter.push({ eDate: filterDate });
     }
-    let query = await taskModel.find({
-    $and: filter
-    }).populate("createdBy").populate("users")
-    results = query 
+    let query = await taskModel
+      .find({
+        $and: filter,
+      })
+      .populate("createdBy")
+      .populate("users");
+    results = query;
   }
 
   res.json({
-    message: "done",
+    message: "Done",
     results,
   });
 });
 
 const getTaskById = catchAsync(async (req, res, next) => {
   let { id } = req.params;
-  let results = await taskModel.findById(id).populate("users").populate("createdBy");
+  let results = await taskModel
+    .findById(id)
+    .populate("users")
+    .populate("createdBy");
 
   if (!results) {
     return res.status(404).json({ message: "Task not found!" });
   }
 
   res.json({
-    message: "done",
+    message: "Done",
     results,
-  });});
+  });
+});
 const updateTaskPhoto = catchAsync(async (req, res, next) => {
   let { id } = req.params;
   let documments = "";
@@ -433,32 +449,34 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
     if (req.body.documments !== "") {
       documments = req.body.documments;
     }
-
   }
   let updatedTask = await taskModel.findByIdAndUpdate(
     id,
-    { $push: { documments: documments, } },
+    { $push: { documments: documments } },
     { new: true }
   );
 
   if (!updatedTask) {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
   }
-  let user = await userModel.findById(req.query.id)
+  let user = await userModel.findById(req.query.id);
   let newTaskLog = await taskLogModel.findOneAndUpdate(
-    { taskId: id},
+    { taskId: id },
     {
-        $push: {
-            updates: [
-                {
-                    createdBy: req.query.id,
-                    changes: [`${user.name} added Documments `],
-                },
-            ],
-        },
-    },{ new: true }
-  ); 
-  res.status(200).json({ message: "Task updated successfully!",  documments ,newTaskLog});
+      $push: {
+        updates: [
+          {
+            createdBy: req.query.id,
+            changes: [`${user.name} added Documments `],
+          },
+        ],
+      },
+    },
+    { new: true }
+  );
+  res
+    .status(200)
+    .json({ message: "Task updated successfully!", documments, newTaskLog });
 });
 
 const updateTask = catchAsync(async (req, res, next) => {
@@ -473,28 +491,30 @@ const updateTask = catchAsync(async (req, res, next) => {
   if (!updatedTask) {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
   }
-  let user = await userModel.findById(req.query.id)
+  let user = await userModel.findById(req.query.id);
   let newTaskLog = await taskLogModel.findOneAndUpdate(
-    { taskId: id},
+    { taskId: id },
     {
-        $push: {
-            updates: [
-                {
-                    createdBy: req.query.id,
-                    changes: [`${user.name} added users`],
-                },
-            ],
-        },
-    },{ new: true }
-  ); 
-  res.status(200).json({ message: "Task updated successfully!", updatedTask ,newTaskLog });
+      $push: {
+        updates: [
+          {
+            changes: [`${user.name} added users`],
+          },
+        ],
+      },
+    },
+    { new: true }
+  );
+  res
+    .status(200)
+    .json({ message: "Task updated successfully!", updatedTask, });
 });
 const updateTask3 = catchAsync(async (req, res, next) => {
   let { id } = req.params;
 
   let updatedTask = await taskModel.findByIdAndUpdate(
     id,
-    {  $push: { group: req.body.group } },
+    { $push: { group: req.body.group } },
     { new: true }
   );
 
@@ -502,7 +522,7 @@ const updateTask3 = catchAsync(async (req, res, next) => {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
   }
 
-  res.status(200).json({ message: "Task updated successfully!", updatedTask  });
+  res.status(200).json({ message: "Task updated successfully!", updatedTask });
 });
 const updateTask2 = catchAsync(async (req, res, next) => {
   let { id } = req.params;
@@ -517,6 +537,7 @@ const updateTask2 = catchAsync(async (req, res, next) => {
       req.body.isCompleted = true;
     }
   }
+
   let updatedTask = await taskModel.findByIdAndUpdate(id, req.body, {
     new: true,
   });
@@ -524,40 +545,45 @@ const updateTask2 = catchAsync(async (req, res, next) => {
   if (!updatedTask) {
     return res.status(404).json({ message: "Couldn't update!  not found!" });
   }
-  let user = await userModel.findById(req.query.id)
-  let changes = []
-  if(req.body.title){
-    changes.push(`${user.name} updated title`)
+  let user = await userModel.findById(req.query.id);
+  let changes = [];
+  if (req.body.title) {
+    changes.push(`${user.name} updated title`);
   }
-  if(req.body.sDate){
-    changes.push(`${user.name} updated Start Date`)
+  if (req.body.sDate) {
+    changes.push(`${user.name} updated Start Date`);
   }
-  if(req.body.eDate){
-    changes.push(`${user.name} updated End Date`)
+  if (req.body.eDate) {
+    changes.push(`${user.name} updated End Date`);
   }
-  if(req.body.sTime){
-    changes.push(`${user.name} updated Start Time`)
+  if (req.body.sTime) {
+    changes.push(`${user.name} updated Start Time`);
   }
-  if(req.body.eTime){
-    changes.push(`${user.name} updated End Time`)
+  if (req.body.eTime) {
+    changes.push(`${user.name} updated End Time`);
   }
-  if(req.body.desc){
-    changes.push(`${user.name} updated Description`)
+  if (req.body.desc) {
+    changes.push(`${user.name} updated Description`);
+  }
+  if (req.body.resources) {
+    changes.push(`${user.name} updated Resources`);
   }
   let newTaskLog = await taskLogModel.findOneAndUpdate(
-    { taskId: id},
+    { taskId: id },
     {
-        $push: {
-            updates: [
-                {
-                    createdBy: req.query.id,
-                    changes: changes,
-                },
-            ],
-        },
-    },{ new: true }
-  ); 
-  res.status(200).json({ message: "Task updated successfully!", updatedTask ,newTaskLog });
+      $push: {
+        updates: [
+          {
+            changes: changes,
+          },
+        ],
+      },
+    },
+    { new: true }
+  );
+  res
+    .status(200)
+    .json({ message: "Task updated successfully!", updatedTask, });
 });
 const deleteTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
@@ -571,12 +597,9 @@ const deleteTask = catchAsync(async (req, res, next) => {
   res.status(200).json({ message: "Task deleted successfully!" });
 });
 
-
 // Admin
-const getAllTasksByAdmin  = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find({}), req.query)
-    .sort()
-    .search();
+const getAllTasksByAdmin = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(taskModel.find({}), req.query).sort().search();
   let results = await ApiFeat.mongooseQuery;
   if (!ApiFeat || !results) {
     return res.status(404).json({
@@ -584,13 +607,18 @@ const getAllTasksByAdmin  = catchAsync(async (req, res, next) => {
     });
   }
   res.json({
-    message: "done",
+    message: "Done",
     count: await taskModel.countDocuments(),
-    });
-
+  });
 });
-const getAllTasksByAdminByDay  = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find({$or:[{eDate:req.params.date},{sDate:req.params.date}]}).populate("users").populate("createdBy"), req.query)
+const getAllTasksByAdminByDay = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel
+      .find({ $or: [{ eDate: req.params.date }, { sDate: req.params.date }] })
+      .populate("users")
+      .populate("createdBy"),
+    req.query
+  )
     .sort()
     .search();
   let results = await ApiFeat.mongooseQuery;
@@ -600,32 +628,37 @@ const getAllTasksByAdminByDay  = catchAsync(async (req, res, next) => {
     });
   }
   res.json({
-    message: "done",
-    results
-    });
-
-});
-const getCancelTasksByAdmin  = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"Cancelled"}), req.query)
-    .sort()
-    .search();
-  let results = await ApiFeat.mongooseQuery;
-  if (!ApiFeat || !results) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
-  }
-  res.json({
-    message: "done",
+    message: "Done",
     results,
-    count: await taskModel.countDocuments({taskStatus:"Cancelled"}),
-    });
-
+  });
 });
-const getDoneTasksByAdmin  = catchAsync(async (req, res, next) => {
-  // console.log(req.params.id,"dddd");
-  
-  let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"Done"}).populate("users").populate("createdBy"), req.query)
+const getCancelTasksByAdmin = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel.find({ taskStatus: "Cancelled" }),
+    req.query
+  )
+    .sort()
+    .search();
+  let results = await ApiFeat.mongooseQuery;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+  res.json({
+    message: "Done",
+    results,
+    count: await taskModel.countDocuments({ taskStatus: "Cancelled" }),
+  });
+});
+const getDoneTasksByAdmin = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel
+      .find({ taskStatus: "Done" })
+      .populate("users")
+      .populate("createdBy"),
+    req.query
+  )
     .sort()
     .search();
   let results = await ApiFeat.mongooseQuery;
@@ -638,19 +671,21 @@ const getDoneTasksByAdmin  = catchAsync(async (req, res, next) => {
   if (filterType && filterValue) {
     results = results.filter(function (item) {
       if (filterType == "date") {
-          return item.eDate == filterValue;
+        return item.eDate == filterValue;
       }
     });
   }
   res.json({
-    message: "done",
+    message: "Done",
     results,
-    count: await taskModel.countDocuments({taskStatus:"Done"}),
-    });
-
+    count: await taskModel.countDocuments({ taskStatus: "Done" }),
+  });
 });
-const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find({taskStatus:"InProgress"}), req.query)
+const getInProgressTasksByAdmin = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel.find({ taskStatus: "InProgress" }),
+    req.query
+  )
     .sort()
     .search();
   let results = await ApiFeat.mongooseQuery;
@@ -660,184 +695,211 @@ const getInProgressTasksByAdmin  = catchAsync(async (req, res, next) => {
     });
   }
   res.json({
-    message: "done",
+    message: "Done",
     results,
-    count: await taskModel.countDocuments({taskStatus:"InProgress"}),
-    });
-
+    count: await taskModel.countDocuments({ taskStatus: "InProgress" }),
   });
-    ///////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-    
+});
+///////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+
 // User
 
-    const getAllTasksByUser  = catchAsync(async (req, res, next) => {
-      let ApiFeat = new ApiFeature(taskModel.find(
-            { $or: [{ createdBy: req.params.id }, { users: req.params.id }]  },
-        ), req.query)
-        .sort()
-        .search();
-      let results = await ApiFeat.mongooseQuery;
-      if (!ApiFeat || !results) {
-        return res.status(404).json({
-          message: "No Task was found!",
-        });
-      }
-      res.json({
-        message: "done",
-        count: await taskModel.countDocuments({
-          $and: [
-            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] }
-            ,{parentTask:null}
-          ],
-        }),
-        countDone: await taskModel.countDocuments({
-          $and: [
-            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] }
-            ,{taskStatus:"Done"},{parentTask:null}
-          ],
-        }),
-        countCancel: await taskModel.countDocuments({
-          $and: [
-            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] }
-            ,{taskStatus:"Cancelled"},{parentTask:null}
-          ],
-        })
-        });
-    
+const getAllTasksByUser = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel.find({
+      $or: [{ createdBy: req.params.id }, { users: req.params.id }],
+    }),
+    req.query
+  )
+    .sort()
+    .search();
+  let results = await ApiFeat.mongooseQuery;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
     });
-    const getAllTasksByUserByDay  = catchAsync(async (req, res, next) => {
-      let ApiFeat = new ApiFeature(taskModel.find(
-            { $and: [
-             { $or: [{ createdBy: req.params.id }, { users: req.params.id }]  },
-             {$or:[{eDate:req.params.date},{sDate:req.params.date}]}
-            ]
-    }).populate("users").populate("createdBy"), req.query)
-        .sort()
-        .search();
-      let results = await ApiFeat.mongooseQuery;
-      if (!ApiFeat || !results) {
-        return res.status(404).json({
-          message: "No Task was found!",
-        });
-      }
-      res.json({
-        message: "done",
-        results,
-        });
-    
+  }
+  res.json({
+    message: "Done",
+    count: await taskModel.countDocuments({
+      $and: [
+        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+        { parentTask: null },
+      ],
+    }),
+    countDone: await taskModel.countDocuments({
+      $and: [
+        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+        { taskStatus: "Done" },
+        { parentTask: null },
+      ],
+    }),
+    countCancel: await taskModel.countDocuments({
+      $and: [
+        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+        { taskStatus: "Cancelled" },
+        { parentTask: null },
+      ],
+    }),
+  });
+});
+const getAllTasksByUserByDay = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel
+      .find({
+        $and: [
+          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+          { $or: [{ eDate: req.params.date }, { sDate: req.params.date }] },
+        ],
+      })
+      .populate("users")
+      .populate("createdBy"),
+    req.query
+  )
+    .sort()
+    .search();
+  let results = await ApiFeat.mongooseQuery;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
     });
-    const getCancelTasksByUser  = catchAsync(async (req, res, next) => {
-      let ApiFeat = new ApiFeature(taskModel
-        .find({
-          $and: [
-            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-            {taskStatus:"Cancelled"},{parentTask:null}
-          ],
-        }).populate("users").populate("createdBy"), req.query)
-        .sort()
-        .search();
-      let results = await ApiFeat.mongooseQuery;
-      if (!ApiFeat || !results) {
-        return res.status(404).json({
-          message: "No Task was found!",
-        });
-      }
-      res.json({
-        message: "done",
-        results,
-        count: await taskModel.countDocuments({
-          $and: [
-            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-            {taskStatus:"Cancelled"},{parentTask:null}
-          ],
-        }),
-        });
-    
+  }
+  res.json({
+    message: "Done",
+    results,
+  });
+});
+const getCancelTasksByUser = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel
+      .find({
+        $and: [
+          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+          { taskStatus: "Cancelled" },
+          { parentTask: null },
+        ],
+      })
+      .populate("users")
+      .populate("createdBy"),
+    req.query
+  )
+    .sort()
+    .search();
+  let results = await ApiFeat.mongooseQuery;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
     });
-    const getDoneTasksByUser  = catchAsync(async (req, res, next) => {
-      let ApiFeat = new ApiFeature(taskModel
-        .find({
-          $and: [
-            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-            {taskStatus:"Done"},{parentTask:null}
-          ],
-        }).populate("users").populate("createdBy"), req.query)
-        .sort()
-        .search();
-      let results = await ApiFeat.mongooseQuery;
-      if (!ApiFeat || !results) {
-        return res.status(404).json({
-          message: "No Task was found!",
-        });
-      }
-      let { filterType, filterValue } = req.query;
-      if (filterType && filterValue) {
-        results = results.filter(function (item) {
-          if (filterType == "date") {
-              return item.eDate == filterValue;
-          }
-        });
-      }
-      res.json({
-        message: "done",
-        results,
-        count: await taskModel.countDocuments({
-          $and: [
-            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-            {taskStatus:"Done"},{parentTask:null}
-          ],
-        }),
-        });
-    
+  }
+  res.json({
+    message: "Done",
+    results,
+    count: await taskModel.countDocuments({
+      $and: [
+        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+        { taskStatus: "Cancelled" },
+        { parentTask: null },
+      ],
+    }),
+  });
+});
+const getDoneTasksByUser = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel
+      .find({
+        $and: [
+          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+          { taskStatus: "Done" },
+          { parentTask: null },
+        ],
+      })
+      .populate("users")
+      .populate("createdBy"),
+    req.query
+  )
+    .sort()
+    .search();
+  let results = await ApiFeat.mongooseQuery;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
     });
-    const getInProgressTasksByUser = catchAsync(async (req, res, next) => {
-      let ApiFeat = new ApiFeature(taskModel
-        .find({
-          $and: [
-            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-            {taskStatus:"InProgress"},{parentTask:null}
-          ],
-        }), req.query)
-        .sort()
-        .search();
-      let results = await ApiFeat.mongooseQuery;
-      if (!ApiFeat || !results) {
-        return res.status(404).json({
-          message: "No Task was found!",
-        });
+  }
+  let { filterType, filterValue } = req.query;
+  if (filterType && filterValue) {
+    results = results.filter(function (item) {
+      if (filterType == "date") {
+        return item.eDate == filterValue;
       }
-      res.json({
-        message: "done",
-        results,
-        count: await taskModel.countDocuments({
-          $and: [
-            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-            {taskStatus:"InProgress"},{parentTask:null}
-          ],
-        }),
-        });
     });
+  }
+  res.json({
+    message: "Done",
+    results,
+    count: await taskModel.countDocuments({
+      $and: [
+        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+        { taskStatus: "Done" },
+        { parentTask: null },
+      ],
+    }),
+  });
+});
+const getInProgressTasksByUser = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel.find({
+      $and: [
+        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+        { taskStatus: "InProgress" },
+        { parentTask: null },
+      ],
+    }),
+    req.query
+  )
+    .sort()
+    .search();
+  let results = await ApiFeat.mongooseQuery;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+  res.json({
+    message: "Done",
+    results,
+    count: await taskModel.countDocuments({
+      $and: [
+        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+        { taskStatus: "InProgress" },
+        { parentTask: null },
+      ],
+    }),
+  });
+});
 
-    const deleteUserTask = catchAsync(async (req, res, next) => {
-      let { id,userId } = req.params;
-    
-      let deleteUserTask = await taskModel.findOneAndUpdate(
-        { _id: id },
-        { $pull: { users:  userId  } },
-        { new: true }  );  
-      if (!deleteUserTask) {
-        return res.status(404).json({ message: "tasks not found!" });
-      }
-      if(deleteUserTask.users.length == 0){
-        deleteUserTask = await taskModel.findOneAndUpdate(
-          { _id: id },
-          { isShared: false, taskType: "normal"},
-          { new: true }  );
-      }
-      
-      res.status(200).json({ message: "user deleted successfully!", deleteUserTask });
-    });
+const deleteUserTask = catchAsync(async (req, res, next) => {
+  let { id, userId } = req.params;
 
+  let deleteUserTask = await taskModel.findOneAndUpdate(
+    { _id: id },
+    { $pull: { users: userId } },
+    { new: true }
+  );
+  if (!deleteUserTask) {
+    return res.status(404).json({ message: "tasks not found!" });
+  }
+  if (deleteUserTask.users.length == 0) {
+    deleteUserTask = await taskModel.findOneAndUpdate(
+      { _id: id },
+      { isShared: false, taskType: "normal" },
+      { new: true }
+    );
+  }
+
+  res
+    .status(200)
+    .json({ message: "user deleted successfully!", deleteUserTask });
+});
 
 export {
   createTask,

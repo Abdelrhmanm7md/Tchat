@@ -91,15 +91,21 @@ const addPhotos = catchAsync(async (req, res, next) => {
 });
 
 const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(userModel.find().sort({ $natural: -1 }), req.query).sort().search().pagination();
+  let ApiFeat = new ApiFeature(
+    userModel.find().sort({ $natural: -1 }),
+    req.query
+  )
+    .sort()
+    .search()
+    .pagination();
   let results = await ApiFeat.mongooseQuery;
   if (!results || !ApiFeat) {
     return res.status(404).json({
       message: "No users was found! add a new user to get started!",
     });
   }
-    let { filterType, filterValue } = req.query;
-  if(filterType&& filterValue){
+  let { filterType, filterValue } = req.query;
+  if (filterType && filterValue) {
     results = results.filter(function (item) {
       if (filterType == "name") {
         return item.name.toLowerCase().includes(filterValue.toLowerCase());
@@ -108,19 +114,19 @@ const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
         return item.phone.toLowerCase().includes(filterValue.toLowerCase());
       }
       if (filterType == "subscriptionType") {
-        return item.subscriptionType.toLowerCase().includes(filterValue.toLowerCase());
+        return item.subscriptionType
+          .toLowerCase()
+          .includes(filterValue.toLowerCase());
       }
-
-      
     });
   }
-  
-    if (filterType == "sort") {
-      let filter = await userModel.find()      
-      results = filter  
-    }
+
+  if (filterType == "sort") {
+    let filter = await userModel.find();
+    results = filter;
+  }
   res.json({
-    message: "done",
+    message: "Done",
     page: ApiFeat.page,
     count: await userModel.countDocuments(),
     results,
@@ -148,8 +154,8 @@ const postMessage = catchAsync(async (req, res, next) => {
 
   let results = await userModel.findById(id);
   !results && res.status(404).json({ message: "couldn't post! not found!" });
-  sendEmail(req.body.message ,results.name, results.phone);
-  res.json({ message: "Message sent to admin" ,results});
+  sendEmail(req.body.message, results.name, results.phone);
+  res.json({ message: "Message sent to admin", results });
 });
 
 const deleteUser = catchAsync(async (req, res, next) => {
@@ -166,4 +172,11 @@ const deleteUser = catchAsync(async (req, res, next) => {
   res.status(200).json({ message: "User deleted successfully!" });
 });
 
-export { getAllUsersByAdmin, getUserById, updateUser, deleteUser, addPhotos ,postMessage };
+export {
+  getAllUsersByAdmin,
+  getUserById,
+  updateUser,
+  deleteUser,
+  addPhotos,
+  postMessage,
+};

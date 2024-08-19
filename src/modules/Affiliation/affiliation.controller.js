@@ -29,10 +29,9 @@ import generateUniqueId from "generate-unique-id";
 
 const editAff = catchAsync(async (req, res, next) => {
   const { id } = req.params;
-  const updatedAff = await affiliationModel.findByIdAndUpdate(id,
-  req.body,
-  {new: true,}
-);
+  const updatedAff = await affiliationModel.findByIdAndUpdate(id, req.body, {
+    new: true,
+  });
 
   if (!updatedAff) {
     return res.status(404).json({ message: "Aff not found!" });
@@ -76,30 +75,34 @@ const deleteAff = catchAsync(async (req, res, next) => {
 
 const getAllAffs = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    affiliationModel.find({user:req.params.id}).populate("referredBy").sort({ $natural: -1 }),
+    affiliationModel
+      .find({ user: req.params.id })
+      .populate("referredBy")
+      .sort({ $natural: -1 }),
     req.query
   )
     .sort()
     .search();
-    let Usedcode = null
+  let Usedcode = null;
   let results = await ApiFeat.mongooseQuery;
   if (!ApiFeat || !results) {
     return res.status(404).json({
       message: "No Affiliation was found!",
     });
   }
-  if(results.referredBy){
-let code =  await affiliationModel.findOne({ user: results.referredBy._id });
-Usedcode = code.code
-}
-results=results[0]
+  if (results.referredBy) {
+    let code = await affiliationModel.findOne({ user: results.referredBy._id });
+    Usedcode = code.code;
+  }
+  results = results[0];
   res.json({
-    message: "done",
+    message: "Done",
     results,
     Usedcode,
-    "refs": await affiliationModel.find({ referredBy: req.params.id }).populate("user")
-
+    refs: await affiliationModel
+      .find({ referredBy: req.params.id })
+      .populate("user"),
   });
 });
 
-export {  editAff, deleteAff, getAllAffs, editAffReferrals };
+export { editAff, deleteAff, getAllAffs, editAffReferrals };
