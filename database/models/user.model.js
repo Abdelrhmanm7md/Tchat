@@ -2,6 +2,8 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import { taskModel } from "./tasks.model.js";
 import fsExtra from "fs-extra";
+import path from "path";
+import { affiliationModel } from "./affiliation.model.js";
 
 const userSchema = mongoose.Schema(
   {
@@ -59,23 +61,27 @@ const userSchema = mongoose.Schema(
 // });
 userSchema.pre(/^delete/, { document: false, query: true }, async function() {
   const doc = await this.model.findOne(this.getFilter());
-  console.log(doc.profilePic.replace("http://localhost:8000", "uploads"));
   if (doc) {
-    await taskModel.deleteMany({ createdBy: doc._id });
-    fsExtra.unlink(doc.profilePic.replace("http://localhost:8000", "../uploads"), (err) => {
-      if (err) {
-        // An error occurred while deleting the file
-        if (err.code === 'ENOENT') {
-          // The file does not exist
-          console.error('The file does not exist');
-        } else {
-          // Some other error
-          console.error(err.message);
+    await taskModel.deleteMany({ $and: [{ createdBy: doc._id}, { taskType: "normal" }] });
+    await affiliationModel.deleteMany({ user: doc._id });
+    await taskModel.updateMany({ users: doc._id }, { $pull: { users: doc._id } },{ new: true });
+
+    const photoPath = doc.profilePic.replace("https://tchatpro.com/profilePic/", "");
+    const fullPath = path.resolve("uploads/profilePic", photoPath);
+    // Check if the file exists
+    fsExtra.access(fullPath, fsExtra.constants.F_OK, (err) => {
+        if (err) {
+            console.error('File does not exist or cannot be accessed');
+            return;
         }
-      } else {
-        // The file was deleted successfully
-        console.log('The file was deleted');
-      }
+        // Delete the file
+        fsExtra.unlink(fullPath, (err) => {
+            if (err) {
+                console.error('Error deleting the file:', err);
+            } else {
+                console.log('File deleted successfully');
+            }
+        });
     });
   }
 });

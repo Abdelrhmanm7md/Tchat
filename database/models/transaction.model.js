@@ -22,6 +22,4 @@ const transSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-
-
 export const transModel = mongoose.model("transaction", transSchema);

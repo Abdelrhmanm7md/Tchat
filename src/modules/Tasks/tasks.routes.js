@@ -33,7 +33,7 @@ taskRouter.put("/group/:id", taskController.updateTask3);
 taskRouter.put("/resources/:id", taskController.updateTask4);
 
 taskRouter.put(
-  "/images/:id",
+  "/docs/:id",
   uploadMixFile("tasks", [
     { name: "documments",  },
   ]),fileSizeLimitErrorHandler, 

@@ -13,7 +13,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
     req.files.profilePic &&
     req.files.profilePic.map(
       (file) =>
-        `http://localhost:8000/profilePic/${file.filename.split(" ").join("-")}`
+        `https://tchatpro.com/profilePic/${file.filename.split(" ").join("-")}`
     );
 
   const directoryPath = path.join(profilePic, "uploads/profilePic");

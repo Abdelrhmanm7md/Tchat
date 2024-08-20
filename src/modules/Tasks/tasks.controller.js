@@ -98,9 +98,6 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
       if (filterType == "priority") {
         return item.priority.toLowerCase().includes(filterValue.toLowerCase());
       }
-      if (filterType == "isCompleted") {
-        return item.isCompleted.toString().includes(filterValue.toLowerCase());
-      }
       if (filterType == "date") {
         return item.eDate.includes(filterValue);
       }
@@ -425,7 +422,7 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
       req.files.documments &&
       req.files.documments.map(
         (file) =>
-          `https://tchatpro.com/tasks/${file.filename.split(" ").join("-")}`
+          `http://localhost:8000/tasks/${file.filename.split(" ").join("-")}`
       );
     const directoryPath = path.join(documments, "uploads/tasks");
 
@@ -560,11 +557,6 @@ const updateTask2 = catchAsync(async (req, res, next) => {
     if (req.body.users.length >= 1) {
       req.body.isShared = true;
       req.body.taskType = "shared";
-    }
-  }
-  if (req.body.taskStatus) {
-    if (req.body.taskStatus === "Done") {
-      req.body.isCompleted = true;
     }
   }
 
