@@ -104,7 +104,7 @@ taskSchema.pre(/^delete/, { document: false, query: true }, async function () {
     const photoPaths =
       doc.documents &&
       doc.documents.map((url) =>
-        url.replace("http://localhost:8000/tasks/", "")
+        url.replace("https://tchatpro.com/tasks/", "")
       );
     console.log(photoPaths);
 

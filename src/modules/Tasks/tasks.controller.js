@@ -422,7 +422,7 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
       req.files.documents &&
       req.files.documents.map(
         (file) =>
-          `http://localhost:8000/tasks/${file.filename.split(" ").join("-")}`
+          `https://tchatpro.com/tasks/${file.filename.split(" ").join("-")}`
       );
     const directoryPath = path.join(documents, "uploads/tasks");
 
