@@ -241,14 +241,14 @@ const getAllDocsTask = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-  let documments = [];
-  if (results.documments) {
-    documments = results.documments;
+  let documents = [];
+  if (results.documents) {
+    documents = results.documents;
   }
 
   res.json({
     message: "Done",
-    documments,
+    documents,
   });
 });
 const getAllResTask = catchAsync(async (req, res, next) => {
@@ -416,15 +416,15 @@ const getTaskById = catchAsync(async (req, res, next) => {
 });
 const updateTaskPhoto = catchAsync(async (req, res, next) => {
   let { id } = req.params;
-  let documments = "";
-  if (req.files.documments) {
-    req.body.documments =
-      req.files.documments &&
-      req.files.documments.map(
+  let documents = "";
+  if (req.files.documents) {
+    req.body.documents =
+      req.files.documents &&
+      req.files.documents.map(
         (file) =>
           `http://localhost:8000/tasks/${file.filename.split(" ").join("-")}`
       );
-    const directoryPath = path.join(documments, "uploads/tasks");
+    const directoryPath = path.join(documents, "uploads/tasks");
 
     fsExtra.readdir(directoryPath, (err, files) => {
       if (err) {
@@ -443,13 +443,13 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
       });
     });
 
-    if (req.body.documments !== "") {
-      documments = req.body.documments;
+    if (req.body.documents !== "") {
+      documents = req.body.documents;
     }
   }
   let updatedTask = await taskModel.findByIdAndUpdate(
     id,
-    { $push: { documments: documments } },
+    { $push: { documents: documents } },
     { new: true }
   );
 
@@ -464,16 +464,14 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
         updates: [
           {
             createdBy: req.query.id,
-            changes: [`${user.name} added Documments `],
+            changes: [`${user.name} added documents `],
           },
         ],
       },
     },
     { new: true }
   );
-  res
-    .status(200)
-    .json({ message: "Task updated successfully!", documments, });
+  res.status(200).json({ message: "Task updated successfully!", documents });
 });
 
 const updateTask = catchAsync(async (req, res, next) => {
@@ -502,9 +500,7 @@ const updateTask = catchAsync(async (req, res, next) => {
     },
     { new: true }
   );
-  res
-    .status(200)
-    .json({ message: "Task updated successfully!", updatedTask, });
+  res.status(200).json({ message: "Task updated successfully!", updatedTask });
 });
 const updateTask4 = catchAsync(async (req, res, next) => {
   let { id } = req.params;
@@ -532,9 +528,7 @@ const updateTask4 = catchAsync(async (req, res, next) => {
     },
     { new: true }
   );
-  res
-    .status(200)
-    .json({ message: "Task updated successfully!", updatedTask, });
+  res.status(200).json({ message: "Task updated successfully!", updatedTask });
 });
 const updateTask3 = catchAsync(async (req, res, next) => {
   let { id } = req.params;
@@ -603,14 +597,12 @@ const updateTask2 = catchAsync(async (req, res, next) => {
     },
     { new: true }
   );
-  res
-    .status(200)
-    .json({ message: "Task updated successfully!", updatedTask, });
+  res.status(200).json({ message: "Task updated successfully!", updatedTask });
 });
 const deleteTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
 
-  let deletedTask = await taskModel.deleteOne({_id:id});
+  let deletedTask = await taskModel.deleteOne({ _id: id });
 
   if (!deletedTask) {
     return res.status(404).json({ message: "Couldn't delete!  not found!" });
@@ -924,7 +916,7 @@ const deleteUserTask = catchAsync(async (req, res, next) => {
 });
 const deleteresourcesTask = catchAsync(async (req, res, next) => {
   let { id, resourcesId } = req.params;
-console.log(id,resourcesId);
+  console.log(id, resourcesId);
 
   let deleteUserTask = await taskModel.findOneAndUpdate(
     { _id: id },
@@ -932,7 +924,7 @@ console.log(id,resourcesId);
     { new: true }
   );
   // console.log(deleteUserTask.resources[0]._id);
-  
+
   if (!deleteUserTask) {
     return res.status(404).json({ message: "tasks not found!" });
   }

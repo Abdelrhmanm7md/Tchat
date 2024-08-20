@@ -22,14 +22,14 @@ const taskSchema = mongoose.Schema(
       type: String,
       // required: true,
     },
-    resources:[
+    resources: [
       {
-        lng: { type: String},
-        lat: { type: String},
-        name: {type: String},
+        lng: { type: String },
+        lat: { type: String },
+        name: { type: String },
       },
     ],
-    documments: {
+    documents: {
       type: [String],
       // required: true,
     },
@@ -79,7 +79,7 @@ const taskSchema = mongoose.Schema(
     },
     priority: {
       type: String,
-      enum: [ "low","normal","high"],
+      enum: ["low", "normal", "high"],
       required: true,
     },
     group: {
@@ -92,41 +92,41 @@ const taskSchema = mongoose.Schema(
   { timestamps: true }
 );
 
-taskSchema.pre(/^delete/, { document: false, query: true }, async function() {
+taskSchema.pre(/^delete/, { document: false, query: true }, async function () {
   const doc = await this.model.findOne(this.getFilter());
   if (doc) {
     await taskLogModel.deleteMany({ taskId: doc._id });
-    
-    if (!doc.documments || !Array.isArray(doc.documments)) {
-      console.error('doc.documments is either undefined or not an array');
+
+    if (!doc.documents || !Array.isArray(doc.documents)) {
+      console.error("doc.documents is either undefined or not an array");
       return;
-  }
-    const photoPaths = doc.documments&&doc.documments.map(url => url.replace("http://localhost:8000/tasks/", ""));
+    }
+    const photoPaths =
+      doc.documents &&
+      doc.documents.map((url) =>
+        url.replace("http://localhost:8000/tasks/", "")
+      );
     console.log(photoPaths);
-    
-    photoPaths.forEach(photoPath => {
+
+    photoPaths.forEach((photoPath) => {
       // Resolve the full path to the file
-    const fullPath = path.resolve("uploads/tasks", photoPath);
-    // Check if the file exists
-    fsExtra.access(fullPath, fsExtra.constants.F_OK, (err) => {
+      const fullPath = path.resolve("uploads/tasks", photoPath);
+      // Check if the file exists
+      fsExtra.access(fullPath, fsExtra.constants.F_OK, (err) => {
         if (err) {
-            console.error('File does not exist or cannot be accessed');
-            return;
+          console.error("File does not exist or cannot be accessed");
+          return;
         }
         // Delete the file
         fsExtra.unlink(fullPath, (err) => {
-            if (err) {
-                console.error('Error deleting the file:', err);
-            } else {
-                console.log('Files deleted successfully');
-            }
+          if (err) {
+            console.error("Error deleting the file:", err);
+          } else {
+            console.log("Files deleted successfully");
+          }
         });
+      });
     });
-  });
-
-
-
-
   }
 });
 export const taskModel = mongoose.model("task", taskSchema);
