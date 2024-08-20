@@ -19,39 +19,30 @@ taskRouter.get("/res/:id", taskController.getAllResTask);
 taskRouter.get("/analytics/", taskController.getAllTasksByAdmin);
 taskRouter.get("/analytics/done/", taskController.getDoneTasksByAdmin);
 taskRouter.get("/analytics/cancel/", taskController.getCancelTasksByAdmin);
-taskRouter.get(
-  "/analytics/inprogress/",
-  taskController.getInProgressTasksByAdmin
-);
+taskRouter.get("/analytics/inprogress/",taskController.getInProgressTasksByAdmin);
 taskRouter.get("/analytics/:id", taskController.getAllTasksByUser);
 taskRouter.get("/analytics/done/:id", taskController.getDoneTasksByUser);
 taskRouter.get("/analytics/cancel/:id", taskController.getCancelTasksByUser);
-taskRouter.get(
-  "/analytics/inprogress/:id",
-  taskController.getInProgressTasksByUser
-);
-taskRouter.get(
-  "/analytics/day/:id/:date",
-  taskController.getAllTasksByUserByDay
-);
+taskRouter.get("/analytics/inprogress/:id",taskController.getInProgressTasksByUser);
+taskRouter.get("/analytics/day/:id/:date",taskController.getAllTasksByUserByDay);
 taskRouter.get("/analytics/day/:date", taskController.getAllTasksByAdminByDay);
+
 taskRouter.post("/", taskController.createTask);
+
 taskRouter.put("/update/users/:id", taskController.updateTask);
 taskRouter.put("/:id", taskController.updateTask2);
 taskRouter.put("/group/:id", taskController.updateTask3);
 taskRouter.put("/resources/:id", taskController.updateTask4);
-
 taskRouter.put(
   "/docs/:id",
   uploadMixFile("tasks", [{ name: "documents" }]),
   fileSizeLimitErrorHandler,
   taskController.updateTaskPhoto
 );
+
 taskRouter.delete("/:id", taskController.deleteTask);
 taskRouter.delete("/:id/user/:userId", taskController.deleteUserTask);
-taskRouter.delete(
-  "/:id/resources/:resourcesId",
-  taskController.deleteresourcesTask
-);
+taskRouter.delete("/:id/resources/:resourcesId",taskController.deleteresourcesTask);
+taskRouter.delete("/:id/docs",taskController.deleteDocsTask);
 
 export default taskRouter;

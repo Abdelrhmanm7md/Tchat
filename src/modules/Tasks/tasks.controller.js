@@ -932,6 +932,42 @@ const deleteresourcesTask = catchAsync(async (req, res, next) => {
     .status(200)
     .json({ message: "resources deleted successfully!", deleteUserTask });
 });
+const deleteDocsTask = catchAsync(async (req, res, next) => {
+  let { id, } = req.params;
+  console.log(req.query.id);
+
+  let deleteUserTask = await taskModel.findOneAndUpdate(
+    { _id: id },
+    { $pull: { documents:  req.query.id } },
+    { new: true }
+  );
+  const photoPath = req.query.id.replace("https://tchatpro.com/tasks/", "");
+  const fullPath = path.resolve("uploads/tasks", photoPath);
+  // Check if the file exists
+  fsExtra.access(fullPath, fsExtra.constants.F_OK, (err) => {
+      if (err) {
+          console.error('File does not exist or cannot be accessed');
+          return;
+      }
+      // Delete the file
+      fsExtra.unlink(fullPath, (err) => {
+          if (err) {
+              console.error('Error deleting the file:', err);
+          } else {
+              console.log('File deleted successfully');
+          }
+      });
+  });
+
+
+  
+  if (!deleteUserTask) {
+    return res.status(404).json({ message: "tasks not found!" });
+  }
+  res
+    .status(200)
+    .json({ message: "Docs deleted successfully!", deleteUserTask });
+});
 
 export {
   createTask,
@@ -962,4 +998,5 @@ export {
   getAllTasksByAdminByDay,
   getAllTasksByUserByDay,
   deleteresourcesTask,
+  deleteDocsTask,
 };
