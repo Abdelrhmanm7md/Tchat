@@ -1,9 +1,8 @@
 import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import { taskModel } from "./tasks.model.js";
-import fsExtra from "fs-extra";
-import path from "path";
 import { affiliationModel } from "./affiliation.model.js";
+import { removeFile } from "../../src/utils/middleWare/removeFiles.js";
 
 const userSchema = mongoose.Schema(
   {
@@ -66,23 +65,24 @@ userSchema.pre(/^delete/, { document: false, query: true }, async function() {
     await affiliationModel.deleteMany({ user: doc._id });
     await taskModel.updateMany({ users: doc._id }, { $pull: { users: doc._id } },{ new: true });
 
-    const photoPath = doc.profilePic.replace("https://tchatpro.com/profilePic/", "");
-    const fullPath = path.resolve("uploads/profilePic", photoPath);
-    // Check if the file exists
-    fsExtra.access(fullPath, fsExtra.constants.F_OK, (err) => {
-        if (err) {
-            console.error('File does not exist or cannot be accessed');
-            return;
-        }
-        // Delete the file
-        fsExtra.unlink(fullPath, (err) => {
-            if (err) {
-                console.error('Error deleting the file:', err);
-            } else {
-                console.log('File deleted successfully');
-            }
-        });
-    });
+    // const photoPath = doc.profilePic.replace("https://tchatpro.com/profilePic/", "");
+    // const fullPath = path.resolve("uploads/profilePic", photoPath);
+    // // Check if the file exists
+    // fsExtra.access(fullPath, fsExtra.constants.F_OK, (err) => {
+    //     if (err) {
+    //         console.error('File does not exist or cannot be accessed');
+    //         return;
+    //     }
+    //     // Delete the file
+    //     fsExtra.unlink(fullPath, (err) => {
+    //         if (err) {
+    //             console.error('Error deleting the file:', err);
+    //         } else {
+    //             console.log('File deleted successfully');
+    //         }
+    //     });
+    // });
+    removeFile("profilePic",doc.profilePic)
   }
 });
 

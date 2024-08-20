@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import { taskLogModel } from "./tasksLog.model.js";
-import fsExtra from "fs-extra";
-import path from "path";
+
 
 const taskSchema = mongoose.Schema(
   {
@@ -97,36 +96,37 @@ taskSchema.pre(/^delete/, { document: false, query: true }, async function () {
   if (doc) {
     await taskLogModel.deleteMany({ taskId: doc._id });
 
-    if (!doc.documents || !Array.isArray(doc.documents)) {
-      console.error("doc.documents is either undefined or not an array");
-      return;
-    }
-    const photoPaths =
-      doc.documents &&
-      doc.documents.map((url) =>
-        url.replace("https://tchatpro.com/tasks/", "")
-      );
-    console.log(photoPaths);
+    // if (!doc.documents || !Array.isArray(doc.documents)) {
+    //   console.error("doc.documents is either undefined or not an array");
+    //   return;
+    // }
+    // const photoPaths =
+    //   doc.documents &&
+    //   doc.documents.map((url) =>
+    //     url.replace("https://tchatpro.com/tasks/", "")
+    //   );
+    // console.log(photoPaths);
 
-    photoPaths.forEach((photoPath) => {
-      // Resolve the full path to the file
-      const fullPath = path.resolve("uploads/tasks", photoPath);
-      // Check if the file exists
-      fsExtra.access(fullPath, fsExtra.constants.F_OK, (err) => {
-        if (err) {
-          console.error("File does not exist or cannot be accessed");
-          return;
-        }
-        // Delete the file
-        fsExtra.unlink(fullPath, (err) => {
-          if (err) {
-            console.error("Error deleting the file:", err);
-          } else {
-            console.log("Files deleted successfully");
-          }
-        });
-      });
-    });
+    // photoPaths.forEach((photoPath) => {
+    //   // Resolve the full path to the file
+    //   const fullPath = path.resolve("uploads/tasks", photoPath);
+    //   // Check if the file exists
+    //   fsExtra.access(fullPath, fsExtra.constants.F_OK, (err) => {
+    //     if (err) {
+    //       console.error("File does not exist or cannot be accessed");
+    //       return;
+    //     }
+    //     // Delete the file
+    //     fsExtra.unlink(fullPath, (err) => {
+    //       if (err) {
+    //         console.error("Error deleting the file:", err);
+    //       } else {
+    //         console.log("Files deleted successfully");
+    //       }
+    //     });
+    //   });
+    // });
+    removeFiles("tasks", doc.documents);
   }
 });
 export const taskModel = mongoose.model("task", taskSchema);

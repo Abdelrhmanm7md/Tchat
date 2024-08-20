@@ -21,9 +21,7 @@ taskRouter.get("/analytics/done/", taskController.getDoneTasksByAdmin);
 taskRouter.get("/analytics/cancel/", taskController.getCancelTasksByAdmin);
 taskRouter.get("/analytics/inprogress/",taskController.getInProgressTasksByAdmin);
 taskRouter.get("/analytics/:id", taskController.getAllTasksByUser);
-taskRouter.get("/analytics/done/:id", taskController.getDoneTasksByUser);
-taskRouter.get("/analytics/cancel/:id", taskController.getCancelTasksByUser);
-taskRouter.get("/analytics/inprogress/:id",taskController.getInProgressTasksByUser);
+taskRouter.get("/analytics/count/:id", taskController.getAnalyseTasksByUser);
 taskRouter.get("/analytics/day/:id/:date",taskController.getAllTasksByUserByDay);
 taskRouter.get("/analytics/day/:date", taskController.getAllTasksByAdminByDay);
 

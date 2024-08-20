@@ -6,6 +6,7 @@ import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import fsExtra from "fs-extra";
 import path from "path";
+import { removeFile } from "../../utils/middleWare/removeFiles.js";
 
 const createTask = catchAsync(async (req, res, next) => {
   if (req.body.users) {
@@ -121,6 +122,8 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
     message: "Done",
     page: ApiFeat.page,
     count: await taskModel.countDocuments(),
+    countDone: await taskModel.countDocuments({ taskStatus: "Done" }),
+    countCancel: await taskModel.countDocuments({ taskStatus: "Cancelled" }),
     results,
   });
 });
@@ -783,105 +786,24 @@ const getAllTasksByUserByDay = catchAsync(async (req, res, next) => {
     results,
   });
 });
-const getCancelTasksByUser = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(
-    taskModel
-      .find({
-        $and: [
-          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-          { taskStatus: "Cancelled" },
-          { parentTask: null },
-        ],
-      })
-      .populate("users")
-      .populate("createdBy"),
-    req.query
-  )
-    .sort()
-    .search();
-  let results = await ApiFeat.mongooseQuery;
-  if (!ApiFeat || !results) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
-  }
+const getAnalyseTasksByUser = catchAsync(async (req, res, next) => {
   res.json({
     message: "Done",
-    results,
-    count: await taskModel.countDocuments({
+    countCancel: await taskModel.countDocuments({
       $and: [
         { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
         { taskStatus: "Cancelled" },
         { parentTask: null },
       ],
     }),
-  });
-});
-const getDoneTasksByUser = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(
-    taskModel
-      .find({
-        $and: [
-          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-          { taskStatus: "Done" },
-          { parentTask: null },
-        ],
-      })
-      .populate("users")
-      .populate("createdBy"),
-    req.query
-  )
-    .sort()
-    .search();
-  let results = await ApiFeat.mongooseQuery;
-  if (!ApiFeat || !results) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
-  }
-  let { filterType, filterValue } = req.query;
-  if (filterType && filterValue) {
-    results = results.filter(function (item) {
-      if (filterType == "date") {
-        return item.eDate == filterValue;
-      }
-    });
-  }
-  res.json({
-    message: "Done",
-    results,
-    count: await taskModel.countDocuments({
+    countDone: await taskModel.countDocuments({
       $and: [
         { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
         { taskStatus: "Done" },
         { parentTask: null },
       ],
     }),
-  });
-});
-const getInProgressTasksByUser = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(
-    taskModel.find({
-      $and: [
-        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-        { taskStatus: "InProgress" },
-        { parentTask: null },
-      ],
-    }),
-    req.query
-  )
-    .sort()
-    .search();
-  let results = await ApiFeat.mongooseQuery;
-  if (!ApiFeat || !results) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
-  }
-  res.json({
-    message: "Done",
-    results,
-    count: await taskModel.countDocuments({
+    countInProgress: await taskModel.countDocuments({
       $and: [
         { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
         { taskStatus: "InProgress" },
@@ -934,30 +856,31 @@ const deleteresourcesTask = catchAsync(async (req, res, next) => {
 });
 const deleteDocsTask = catchAsync(async (req, res, next) => {
   let { id, } = req.params;
-  console.log(req.query.id);
+  console.log(req.body.id);
 
   let deleteUserTask = await taskModel.findOneAndUpdate(
     { _id: id },
-    { $pull: { documents:  req.query.id } },
+    { $pull: { documents:  req.body.id } },
     { new: true }
   );
-  const photoPath = req.query.id.replace("https://tchatpro.com/tasks/", "");
-  const fullPath = path.resolve("uploads/tasks", photoPath);
-  // Check if the file exists
-  fsExtra.access(fullPath, fsExtra.constants.F_OK, (err) => {
-      if (err) {
-          console.error('File does not exist or cannot be accessed');
-          return;
-      }
-      // Delete the file
-      fsExtra.unlink(fullPath, (err) => {
-          if (err) {
-              console.error('Error deleting the file:', err);
-          } else {
-              console.log('File deleted successfully');
-          }
-      });
-  });
+  // const photoPath = req.query.id.replace("https://tchatpro.com/tasks/", "");
+  // const fullPath = path.resolve("uploads/tasks", photoPath);
+  // // Check if the file exists
+  // fsExtra.access(fullPath, fsExtra.constants.F_OK, (err) => {
+  //     if (err) {
+  //         console.error('File does not exist or cannot be accessed');
+  //         return;
+  //     }
+  //     // Delete the file
+  //     fsExtra.unlink(fullPath, (err) => {
+  //         if (err) {
+  //             console.error('Error deleting the file:', err);
+  //         } else {
+  //             console.log('File deleted successfully');
+  //         }
+  //     });
+  // });
+  removeFile("tasks", req.body.id);
 
 
   
@@ -989,9 +912,7 @@ export {
   getCancelTasksByAdmin,
   getInProgressTasksByAdmin,
   getAllTasksByUser,
-  getCancelTasksByUser,
-  getInProgressTasksByUser,
-  getDoneTasksByUser,
+  getAnalyseTasksByUser,
   deleteUserTask,
   updateTask3,
   updateTask4,
