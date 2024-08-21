@@ -186,6 +186,7 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
   res.json({
     message: "Done",
     results,
+
   });
 });
 
@@ -629,9 +630,12 @@ const getAllTasksByAdmin = catchAsync(async (req, res, next) => {
   });
 });
 const getAllTasksByAdminByDay = catchAsync(async (req, res, next) => {
+  var sDayOnly = new Date(req.params.sDate);
+  var eDayOnly = new Date(req.params.eDate);
+  eDayOnly.setUTCHours(23, 59, 59, 0);
   let ApiFeat = new ApiFeature(
     taskModel
-      .find({ $or: [{ eDate: req.params.date }, { sDate: req.params.date }] })
+      .find( { createdAt: { $gte: sDayOnly, $lte: eDayOnly } })
       .populate("users")
       .populate("createdBy"),
     req.query
@@ -644,6 +648,47 @@ const getAllTasksByAdminByDay = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
+  res.json({
+    message: "Done",
+    results,
+  });
+});
+const getAllTasksByAdminByWeek = catchAsync(async (req, res, next) => {
+  var sDayOnly = new Date(req.query.sDate);
+  var eDayOnly = new Date(req.query.eDate);
+  eDayOnly.setUTCHours(23, 59, 59, 0);
+
+  
+  let taskCounts = await taskModel.aggregate([
+    {
+      $match: {
+        createdAt: { $gte: sDayOnly, $lte: eDayOnly }
+      }
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { "_id": 1 }
+    }
+  ]);
+  
+  const allDates = [];
+  let currentDate = new Date(sDayOnly);
+  while (currentDate <= eDayOnly) {
+    allDates.push(currentDate.toISOString().slice(0, 10));
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  
+  const results = allDates.map(date => {
+    const found = taskCounts.find(tc => tc._id === date);
+    return {  count: found ? found.count : 0 };
+  });
+
+
   res.json({
     message: "Done",
     results,
@@ -721,23 +766,43 @@ const getInProgressTasksByAdmin = catchAsync(async (req, res, next) => {
 
 // User
 
-const getAllTasksByUser = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(
-    taskModel.find({
-      $or: [{ createdBy: req.params.id }, { users: req.params.id }],
-    }),
-    req.query
-  )
-    .sort()
-    .search();
-  let results = await ApiFeat.mongooseQuery;
-  if (!ApiFeat || !results) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
+const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
+  var sDayOnly = new Date(req.query.sDate);
+  var eDayOnly = new Date(req.query.eDate);
+  eDayOnly.setUTCHours(23, 59, 59, 0);
+  let taskCounts = await taskModel.aggregate([
+    {
+      $match: { $and: [
+        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+        { createdAt: { $gte: sDayOnly, $lte: eDayOnly }}
+      ] }
+    },
+    {
+      $group: {
+        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+        count: { $sum: 1 }
+      }
+    },
+    {
+      $sort: { "_id": 1 }
+    }
+  ]);
+  
+  const allDates = [];
+  let currentDate = new Date(sDayOnly);
+  while (currentDate <= eDayOnly) {
+    allDates.push(currentDate.toISOString().slice(0, 10));
+    currentDate.setDate(currentDate.getDate() + 1);
   }
+  
+  const results = allDates.map(date => {
+    const found = taskCounts.find(tc => tc._id === date);
+    return {  count: found ? found.count : 0 };
+  });
+
   res.json({
     message: "Done",
+    results,
     count: await taskModel.countDocuments({
       $and: [
         { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
@@ -760,13 +825,19 @@ const getAllTasksByUser = catchAsync(async (req, res, next) => {
     }),
   });
 });
+
+
 const getAllTasksByUserByDay = catchAsync(async (req, res, next) => {
+  var sDayOnly = new Date(req.params.sDate);
+  var eDayOnly = new Date(req.params.eDate);
+  eDayOnly.setUTCHours(23, 59, 59, 0);
+
   let ApiFeat = new ApiFeature(
     taskModel
       .find({
         $and: [
           { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-          { $or: [{ eDate: req.params.date }, { sDate: req.params.date }] },
+          { createdAt: { $gte: sDayOnly, $lte: eDayOnly }},
         ],
       })
       .populate("users")
@@ -855,12 +926,12 @@ const deleteresourcesTask = catchAsync(async (req, res, next) => {
     .json({ message: "resources deleted successfully!", deleteUserTask });
 });
 const deleteDocsTask = catchAsync(async (req, res, next) => {
-  let { id, } = req.params;
+  let { id } = req.params;
   console.log(req.body.id);
 
   let deleteUserTask = await taskModel.findOneAndUpdate(
     { _id: id },
-    { $pull: { documents:  req.body.id } },
+    { $pull: { documents: req.body.id } },
     { new: true }
   );
   // const photoPath = req.query.id.replace("https://tchatpro.com/tasks/", "");
@@ -882,8 +953,6 @@ const deleteDocsTask = catchAsync(async (req, res, next) => {
   // });
   removeFile("tasks", req.body.id);
 
-
-  
   if (!deleteUserTask) {
     return res.status(404).json({ message: "tasks not found!" });
   }
@@ -911,7 +980,6 @@ export {
   getDoneTasksByAdmin,
   getCancelTasksByAdmin,
   getInProgressTasksByAdmin,
-  getAllTasksByUser,
   getAnalyseTasksByUser,
   deleteUserTask,
   updateTask3,
@@ -920,4 +988,6 @@ export {
   getAllTasksByUserByDay,
   deleteresourcesTask,
   deleteDocsTask,
+  getAllTasksByAdminByWeek,
+  getAllTasksByUserByWeek,
 };
