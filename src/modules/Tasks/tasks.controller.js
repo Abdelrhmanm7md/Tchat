@@ -692,6 +692,9 @@ const getAllTasksByAdminByWeek = catchAsync(async (req, res, next) => {
   res.json({
     message: "Done",
     results,
+    countAll: await taskModel.countDocuments(),
+    countDone: await taskModel.countDocuments({ taskStatus: "Done" }),
+    countCancel: await taskModel.countDocuments({ taskStatus: "Cancelled" }),
   });
 });
 const getCancelTasksByAdmin = catchAsync(async (req, res, next) => {
