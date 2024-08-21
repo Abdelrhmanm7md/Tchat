@@ -630,8 +630,8 @@ const getAllTasksByAdmin = catchAsync(async (req, res, next) => {
   });
 });
 const getAllTasksByAdminByDay = catchAsync(async (req, res, next) => {
-  var sDayOnly = new Date(req.params.sDate);
-  var eDayOnly = new Date(req.params.eDate);
+  var sDayOnly = new Date(req.params.date);
+  var eDayOnly = new Date(req.params.date);
   eDayOnly.setUTCHours(23, 59, 59, 0);
   let ApiFeat = new ApiFeature(
     taskModel
@@ -831,8 +831,8 @@ const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
 
 
 const getAllTasksByUserByDay = catchAsync(async (req, res, next) => {
-  var sDayOnly = new Date(req.params.sDate);
-  var eDayOnly = new Date(req.params.eDate);
+  var sDayOnly = new Date(req.params.date);
+  var eDayOnly = new Date(req.params.date);
   eDayOnly.setUTCHours(23, 59, 59, 0);
 
   let ApiFeat = new ApiFeature(
