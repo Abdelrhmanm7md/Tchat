@@ -91,25 +91,27 @@ const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
   });
 });
 const getContacts = catchAsync(async (req, res, next) => {
-    let results = [];
-    let notExist = [];
-    const exists = await userModel.find({ phone: { $in: req.body.phoneList } });
-    const existingNumbers = exists.map((doc) => doc.phone);
-    req.body.phoneList.forEach(phone => {
-      if (existingNumbers.includes(phone)) {
-          results.push(true);
-      }else{
-          results.push(false);
-          notExist.push(phone);
-      }
+  let results = [];
+  let notExist = [];
+  let exists = await userModel
+    .find({ phone: { $in: req.body.phoneList } })
+    .select("name phone -_id");
+  const existingNumbers = exists.map((doc) => doc.phone);
+  req.body.phoneList.forEach((phone) => {
+    if (existingNumbers.includes(phone)) {
+      results.push(true);
+    } else {
+      results.push(false);
+      notExist.push(phone);
+    }
   });
-  let objectNotExist = notExist.map(phone => ({ phone, isExist: false }));
-  let users = await userModel.find({ phone: { $in: existingNumbers } }).select('name phone -_id');
-  users = users.map(user => ({
-    ...user.toObject(), isExist: true
+  let objectNotExist = notExist.map((phone) => ({ phone, isExist: false }));
+  exists = exists.map((user) => ({
+    ...user.toObject(),
+    isExist: true,
   }));
-  users = users.concat(objectNotExist);
-  res.json({ message: "Done", results: users });
+  exists = exists.concat(objectNotExist);
+  res.json({ message: "Done", results: exists });
 });
 
 const getUserById = catchAsync(async (req, res, next) => {
