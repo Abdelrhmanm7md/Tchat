@@ -10,6 +10,7 @@ usersRouter.get("/:id", usersController.getUserById);
 usersRouter.put("/:id", usersController.updateUser);
 usersRouter.post("/email/:id", usersController.postMessage);
 usersRouter.delete("/:id", usersController.deleteUser);
+usersRouter.post("/contact", usersController.getContacts);
 // usersRouter.post(
 //   "/image",
 //   uploadSingleFile("profilePic", "profilePic"),

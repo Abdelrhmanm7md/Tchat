@@ -6,7 +6,6 @@ import path from "path";
 import fsExtra from "fs-extra";
 import { sendEmail } from "../../email/sendEmail.js";
 
-
 const addPhotos = catchAsync(async (req, res, next) => {
   let profilePic = "";
   req.body.profilePic =
@@ -91,6 +90,27 @@ const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
     results,
   });
 });
+const getContacts = catchAsync(async (req, res, next) => {
+    let results = [];
+    let notExist = [];
+    const exists = await userModel.find({ phone: { $in: req.body.phoneList } });
+    const existingNumbers = exists.map((doc) => doc.phone);
+    req.body.phoneList.forEach(phone => {
+      if (existingNumbers.includes(phone)) {
+          results.push(true);
+      }else{
+          results.push(false);
+          notExist.push(phone);
+      }
+  });
+  let objectNotExist = notExist.map(phone => ({ phone, isExist: false }));
+  let users = await userModel.find({ phone: { $in: existingNumbers } }).select('name phone -_id');
+  users = users.map(user => ({
+    ...user.toObject(), isExist: true
+  }));
+  users = users.concat(objectNotExist);
+  res.json({ message: "Done", results: users });
+});
 
 const getUserById = catchAsync(async (req, res, next) => {
   let { id } = req.params;
@@ -120,7 +140,7 @@ const postMessage = catchAsync(async (req, res, next) => {
 const deleteUser = catchAsync(async (req, res, next) => {
   let { id } = req.params;
 
-  let deletedUser = await userModel.deleteOne({_id:id});
+  let deletedUser = await userModel.deleteOne({ _id: id });
 
   if (!deletedUser) {
     return res
@@ -129,7 +149,7 @@ const deleteUser = catchAsync(async (req, res, next) => {
   }
   // let deletedTask = await taskModel.deleteMany({ createdBy: id });
   // console.log(deletedTask);
-  
+
   res.status(200).json({ message: "User deleted successfully!" });
 });
 
@@ -140,4 +160,5 @@ export {
   deleteUser,
   addPhotos,
   postMessage,
+  getContacts,
 };

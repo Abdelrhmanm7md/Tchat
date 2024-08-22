@@ -186,7 +186,6 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
   res.json({
     message: "Done",
     results,
-
   });
 });
 
@@ -635,7 +634,7 @@ const getAllTasksByAdminByDay = catchAsync(async (req, res, next) => {
   eDayOnly.setUTCHours(23, 59, 59, 0);
   let ApiFeat = new ApiFeature(
     taskModel
-      .find( { createdAt: { $gte: sDayOnly, $lte: eDayOnly } })
+      .find({ createdAt: { $gte: sDayOnly, $lte: eDayOnly } })
       .populate("users")
       .populate("createdBy"),
     req.query
@@ -658,36 +657,34 @@ const getAllTasksByAdminByWeek = catchAsync(async (req, res, next) => {
   var eDayOnly = new Date(req.query.eDate);
   eDayOnly.setUTCHours(23, 59, 59, 0);
 
-  
   let taskCounts = await taskModel.aggregate([
     {
       $match: {
-        createdAt: { $gte: sDayOnly, $lte: eDayOnly }
-      }
+        createdAt: { $gte: sDayOnly, $lte: eDayOnly },
+      },
     },
     {
       $group: {
         _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-        count: { $sum: 1 }
-      }
+        count: { $sum: 1 },
+      },
     },
     {
-      $sort: { "_id": 1 }
-    }
+      $sort: { _id: 1 },
+    },
   ]);
-  
+
   const allDates = [];
   let currentDate = new Date(sDayOnly);
   while (currentDate <= eDayOnly) {
     allDates.push(currentDate.toISOString().slice(0, 10));
     currentDate.setDate(currentDate.getDate() + 1);
   }
-  
-  const results = allDates.map(date => {
-    const found = taskCounts.find(tc => tc._id === date);
-    return {  count: found ? found.count : 0 };
-  });
 
+  const results = allDates.map((date) => {
+    const found = taskCounts.find((tc) => tc._id === date);
+    return { count: found ? found.count : 0 };
+  });
 
   res.json({
     message: "Done",
@@ -768,7 +765,74 @@ const getInProgressTasksByAdmin = catchAsync(async (req, res, next) => {
 ///////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 // User
-
+const getDoneTasksByUser = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel
+      .find({
+        $and: [
+          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+          { taskStatus: "Done" },
+        ],
+      })
+      .populate("users")
+      .populate("createdBy"),
+    req.query
+  )
+    .sort()
+    .search();
+  let results = await ApiFeat.mongooseQuery;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+  let { filterType, filterValue } = req.query;
+  if (filterType && filterValue) {
+    results = results.filter(function (item) {
+      if (filterType == "date") {
+        return item.eDate == filterValue;
+      }
+    });
+  }
+  res.json({
+    message: "Done",
+    results,
+  });
+});
+const getCancelTasksByUser = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel
+      .find({
+        $and: [
+          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+          { taskStatus: "Cancelled" },
+        ],
+      })
+      .populate("users")
+      .populate("createdBy"),
+    req.query
+  )
+    .sort()
+    .search();
+  let results = await ApiFeat.mongooseQuery;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+  let { filterType, filterValue } = req.query;
+  if (filterType && filterValue) {
+    results = results.filter(function (item) {
+      if (filterType == "date") {
+        return item.eDate == filterValue;
+      }
+    });
+  }
+  res.json({
+    message: "Done",
+    results,
+  });
+});
 const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
   try {
     const sDayOnly = new Date(req.query.sDate);
@@ -778,24 +842,23 @@ const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
     const dates = [];
     let currentDate = new Date(sDayOnly);
     while (currentDate <= eDayOnly) {
-      dates.push(currentDate.toISOString().split('T')[0]); // Store the date part only
+      dates.push(currentDate.toISOString().split("T")[0]); // Store the date part only
       currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
     }
 
     const tasks = await taskModel.find({
-
       $and: [
         { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-        { createdAt: { $gte: sDayOnly, $lte: eDayOnly }}
-      ] 
+        { createdAt: { $gte: sDayOnly, $lte: eDayOnly } },
+      ],
     });
 
     const taskCountMap = {};
-    tasks.forEach(task => {
-      const taskDate = task.createdAt.toISOString().split('T')[0];
+    tasks.forEach((task) => {
+      const taskDate = task.createdAt.toISOString().split("T")[0];
       taskCountMap[taskDate] = (taskCountMap[taskDate] || 0) + 1;
     });
-    const results = dates.map(date => ({
+    const results = dates.map((date) => ({
       count: taskCountMap[date] || 0,
     }));
 
@@ -827,9 +890,7 @@ const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
     console.error(error);
     res.status(500).json({ error: "An error occurred" });
   }
-
 });
-
 
 const getAllTasksByUserByDay = catchAsync(async (req, res, next) => {
   var sDayOnly = new Date(req.params.date);
@@ -841,7 +902,7 @@ const getAllTasksByUserByDay = catchAsync(async (req, res, next) => {
       .find({
         $and: [
           { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-          { createdAt: { $gte: sDayOnly, $lte: eDayOnly }},
+          { createdAt: { $gte: sDayOnly, $lte: eDayOnly } },
         ],
       })
       .populate("users")
@@ -994,4 +1055,6 @@ export {
   deleteDocsTask,
   getAllTasksByAdminByWeek,
   getAllTasksByUserByWeek,
+  getCancelTasksByUser,
+  getDoneTasksByUser,
 };
