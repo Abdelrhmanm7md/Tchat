@@ -770,63 +770,64 @@ const getInProgressTasksByAdmin = catchAsync(async (req, res, next) => {
 // User
 
 const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
-  var sDayOnly = new Date(req.query.sDate);
-  var eDayOnly = new Date(req.query.eDate);
-  eDayOnly.setUTCHours(23, 59, 59, 0);
-  let taskCounts = await taskModel.aggregate([
-    {
-      $match: { $and: [
+  try {
+    const sDayOnly = new Date(req.query.sDate);
+    const eDayOnly = new Date(req.query.eDate);
+    eDayOnly.setUTCHours(23, 59, 59, 999); // End of the day
+
+    const dates = [];
+    let currentDate = new Date(sDayOnly);
+    while (currentDate <= eDayOnly) {
+      dates.push(currentDate.toISOString().split('T')[0]); // Store the date part only
+      currentDate.setDate(currentDate.getDate() + 1); // Move to the next day
+    }
+
+    const tasks = await taskModel.find({
+
+      $and: [
         { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
         { createdAt: { $gte: sDayOnly, $lte: eDayOnly }}
-      ] }
-    },
-    {
-      $group: {
-        _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
-        count: { $sum: 1 }
-      }
-    },
-    {
-      $sort: { "_id": 1 }
-    }
-  ]);
-  
-  const allDates = [];
-  let currentDate = new Date(sDayOnly);
-  while (currentDate <= eDayOnly) {
-    allDates.push(currentDate.toISOString().slice(0, 10));
-    currentDate.setDate(currentDate.getDate() + 1);
-  }
-  
-  const results = allDates.map(date => {
-    const found = taskCounts.find(tc => tc._id === date);
-    return {  count: found ? found.count : 0 };
-  });
+      ] 
+    });
 
-  res.json({
-    message: "Done",
-    results,
-    count: await taskModel.countDocuments({
-      $and: [
-        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-        { parentTask: null },
-      ],
-    }),
-    countDone: await taskModel.countDocuments({
-      $and: [
-        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-        { taskStatus: "Done" },
-        { parentTask: null },
-      ],
-    }),
-    countCancel: await taskModel.countDocuments({
-      $and: [
-        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-        { taskStatus: "Cancelled" },
-        { parentTask: null },
-      ],
-    }),
-  });
+    const taskCountMap = {};
+    tasks.forEach(task => {
+      const taskDate = task.createdAt.toISOString().split('T')[0];
+      taskCountMap[taskDate] = (taskCountMap[taskDate] || 0) + 1;
+    });
+    const results = dates.map(date => ({
+      count: taskCountMap[date] || 0,
+    }));
+
+    res.json({
+      message: "Done",
+      results,
+      count: await taskModel.countDocuments({
+        $and: [
+          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+          { parentTask: null },
+        ],
+      }),
+      countDone: await taskModel.countDocuments({
+        $and: [
+          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+          { taskStatus: "Done" },
+          { parentTask: null },
+        ],
+      }),
+      countCancel: await taskModel.countDocuments({
+        $and: [
+          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+          { taskStatus: "Cancelled" },
+          { parentTask: null },
+        ],
+      }),
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "An error occurred" });
+  }
+
 });
 
 
