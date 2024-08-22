@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import { taskLogModel } from "./tasksLog.model.js";
+import { removeFiles } from "../../src/utils/middleWare/removeFiles.js";
 
 
 const taskSchema = mongoose.Schema(
