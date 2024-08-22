@@ -95,7 +95,7 @@ const getContacts = catchAsync(async (req, res, next) => {
   let notExist = [];
   let exists = await userModel
     .find({ phone: { $in: req.body.phoneList } })
-    .select("name phone -_id");
+    .select("name phone _id");
   const existingNumbers = exists.map((doc) => doc.phone);
   req.body.phoneList.forEach((phone) => {
     if (existingNumbers.includes(phone)) {
