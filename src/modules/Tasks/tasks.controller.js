@@ -536,8 +536,8 @@ const updateTask4 = catchAsync(async (req, res, next) => {
 const updateTask3 = catchAsync(async (req, res, next) => {
   let { id } = req.params;
 
-  let updatedTask = await taskModel.findByIdAndUpdate(
-    id,
+  let updatedTask = await taskModel.findOneAndUpdate(
+    {_id:id},
     { $push: { group: req.body.group } },
     { new: true }
   );

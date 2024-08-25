@@ -57,10 +57,7 @@ const deleteGroup = catchAsync(async (req, res, next) => {
 const getAllGroupsByAdmin = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
     groupModel
-      .find()
-      .populate("tasks")
-      .populate("tasks.users")
-      .populate("tasks.createdBy"),
+      .find(),
     req.query
   )
     .pagination()
