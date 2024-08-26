@@ -93,24 +93,36 @@ const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
 const getContacts = catchAsync(async (req, res, next) => {
   let results = [];
   let notExist = [];
+  const phoneNumbers = req.body.contacts.map(item => item.phone);
+  
   let exists = await userModel
-    .find({ phone: { $in: req.body.phoneList } })
+    .find({ phone: { $in: phoneNumbers } })
     .select("name phone _id");
+  
   const existingNumbers = exists.map((doc) => doc.phone);
-  req.body.phoneList.forEach((phone) => {
-    if (existingNumbers.includes(phone)) {
+  
+  req.body.contacts.forEach((contact) => {
+    if (existingNumbers.includes(contact.phone)) {
       results.push(true);
     } else {
       results.push(false);
-      notExist.push(phone);
+      notExist.push(contact);
     }
-  });
-  let objectNotExist = notExist.map((phone) => ({ phone, isExist: false }));
+  });  
+  
+  let objectNotExist = notExist.map(({ phone, name }) => ({
+    phone,
+    name,
+    isExist: false,
+  }));
+  
   exists = exists.map((user) => ({
     ...user.toObject(),
     isExist: true,
   }));
+  
   exists = exists.concat(objectNotExist);
+  
   res.json({ message: "Done", results: exists });
 });
 
