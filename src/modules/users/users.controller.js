@@ -92,50 +92,43 @@ const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
 });
 const getContacts = catchAsync(async (req, res, next) => {
   let results = [];
-let notExist = [];
-
-// Extract phone numbers from the request body
-const phoneNumbers = req.body.contacts.map(item => item.phone);
-
-// Find users in the database whose phone numbers exist
-let exists = await userModel
-  .find({ phone: { $in: phoneNumbers } })
-  .select("name phone _id");
-
-// Get an array of phone numbers that exist in the database
-const existingNumbers = exists.map(doc => doc.phone);
-
-// Process the original contacts array
-req.body.contacts.forEach(contact => {
-  if (existingNumbers.includes(contact.phone)) {
-    // If the phone number exists, return it with isExist: true and keep the original name
-    results.push({
-      phone: contact.phone,
-      name: contact.name,
-      isExist: true
-    });
-  } else {
-    // If the phone number doesn't exist, return it with isExist: false and keep the original name
-    notExist.push({
-      phone: contact.phone,
-      name: contact.name,
-      isExist: false
-    });
-  }
-});
-
-// Combine the existing users from the database with the non-existing contacts
-exists = exists.map(user => ({
-  phone: user.phone,
-  name: user.name, // If the name from the DB should be used, otherwise use the original name from the contacts array
-  isExist: true
-}));
-
-// Combine the results and notExist arrays
-results = results.concat(notExist);
-
-// Return the response
-res.json({ message: "Done", results });
+  let notExist = [];
+  
+  // Extract phone numbers from the request body
+  const contacts = req.body.contacts;
+  const phoneNumbers = contacts.map(item => item.phone);
+  
+  // Find existing users in the database based on phone numbers
+  let exists = await userModel
+    .find({ phone: { $in: phoneNumbers } })
+    .select("name phone _id");
+  
+  // Get the phone numbers of existing users
+  const existingNumbers = exists.map((doc) => doc.phone);
+  
+  // Map over the original contacts to create the final result
+  results = contacts.map((contact) => {
+    const userExists = exists.find((user) => user.phone === contact.phone);
+    
+    if (userExists) {
+      // If the phone number exists, return the existing user with the name from contacts
+      return {
+        _id: userExists._id,
+        phone: contact.phone,
+        name: contact.name, // using the name from the original contacts
+        isExist: true,
+      };
+    } else {
+      // If the phone number doesn't exist, return it with isExist: false
+      return {
+        phone: contact.phone,
+        name: contact.name,
+        isExist: false,
+      };
+    }
+  });
+  
+  res.json({ message: "Done", results });
 });
 
 const getUserById = catchAsync(async (req, res, next) => {

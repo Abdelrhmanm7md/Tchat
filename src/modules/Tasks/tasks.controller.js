@@ -6,7 +6,7 @@ import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import fsExtra from "fs-extra";
 import path from "path";
-import { removeFile } from "../../utils/middleWare/removeFiles.js";
+import { removeFile } from "../../utils/removeFiles.js";
 
 const createTask = catchAsync(async (req, res, next) => {
   if (req.body.users) {

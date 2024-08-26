@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import bcrypt from "bcrypt";
 import { taskModel } from "./tasks.model.js";
 import { affiliationModel } from "./affiliation.model.js";
-import { removeFile } from "../../src/utils/middleWare/removeFiles.js";
+import { removeFile } from "../../src/utils/removeFiles.js";
 
 const userSchema = mongoose.Schema(
   {
@@ -29,12 +29,12 @@ const userSchema = mongoose.Schema(
     },
     role: {
       type: String,
-      enum: [ "admin","user"],
+      enum: ["admin", "user"],
       default: "user",
     },
     subscriptionType: {
       type: String,
-      enum: [ "normal","premium"],
+      enum: ["normal", "premium"],
       default: "normal",
       required: true,
     },
@@ -58,12 +58,18 @@ const userSchema = mongoose.Schema(
 //   this._update.password = bcrypt.hashSync(this._update.password, 10);
 //   }
 // });
-userSchema.pre(/^delete/, { document: false, query: true }, async function() {
+userSchema.pre(/^delete/, { document: false, query: true }, async function () {
   const doc = await this.model.findOne(this.getFilter());
   if (doc) {
-    await taskModel.deleteMany({ $and: [{ createdBy: doc._id}, { taskType: "normal" }] });
+    await taskModel.deleteMany({
+      $and: [{ createdBy: doc._id }, { taskType: "normal" }],
+    });
     await affiliationModel.deleteMany({ user: doc._id });
-    await taskModel.updateMany({ users: doc._id }, { $pull: { users: doc._id } },{ new: true });
+    await taskModel.updateMany(
+      { users: doc._id },
+      { $pull: { users: doc._id } },
+      { new: true }
+    );
 
     // const photoPath = doc.profilePic.replace("https://tchatpro.com/profilePic/", "");
     // const fullPath = path.resolve("uploads/profilePic", photoPath);
@@ -82,7 +88,7 @@ userSchema.pre(/^delete/, { document: false, query: true }, async function() {
     //         }
     //     });
     // });
-    removeFile("profilePic",doc.profilePic)
+    removeFile("profilePic", doc.profilePic);
   }
 });
 
