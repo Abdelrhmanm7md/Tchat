@@ -92,38 +92,50 @@ const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
 });
 const getContacts = catchAsync(async (req, res, next) => {
   let results = [];
-  let notExist = [];
-  const phoneNumbers = req.body.contacts.map(item => item.phone);
-  
-  let exists = await userModel
-    .find({ phone: { $in: phoneNumbers } })
-    .select("name phone _id");
-  
-  const existingNumbers = exists.map((doc) => doc.phone);
-  
-  req.body.contacts.forEach((contact) => {
-    if (existingNumbers.includes(contact.phone)) {
-      results.push(true);
-    } else {
-      results.push(false);
-      notExist.push(contact);
-    }
-  });  
-  
-  let objectNotExist = notExist.map(({ phone, name }) => ({
-    phone,
-    name,
-    isExist: false,
-  }));
-  
-  exists = exists.map((user) => ({
-    ...user.toObject(),
-    isExist: true,
-  }));
-  
-  exists = exists.concat(objectNotExist);
-  
-  res.json({ message: "Done", results: exists });
+let notExist = [];
+
+// Extract phone numbers from the request body
+const phoneNumbers = req.body.contacts.map(item => item.phone);
+
+// Find users in the database whose phone numbers exist
+let exists = await userModel
+  .find({ phone: { $in: phoneNumbers } })
+  .select("name phone _id");
+
+// Get an array of phone numbers that exist in the database
+const existingNumbers = exists.map(doc => doc.phone);
+
+// Process the original contacts array
+req.body.contacts.forEach(contact => {
+  if (existingNumbers.includes(contact.phone)) {
+    // If the phone number exists, return it with isExist: true and keep the original name
+    results.push({
+      phone: contact.phone,
+      name: contact.name,
+      isExist: true
+    });
+  } else {
+    // If the phone number doesn't exist, return it with isExist: false and keep the original name
+    notExist.push({
+      phone: contact.phone,
+      name: contact.name,
+      isExist: false
+    });
+  }
+});
+
+// Combine the existing users from the database with the non-existing contacts
+exists = exists.map(user => ({
+  phone: user.phone,
+  name: user.name, // If the name from the DB should be used, otherwise use the original name from the contacts array
+  isExist: true
+}));
+
+// Combine the results and notExist arrays
+results = results.concat(notExist);
+
+// Return the response
+res.json({ message: "Done", results });
 });
 
 const getUserById = catchAsync(async (req, res, next) => {
