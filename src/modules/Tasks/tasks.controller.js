@@ -66,7 +66,7 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
       .find()
       .populate("users")
       .populate("createdBy")
-      .sort({ $natural: -1 }),
+      .sort({ $natural: -1 }).select("-messages"),
     req.query
   )
     .pagination()
@@ -133,7 +133,7 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
     taskModel
       .find({ $or: [{ createdBy: req.params.id }, { users: req.params.id }] })
       .populate("users")
-      .populate("createdBy"),
+      .populate("createdBy").select("-messages"),
     req.query
   )
     .sort()
@@ -195,7 +195,7 @@ const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
     taskModel
       .find({ parentTask: req.params.id })
       .populate("users")
-      .populate("createdBy"),
+      .populate("createdBy").select("-messages"),
     req.query
   )
     .sort()
@@ -216,7 +216,7 @@ const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
 });
 const getAllPeopleTask = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.findById(req.params.id).populate("users"),
+    taskModel.findById(req.params.id).populate("users").select("-messages"),
     req.query
   )
     .sort()
@@ -256,7 +256,7 @@ const getAllDocsTask = catchAsync(async (req, res, next) => {
   });
 });
 const getAllResTask = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.findById(req.params.id), req.query)
+  let ApiFeat = new ApiFeature(taskModel.findById(req.params.id).select("-messages"), req.query)
     .sort()
     .search();
 
@@ -290,7 +290,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
       })
       .populate("createdBy")
       .populate("users")
-      .populate("users.createdBy"),
+      .populate("users.createdBy").select("-messages"),
     req.query
   )
     .sort()
@@ -351,7 +351,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
         ],
       })
       .populate("createdBy")
-      .populate("users"),
+      .populate("users").select("-messages"),
     req.query
   )
     .sort()
@@ -407,7 +407,7 @@ const getTaskById = catchAsync(async (req, res, next) => {
   let results = await taskModel
     .findById(id)
     .populate("users")
-    .populate("createdBy");
+    .populate("createdBy").select("-messages");
 
   if (!results) {
     return res.status(404).json({ message: "Task not found!" });
@@ -637,7 +637,7 @@ const getAllTasksByAdminByDay = catchAsync(async (req, res, next) => {
     taskModel
       .find({ createdAt: { $gte: sDayOnly, $lte: eDayOnly } })
       .populate("users")
-      .populate("createdBy"),
+      .populate("createdBy").select("-messages"),
     req.query
   )
     .sort()
@@ -719,7 +719,7 @@ const getDoneTasksByAdmin = catchAsync(async (req, res, next) => {
     taskModel
       .find({ taskStatus: "Done" })
       .populate("users")
-      .populate("createdBy"),
+      .populate("createdBy").select("-messages"),
     req.query
   )
     .sort()
@@ -776,7 +776,7 @@ const getDoneTasksByUser = catchAsync(async (req, res, next) => {
         ],
       })
       .populate("users")
-      .populate("createdBy"),
+      .populate("createdBy").select("-messages"),
     req.query
   )
     .sort()
@@ -810,7 +810,7 @@ const getCancelTasksByUser = catchAsync(async (req, res, next) => {
         ],
       })
       .populate("users")
-      .populate("createdBy"),
+      .populate("createdBy").select("-messages"),
     req.query
   )
     .sort()

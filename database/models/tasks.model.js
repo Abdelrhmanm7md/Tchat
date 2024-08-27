@@ -32,6 +32,11 @@ const taskSchema = mongoose.Schema(
       type: [String],
       // required: true,
     },
+    messages: {
+      type: [mongoose.Schema.Types.ObjectId],
+      ref: "message",
+      default: []
+    },
     users: {
       type: [mongoose.Schema.Types.ObjectId],
       ref: "user",

@@ -19,14 +19,11 @@ export default class ApiFeature {
     }
     return this;
   }
-  search() {
+  search(search) {
     if (this.queryStr.keyword) {
-      this.mongooseQuery.find({
-        $or: [
-          { title: { $regex: this.queryStr.keyword, $options: "i" } },
-          { description: { $regex: this.queryStr.keyword, $options: "i" } },
-        ],
-      });
+      this.mongooseQuery.find(
+          { search: { $regex: this.queryStr.keyword, $options: "i" } },
+      );
     }
     return this;
   }

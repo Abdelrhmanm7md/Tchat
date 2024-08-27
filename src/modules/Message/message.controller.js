@@ -4,6 +4,7 @@ import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import path from "path";
 import fsExtra from "fs-extra";
+import { taskModel } from "../../../database/models/tasks.model.js";
 
 const createmessage = catchAsync(async (req, res, next) => {
   function formatAMPM(date) {
@@ -30,14 +31,17 @@ const createmessage = catchAsync(async (req, res, next) => {
   const savedmessage = await newmessage.save();
 
   sio.emit(
-    `message_${req.body.taskId}`,
+    `message_${req.params.id}`,
     { createdAt },
     { content },
     { sender },
     { senderName },
     { docs }
   );
-
+let savedList = await taskModel.findById(req.params.id);
+  savedList.messages.push(savedmessage._id);
+  savedList.save();
+  
   res.status(201).json({
     message: "message created successfully!",
     savedmessage,
@@ -83,7 +87,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
 
 const getAllmessageByTask = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    messageModel.find({ taskId: req.params.id }),
+    taskModel.find({ _id: req.params.id }),
     req.query
   );
   // .sort({ $natural: -1 })  for latest message
@@ -97,6 +101,7 @@ const getAllmessageByTask = catchAsync(async (req, res, next) => {
       message: "No message was found!",
     });
   }
+  results = results.messages
   res.json({
     message: "Done",
     // page: ApiFeat.page,
