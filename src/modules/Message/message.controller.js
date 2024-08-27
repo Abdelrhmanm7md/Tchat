@@ -7,7 +7,6 @@ import fsExtra from "fs-extra";
 import { taskModel } from "../../../database/models/tasks.model.js";
 
 const createmessage = catchAsync(async (req, res, next) => {
-  let { id } = req.params;
   function formatAMPM(date) {
     let hours = date.getHours();
     let minutes = date.getMinutes();
@@ -21,28 +20,28 @@ const createmessage = catchAsync(async (req, res, next) => {
   let currentTime = new Date();
   let createdAt = formatAMPM(currentTime);
   req.body.date = createdAt;
+  let taskId = req.body.taskId;
   let content = req.body.content;
   let sender = req.body.sender;
   let senderName = req.body.senderName;
-  let documents = [];
-  if (req.body.documents) {
-    documents = req.body.documents;
+  let docs = [];
+  if (req.body.docs) {
+    docs = req.body.docs;
   }
   const newmessage = new messageModel(req.body);
   const savedmessage = await newmessage.save();
 
-
   sio.emit(
-    `message_${id}`,
+    `message_${taskId}`,
     { createdAt },
     { content },
     { sender },
     { senderName },
-    { documents }
+    { docs }
   );
-  let savedList = await taskModel.findById(id);
-  savedList.messages.push(newmessage._id);
-  savedList.save();
+// let savedList = await taskModel.findById(req.params.id);
+//   savedList.messages.push(savedmessage._id);
+//   savedList.save();
   
   res.status(201).json({
     message: "message created successfully!",
@@ -50,15 +49,15 @@ const createmessage = catchAsync(async (req, res, next) => {
   });
 });
 const addPhotos = catchAsync(async (req, res, next) => {
-  let documents = "";
-  req.body.documents =
-    req.files.documents &&
-    req.files.documents.map(
+  let docs = "";
+  req.body.docs =
+    req.files.docs &&
+    req.files.docs.map(
       (file) =>
         `https://tchatpro.com/image/${file.filename.split(" ").join("-")}`
     );
 
-  const directoryPathh = path.join(documents, "uploads/image");
+  const directoryPathh = path.join(docs, "uploads/image");
 
   fsExtra.readdir(directoryPathh, (err, files) => {
     if (err) {
@@ -77,22 +76,22 @@ const addPhotos = catchAsync(async (req, res, next) => {
     });
   });
 
-  if (req.body.documents !== "") {
-    documents = req.body.documents;
+  if (req.body.docs !== "") {
+    docs = req.body.docs;
   }
-  documents = documents[0]
+
   res.status(200).json({
     message: "Photos created successfully!",
-    documents,
+    docs,
   });
 });
 
 const getAllmessageByTask = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.find({ _id: req.params.id }).populate("messages"),
+    taskModel.find({ _id: req.params.id }),
     req.query
-  )
-  .sort({ $natural: -1 })  
+  );
+  // .sort({ $natural: -1 })  for latest message
   // .pagination()
 
   let results = await ApiFeat.mongooseQuery;
@@ -107,7 +106,7 @@ const getAllmessageByTask = catchAsync(async (req, res, next) => {
   res.json({
     message: "Done",
     // page: ApiFeat.page,
-    // count: await messageModel.countDocuments({ id: req.params.id }),
+    // count: await messageModel.countDocuments({ taskId: req.params.id }),
     results,
   });
 });

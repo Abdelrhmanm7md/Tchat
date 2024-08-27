@@ -2,6 +2,11 @@ import mongoose from "mongoose";
 
 const messageSchema = mongoose.Schema(
   {
+    taskId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "task",
+      required: true,
+    },
     content: {
       type: String,
       default: " ",
@@ -16,7 +21,7 @@ const messageSchema = mongoose.Schema(
       type: String,
       default: "",
     },
-    documents: {
+    docs: {
       type: [String],
     },
     sender: {
