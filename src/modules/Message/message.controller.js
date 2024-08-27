@@ -87,10 +87,10 @@ const addPhotos = catchAsync(async (req, res, next) => {
 
 const getAllmessageByTask = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.find({ _id: req.params.id }),
+    taskModel.find({ _id: req.params.id }).populate("messages"),
     req.query
-  );
-  // .sort({ $natural: -1 })  for latest message
+  )
+  .sort({ $natural: -1 })  
   // .pagination()
 
   let results = await ApiFeat.mongooseQuery;
