@@ -32,9 +32,6 @@ const createmessage = catchAsync(async (req, res, next) => {
   const savedmessage = await newmessage.save();
 
 
-let savedList = await taskModel.findById(id);
-savedList.messages.push(newmessage._id);
-savedList.save();
   sio.emit(
     `message_${id}`,
     { createdAt },
@@ -43,6 +40,9 @@ savedList.save();
     { senderName },
     { documents }
   );
+  let savedList = await taskModel.findById(id);
+  savedList.messages.push(newmessage._id);
+  savedList.save();
   
   res.status(201).json({
     message: "message created successfully!",
@@ -80,7 +80,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
   if (req.body.documents !== "") {
     documents = req.body.documents;
   }
-
+  documents = documents[0]
   res.status(200).json({
     message: "Photos created successfully!",
     documents,
