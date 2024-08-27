@@ -8,9 +8,9 @@ messageRouter.post("/:id", messageController.createmessage);
 messageRouter.get("/:id", messageController.getAllmessageByTask);
 
 messageRouter.post(
-  "/images",
+  "/images/images/",
   uploadMixFile("image", [
-    { name: "docs" },
+    { name: "documents" },
   ]),fileSizeLimitErrorHandler,
   messageController.addPhotos
 );
