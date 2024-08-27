@@ -1,10 +1,10 @@
+
 import { messageModel } from "../../../database/models/message.model.js";
 import { sio } from "../../../server.js";
 import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import path from "path";
 import fsExtra from "fs-extra";
-import { taskModel } from "../../../database/models/tasks.model.js";
 
 const createmessage = catchAsync(async (req, res, next) => {
   function formatAMPM(date) {
@@ -20,7 +20,6 @@ const createmessage = catchAsync(async (req, res, next) => {
   let currentTime = new Date();
   let createdAt = formatAMPM(currentTime);
   req.body.date = createdAt;
-  let taskId = req.body.taskId;
   let content = req.body.content;
   let sender = req.body.sender;
   let senderName = req.body.senderName;
@@ -32,17 +31,14 @@ const createmessage = catchAsync(async (req, res, next) => {
   const savedmessage = await newmessage.save();
 
   sio.emit(
-    `message_${taskId}`,
+    `message_${req.body.taskId}`,
     { createdAt },
     { content },
     { sender },
     { senderName },
     { docs }
   );
-// let savedList = await taskModel.findById(req.params.id);
-//   savedList.messages.push(savedmessage._id);
-//   savedList.save();
-  
+
   res.status(201).json({
     message: "message created successfully!",
     savedmessage,
@@ -88,7 +84,7 @@ const addPhotos = catchAsync(async (req, res, next) => {
 
 const getAllmessageByTask = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
-    taskModel.find({ _id: req.params.id }),
+    messageModel.find({ taskId: req.params.id }),
     req.query
   );
   // .sort({ $natural: -1 })  for latest message
