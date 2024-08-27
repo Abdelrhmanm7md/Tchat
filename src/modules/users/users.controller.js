@@ -92,7 +92,7 @@ const getAllUsersByAdmin = catchAsync(async (req, res, next) => {
 });
 const getContacts = catchAsync(async (req, res, next) => {
   let results = [];
-  
+
   const contacts = req.body.contacts;
   const phoneNumbers = contacts.map(item => item.phone);
   
@@ -121,6 +121,8 @@ const getContacts = catchAsync(async (req, res, next) => {
     }
   });
   
+  results.sort((a, b) => b.isExist - a.isExist);
+  
   res.json({ message: "Done", results });
 });
 
@@ -139,10 +141,10 @@ const updateUser = catchAsync(async (req, res, next) => {
   !results && res.status(404).json({ message: "couldn't update! not found!" });
   results && res.json({ message: "updatedd", results });
 });
+
 const postMessage = catchAsync(async (req, res, next) => {
   let { id } = req.params;
   // let {message} = req.body
-
   let results = await userModel.findById(id);
   !results && res.status(404).json({ message: "couldn't post! not found!" });
   sendEmail(req.body.message, results.name, results.phone);
