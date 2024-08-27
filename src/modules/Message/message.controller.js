@@ -101,7 +101,7 @@ const getAllmessageByTask = catchAsync(async (req, res, next) => {
       message: "No message was found!",
     });
   }
-  results = results.messages
+  results = results[0].messages
   res.json({
     message: "Done",
     // page: ApiFeat.page,
