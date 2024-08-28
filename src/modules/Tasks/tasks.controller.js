@@ -15,7 +15,7 @@ const createTask = catchAsync(async (req, res, next) => {
     }
   }
   req.body.users = [];
-  req.body.group = [];
+  // req.body.group = [];
   let newTask = new taskModel(req.body);
   let addedTask = await newTask.save();
   let user = await userModel.findById(req.body.createdBy);

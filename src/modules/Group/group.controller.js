@@ -50,6 +50,14 @@ const deleteGroup = catchAsync(async (req, res, next) => {
   if (!deleteGroup) {
     return res.status(404).json({ message: "Group not found!" });
   }
+  let deleteTaskGroup = await taskModel.findOneAndUpdate(
+    { _id: id },
+    { $pull: { group: groupId } },
+    { new: true }
+  );
+  if (!deleteTaskGroup) {
+    return res.status(404).json({ message: "Group not found!" });
+  }
 
   res.status(200).json({ message: "task deleted successfully!" });
 });
