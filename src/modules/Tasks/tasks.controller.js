@@ -1,4 +1,3 @@
-import { log } from "console";
 import { taskModel } from "../../../database/models/tasks.model.js";
 import { taskLogModel } from "../../../database/models/tasksLog.model.js";
 import { userModel } from "../../../database/models/user.model.js";

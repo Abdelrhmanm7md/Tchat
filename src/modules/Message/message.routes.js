@@ -4,7 +4,7 @@ import { fileSizeLimitErrorHandler, uploadMixFile } from "../../utils/middleWare
 
 const messageRouter = express.Router();
 
-messageRouter.post("/", messageController.createmessage);
+messageRouter.post("/:id", messageController.createmessage);
 messageRouter.get("/:id", messageController.getAllmessageByTask);
 
 messageRouter.post(
