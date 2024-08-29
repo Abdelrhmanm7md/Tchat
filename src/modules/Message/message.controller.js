@@ -1,4 +1,3 @@
-
 import { messageModel } from "../../../database/models/message.model.js";
 import { sio } from "../../../server.js";
 import ApiFeature from "../../utils/apiFeature.js";
@@ -43,8 +42,7 @@ const createmessage = catchAsync(async (req, res, next) => {
     req.params.id,
     { $push: { messages: savedmessage._id } },
     { new: true }
-  )
-
+  );
 
   res.status(201).json({
     message: "message created successfully!",
@@ -105,7 +103,7 @@ const getAllmessageByTask = catchAsync(async (req, res, next) => {
       message: "No message was found!",
     });
   }
-  results=results[0].messages
+  results = results[0].messages;
   res.json({
     message: "Done",
     // page: ApiFeat.page,

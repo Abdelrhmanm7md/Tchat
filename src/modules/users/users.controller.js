@@ -145,10 +145,10 @@ const updateUser = catchAsync(async (req, res, next) => {
 const postMessage = catchAsync(async (req, res, next) => {
   let { id } = req.params;
   // let {message} = req.body
-  let results = await userModel.findById(id);
-  !results && res.status(404).json({ message: "couldn't post! not found!" });
-  sendEmail(req.body.message, results.name, results.phone);
-  res.json({ message: "Message sent to admin", results });
+  let user = await userModel.findById(id);
+  !user && res.status(404).json({ message: "couldn't post! not found!" });
+  sendEmail(req.body.message,req.body.email, user.name, user.phone);
+  res.json({ message: "Message sent to admin", user });
 });
 
 const deleteUser = catchAsync(async (req, res, next) => {

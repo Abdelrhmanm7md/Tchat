@@ -11,7 +11,7 @@ export const signUp = catchAsync(async (req, res, next) => {
   // console.log(req.body.phone.length);
   // if (
   //   req.body.phone !== "" &&
-    // req.body.phone.match(phoneFormat) &&
+  // req.body.phone.match(phoneFormat) &&
   //   req.body.phone.length > 10
   // )
   if (req.body.phone !== "") {
@@ -22,7 +22,7 @@ export const signUp = catchAsync(async (req, res, next) => {
   } else {
     return res.status(409).json({ message: "this phone is not valid" });
   }
-  req.body.profilePic="https://tchatpro.com/profilePic/defaultImages.jpg"
+  req.body.profilePic = "https://tchatpro.com/profilePic/defaultImages.jpg";
   let results = new userModel(req.body);
   let token = jwt.sign(
     { name: results.name, userId: results._id },
@@ -112,11 +112,4 @@ export const protectRoutes = catchAsync(async (req, res, next) => {
   next();
 });
 
-export const allowTo = (...roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return next(new AppError(`you don't have permission`, 403));
-    }
-    next();
-  };
-};
+
