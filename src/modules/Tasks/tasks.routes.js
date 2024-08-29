@@ -6,6 +6,7 @@ import {
   fileSizeLimitErrorHandler,
   uploadMixFile,
 } from "../../utils/middleWare/fileUploads.js";
+import { protectRoutes } from "../auth/auth.controller.js";
 
 taskRouter.get("/", taskController.getAllTaskByAdmin);
 taskRouter.get("/user/:id", taskController.getAllTaskByUser);
@@ -35,6 +36,9 @@ taskRouter.put("/:id", taskController.updateTask2);
 taskRouter.put("/resources/:id", taskController.updateTask4);
 taskRouter.put(
   "/docs/:id",
+  protectRoutes,
+  subscriptionType
+  ,
   uploadMixFile("tasks", [{ name: "documents" }]),
   fileSizeLimitErrorHandler,
   taskController.updateTaskPhoto
