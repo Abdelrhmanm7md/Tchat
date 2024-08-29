@@ -32,7 +32,6 @@ taskRouter.post("/", taskController.createTask);
 
 taskRouter.put("/update/users/:id", taskController.updateTask);
 taskRouter.put("/:id", taskController.updateTask2);
-taskRouter.put("/group/:id", taskController.updateTask3);
 taskRouter.put("/resources/:id", taskController.updateTask4);
 taskRouter.put(
   "/docs/:id",

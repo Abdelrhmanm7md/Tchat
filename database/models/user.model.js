@@ -42,9 +42,29 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    // trialStartDate: { type: Date, default: Date.now },
+    // trialActive: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
+// userSchema.methods.getRemainingTrialDays = function() {
+//   const trialDuration = 14; // trial period in days
+//   const now = new Date();
+//   const trialEndDate = new Date(this.trialStartDate);
+//   trialEndDate.setDate(trialEndDate.getDate() + trialDuration);
+
+//   // Calculate the difference in milliseconds
+//   const diffTime = trialEndDate - now;
+  
+//   // Convert milliseconds to days
+//   const remainingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  
+//   return remainingDays > 0 ? remainingDays : 0; // Return 0 if trial has expired
+// };
+
+
+
+
 
 // userSchema.post("init", (doc) => {
 //   doc.profilePic = process.env.BASE_URL + "profilePic/" + doc.profilePic;
@@ -70,24 +90,6 @@ userSchema.pre(/^delete/, { document: false, query: true }, async function () {
       { $pull: { users: doc._id } },
       { new: true }
     );
-
-    // const photoPath = doc.profilePic.replace("https://tchatpro.com/profilePic/", "");
-    // const fullPath = path.resolve("uploads/profilePic", photoPath);
-    // // Check if the file exists
-    // fsExtra.access(fullPath, fsExtra.constants.F_OK, (err) => {
-    //     if (err) {
-    //         console.error('File does not exist or cannot be accessed');
-    //         return;
-    //     }
-    //     // Delete the file
-    //     fsExtra.unlink(fullPath, (err) => {
-    //         if (err) {
-    //             console.error('Error deleting the file:', err);
-    //         } else {
-    //             console.log('File deleted successfully');
-    //         }
-    //     });
-    // });
     removeFile("profilePic", doc.profilePic);
   }
 });

@@ -533,21 +533,6 @@ const updateTask4 = catchAsync(async (req, res, next) => {
   );
   res.status(200).json({ message: "Task updated successfully!", updatedTask });
 });
-const updateTask3 = catchAsync(async (req, res, next) => {
-  let { id } = req.params;
-
-  let updatedTask = await taskModel.findOneAndUpdate(
-    {_id:id},
-    { $push: { group: req.body.group } },
-    { new: true }
-  );
-
-  if (!updatedTask) {
-    return res.status(404).json({ message: "Couldn't update!  not found!" });
-  }
-
-  res.status(200).json({ message: "Task updated successfully!", updatedTask });
-});
 const updateTask2 = catchAsync(async (req, res, next) => {
   let { id } = req.params;
   if (req.body.users) {
@@ -586,6 +571,12 @@ const updateTask2 = catchAsync(async (req, res, next) => {
   }
   if (req.body.resources) {
     changes.push(`${user.name} updated Resources`);
+  }
+  if (req.body.group) {
+    changes.push(`${user.name} updated group`);
+  }
+  if (req.body.taskStatus) {
+    changes.push(`${user.name} updated Task Status`);
   }
   let newTaskLog = await taskLogModel.findOneAndUpdate(
     { taskId: id },
@@ -967,7 +958,20 @@ const deleteUserTask = catchAsync(async (req, res, next) => {
       { new: true }
     );
   }
-
+  let user = await userModel.findById(req.query.id);
+  let newTaskLog = await taskLogModel.findOneAndUpdate(
+    { taskId: id },
+    {
+      $push: {
+        updates: [
+          {
+            changes: [`${user.name} deleted users from task`],
+          },
+        ],
+      },
+    },
+    { new: true }
+  );
   res
     .status(200)
     .json({ message: "user deleted successfully!", deleteUserTask });
@@ -986,6 +990,20 @@ const deleteresourcesTask = catchAsync(async (req, res, next) => {
   if (!deleteUserTask) {
     return res.status(404).json({ message: "tasks not found!" });
   }
+  let user = await userModel.findById(req.query.id);
+  let newTaskLog = await taskLogModel.findOneAndUpdate(
+    { taskId: id },
+    {
+      $push: {
+        updates: [
+          {
+            changes: [`${user.name} deleted resources`],
+          },
+        ],
+      },
+    },
+    { new: true }
+  );
   res
     .status(200)
     .json({ message: "resources deleted successfully!", deleteUserTask });
@@ -1021,6 +1039,20 @@ const deleteDocsTask = catchAsync(async (req, res, next) => {
   if (!deleteUserTask) {
     return res.status(404).json({ message: "tasks not found!" });
   }
+  let user = await userModel.findById(req.query.id);
+  let newTaskLog = await taskLogModel.findOneAndUpdate(
+    { taskId: id },
+    {
+      $push: {
+        updates: [
+          {
+            changes: [`${user.name} deleted Doucments`],
+          },
+        ],
+      },
+    },
+    { new: true }
+  );
   res
     .status(200)
     .json({ message: "Docs deleted successfully!", deleteUserTask });
@@ -1047,7 +1079,6 @@ export {
   getInProgressTasksByAdmin,
   getAnalyseTasksByUser,
   deleteUserTask,
-  updateTask3,
   updateTask4,
   getAllTasksByAdminByDay,
   getAllTasksByUserByDay,
