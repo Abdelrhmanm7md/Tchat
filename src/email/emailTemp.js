@@ -3,12 +3,15 @@ export function emailTemplate(email, message, name, phone) {
     <html lang="en">
     <head>
     <style>
-    .header .logo{
-    filter: invert(1) brightness(10000%)!impotant;
+   .header .logo {
+    //   filter: invert(1) brightness(10000%) !important;
+      object-fit:"contain";
+      background-color: transparent;
     }
     .table{
     display:flex;
-    align-items="c"
+    align-items="center"
+       justify-content: space-between;
     }
     </style>
 
@@ -19,10 +22,10 @@ export function emailTemplate(email, message, name, phone) {
           <tr>
             <td align="center">
               <img
-                src="https://tchatpro.com/email/logo2.png"
+                src="https://tchatpro.com/email/logo2.jpg"
                 alt="logo"
                 width="150"
-                height="50"
+                height="70"
                 class="logo"
                 style="display: block; margin: 0 auto;  "
               />
@@ -31,14 +34,13 @@ export function emailTemplate(email, message, name, phone) {
         </table>
     
         <!-- main content -->
-        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding: 20px; " class="table">
-          <tr>
-            <td >
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding: 20px; ">
+          <tr  class="table">
+            <td>
               <img src="https://tchatpro.com/email/onboard1.png" alt="image" width="300" style="display: block;" />
             </td>
-          </tr>
-          <tr>
-            <td style="padding-top: 20px; text-align: center;">
+      
+            <td style="padding-top: 20px; text-align: left;">
               <h1 style="color: black; font-size: 24px; margin: 0;">Help Center</h1>
               <p style="color: #707070; font-size: 18px; margin: 10px 0; line-height: 1.5;">
                 ${message}

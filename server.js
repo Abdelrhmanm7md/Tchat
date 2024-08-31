@@ -17,7 +17,12 @@ import cors from "cors";
 import dbConnection from "./database/DBConnection.js";
 import { init } from "./src/modules/index.js";
 import { globalError } from "./src/utils/middleWare/globalError.js";
-app.use(cors());
+const corsOptions = {
+  origin: "*", 
+  methods: ["GET", "POST", "PUT", "DELETE"], // Specify allowed methods
+  credentials: true, // Allow credentials to be sent with requests
+};
+app.use(cors(corsOptions));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("uploads"));
 app.use(express.json());
