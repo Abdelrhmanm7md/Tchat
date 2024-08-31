@@ -21,7 +21,7 @@ usersRouter.post("/contact", usersController.getContacts);
 
 
 usersRouter.post(
-  "/image",
+  "/profile",
     protectRoutes,
     subscriptionType,
   uploadMixFile("profilePic", [{ name: "profilePic" }],),
