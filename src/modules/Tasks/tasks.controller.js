@@ -577,6 +577,9 @@ const updateTask2 = catchAsync(async (req, res, next) => {
   if (req.body.taskStatus) {
     changes.push(`${user.name} updated Task Status`);
   }
+  if (req.body.priority) {
+    changes.push(`${user.name} updated Task Status`);
+  }
   let newTaskLog = await taskLogModel.findOneAndUpdate(
     { taskId: id },
     {
@@ -1016,23 +1019,6 @@ const deleteDocsTask = catchAsync(async (req, res, next) => {
     { $pull: { documents: req.body.id } },
     { new: true }
   );
-  // const photoPath = req.query.id.replace("https://tchatpro.com/tasks/", "");
-  // const fullPath = path.resolve("uploads/tasks", photoPath);
-  // // Check if the file exists
-  // fsExtra.access(fullPath, fsExtra.constants.F_OK, (err) => {
-  //     if (err) {
-  //         console.error('File does not exist or cannot be accessed');
-  //         return;
-  //     }
-  //     // Delete the file
-  //     fsExtra.unlink(fullPath, (err) => {
-  //         if (err) {
-  //             console.error('Error deleting the file:', err);
-  //         } else {
-  //             console.log('File deleted successfully');
-  //         }
-  //     });
-  // });
   removeFile("tasks", req.body.id);
 
   if (!deleteUserTask) {
