@@ -5,7 +5,8 @@ export function emailTemplate(email, message, name, phone) {
     <style>
    .header .logo {
     //   filter: invert(1) brightness(10000%) !important;
-      object-fit:"contain";
+        object-fit: cover;
+
       background-color: transparent;
     }
     .table{
@@ -18,16 +19,17 @@ export function emailTemplate(email, message, name, phone) {
     </head>
       <body style="padding: 0; max-width: 600px; background-color: white; font-family: 'Arial', sans-serif; margin: 0 auto;">
         <!-- header -->
-        <table role="presentation" width="100%" cellpadding="0" class="header" cellspacing="0" style="background-color: #2196f3; padding: 10px; color: white;">
+        <table role="presentation" width="100%" cellpadding="0" class="header" cellspacing="0" style="background-color: #2196f3; padding: 5px; color: white;">
           <tr>
             <td align="center">
               <img
-                src="https://tchatpro.com/email/logo2.jpg"
+                src="https://tchatpro.com/email/logo2.png"
                 alt="logo"
                 width="150"
-                height="70"
+                height="50"
                 class="logo"
-                style="display: block; margin: 0 auto;  "
+                style="display: block; margin: 0 auto;       object-fit: cover;
+ "
               />
             </td>
           </tr>

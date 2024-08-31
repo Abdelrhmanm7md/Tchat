@@ -37,9 +37,8 @@ taskRouter.put("/:id", taskController.updateTask2);
 taskRouter.put("/resources/:id", taskController.updateTask4);
 taskRouter.put(
   "/docs/:id",
-  protectRoutes,
-  subscriptionType
-  ,
+  // protectRoutes,
+  // subscriptionType,
   uploadMixFile("tasks", [{ name: "documents" }]),
   fileSizeLimitErrorHandler,
   taskController.updateTaskPhoto

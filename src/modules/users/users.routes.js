@@ -22,8 +22,8 @@ usersRouter.post("/contact", usersController.getContacts);
 
 usersRouter.post(
   "/profile",
-    protectRoutes,
-    subscriptionType,
+    // protectRoutes,
+    // subscriptionType,
   uploadMixFile("profilePic", [{ name: "profilePic" }],),
   fileFilterHandler,
   fileSizeLimitErrorHandler,
