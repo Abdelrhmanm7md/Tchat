@@ -87,7 +87,7 @@ const taskSchema = mongoose.Schema(
       required: true,
     },
     group: {
-      type: [mongoose.Schema.Types.ObjectId],
+      type: mongoose.Schema.Types.ObjectId,
       ref: "group",
       // default: [],
       // required: true,

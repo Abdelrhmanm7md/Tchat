@@ -8,14 +8,13 @@ import path from "path";
 import { removeFile } from "../../utils/removeFiles.js";
 
 const createTask = catchAsync(async (req, res, next) => {
+  req.body.users = [];
   if (req.body.users) {
     if (req.body.users.length >= 1) {
       req.body.isShared = true;
       req.body.taskType = "shared";
     }
   }
-  req.body.users = [];
-  // req.body.group = [];
   let newTask = new taskModel(req.body);
   let addedTask = await newTask.save();
   let user = await userModel.findById(req.body.createdBy);
