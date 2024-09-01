@@ -1,8 +1,8 @@
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
 import { taskModel } from "./tasks.model.js";
 import { affiliationModel } from "./affiliation.model.js";
 import { removeFile } from "../../src/utils/removeFiles.js";
+import { messageModel } from "./message.model.js";
 
 const userSchema = mongoose.Schema(
   {
@@ -78,6 +78,16 @@ const userSchema = mongoose.Schema(
 //   this._update.password = bcrypt.hashSync(this._update.password, 10);
 //   }
 // });
+userSchema.pre("findOneAndUpdate",async function () {
+  
+  if(this._update.name){
+    await messageModel.updateMany(
+      { sender: this._update._id },
+      { $set: { senderName: this._update.name } },
+      { new: true }
+    )
+  }
+});
 userSchema.pre(/^delete/, { document: false, query: true }, async function () {
   const doc = await this.model.findOne(this.getFilter());
   if (doc) {
