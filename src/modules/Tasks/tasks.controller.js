@@ -144,21 +144,21 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-  let { filterType, filterValue, filterDate } = req.query;
+  let { filterType, filterValue, filterDateFrom } = req.query;
 
-  if (filterType && filterValue && filterDate) {
+  if (filterType && filterValue && filterDateFrom) {
     if (filterType == "taskStatus") {
       let filter = await taskModel.find({
         $and: [
           { taskStatus: filterValue.toLowerCase() },
-          { eDate: filterDate },
+          { eDate: filterDateFrom },
         ],
       });
       results = filter;
     }
     if (filterType == "priority") {
       let filter = await taskModel.find({
-        $and: [{ priority: filterValue.toLowerCase() }, { eDate: filterDate }],
+        $and: [{ priority: filterValue.toLowerCase() }, { eDate: filterDateFrom }],
       });
       results = filter;
     }
@@ -302,7 +302,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-  let { filterType, filterValue, filterDate ,filterDate2} = req.query;
+  let { filterType, filterValue} = req.query;
   
   let filter = [
     { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
@@ -310,7 +310,7 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
     { isShared: true },
     { parentTask: null },
   ];
-  if ((filterType && filterValue) || filterDate) {
+  if ((filterType && filterValue) ) {
     if (filterType == "taskStatus") {
       filter.push({ taskStatus: filterValue });
     }
@@ -321,13 +321,14 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
       filter.push({ group: filterValue });
     }
     if (filterType == "date") {
-      filter.push({ eDate: filterValue });
-    }
-    if (filterDate && filterDate2) {
+      let dateRange = filterValue.replace(/[\[\]]/g, '').split(',');
+      let sDate = dateRange[0].trim(); 
+      let eDate = dateRange[1].trim();
+      
       filter.push({
         $and: [
-          { sDate: { $gte: filterDate } },   
-          { eDate: { $lte: filterDate2 } }   
+          { sDate: { $gte: sDate } },   
+          { eDate: { $lte: eDate } }   
         ]
       });       
       }
@@ -379,26 +380,27 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
     { isShared: false },
     { parentTask: null },
   ];
-  let { filterType, filterValue, filterDate ,filterDate2} = req.query;
+  let { filterType, filterValue} = req.query;
   
-  if ((filterType && filterValue) || filterDate) {
+  if ((filterType && filterValue)) {
     if (filterType == "taskStatus") {
       filter.push({ taskStatus: filterValue });
     }
     if (filterType == "priority") {
       filter.push({ priority: filterValue });
     }
-    if (filterType == "date") {
-      filter.push({ eDate: filterValue });
-    }
     if (filterType == "group") {
       filter.push({ group: filterValue });
     }
-    if (filterDate && filterDate2) {
+    if (filterType == "date") {
+      let dateRange = filterValue.replace(/[\[\]]/g, '').split(',');
+      let sDate = dateRange[0].trim(); 
+      let eDate = dateRange[1].trim();
+      
       filter.push({
         $and: [
-          { sDate: { $gte: filterDate } },   
-          { eDate: { $lte: filterDate2 } }   
+          { sDate: { $gte: sDate } },   
+          { eDate: { $lte: eDate } }   
         ]
       });       
       }
