@@ -302,7 +302,8 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-  let { filterType, filterValue, filterDate } = req.query;
+  let { filterType, filterValue, filterDate ,filterDate2} = req.query;
+  
   let filter = [
     { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
     { taskType: "shared" },
@@ -316,12 +317,20 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
     if (filterType == "priority") {
       filter.push({ priority: filterValue });
     }
+    if (filterType == "group") {
+      filter.push({ group: filterValue });
+    }
     if (filterType == "date") {
       filter.push({ eDate: filterValue });
     }
-    if (filterDate) {
-      filter.push({ eDate: filterDate });
-    }
+    if (filterDate && filterDate2) {
+      filter.push({
+        $and: [
+          { sDate: { $gte: filterDate } },   
+          { eDate: { $lte: filterDate2 } }   
+        ]
+      });       
+      }
     let query = await taskModel
       .find({
         $and: filter,
@@ -370,8 +379,8 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
     { isShared: false },
     { parentTask: null },
   ];
-  let { filterType, filterValue, filterDate } = req.query;
-
+  let { filterType, filterValue, filterDate ,filterDate2} = req.query;
+  
   if ((filterType && filterValue) || filterDate) {
     if (filterType == "taskStatus") {
       filter.push({ taskStatus: filterValue });
@@ -382,9 +391,17 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
     if (filterType == "date") {
       filter.push({ eDate: filterValue });
     }
-    if (filterDate) {
-      filter.push({ eDate: filterDate });
+    if (filterType == "group") {
+      filter.push({ group: filterValue });
     }
+    if (filterDate && filterDate2) {
+      filter.push({
+        $and: [
+          { sDate: { $gte: filterDate } },   
+          { eDate: { $lte: filterDate2 } }   
+        ]
+      });       
+      }
     let query = await taskModel
       .find({
         $and: filter,
@@ -597,7 +614,23 @@ const updateTask2 = catchAsync(async (req, res, next) => {
 });
 const deleteTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
-
+  let subTask = await taskModel.findById(id);
+  if (subTask.parentTask) {
+    let user = await userModel.findById(req.query.id);
+    let newTaskLog = await taskLogModel.findOneAndUpdate(
+      { taskId: subTask.parentTask },
+      {
+        $push: {
+          updates: [
+            {
+              changes: [`${user.name} deleted subtask`],
+            },
+          ],
+        },
+      },
+      { new: true }
+    );
+  }
   let deletedTask = await taskModel.deleteOne({ _id: id });
 
   if (!deletedTask) {
