@@ -4,7 +4,6 @@ const taskRouter = express.Router();
 import * as taskController from "./tasks.controller.js";
 import {
   fileSizeLimitErrorHandler,
-  subscriptionType,
   uploadMixFile,
 } from "../../utils/middleWare/fileUploads.js";
 import { protectRoutes } from "../auth/auth.controller.js";
@@ -37,8 +36,7 @@ taskRouter.put("/:id", taskController.updateTask2);
 taskRouter.put("/resources/:id", taskController.updateTask4);
 taskRouter.put(
   "/docs/:id",
-  // protectRoutes,
-  // subscriptionType,
+  protectRoutes,
   uploadMixFile("tasks", [{ name: "documents" }]),
   fileSizeLimitErrorHandler,
   taskController.updateTaskPhoto

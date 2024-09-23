@@ -34,7 +34,7 @@ const userSchema = mongoose.Schema(
     },
     subscriptionType: {
       type: String,
-      enum: ["normal", "premium"],
+      enum: ["normal", "premium","premiumPlus"],
       default: "normal",
       required: true,
     },
@@ -47,20 +47,20 @@ const userSchema = mongoose.Schema(
   },
   { timestamps: true }
 );
-// userSchema.methods.getRemainingTrialDays = function() {
-//   const trialDuration = 14; // trial period in days
-//   const now = new Date();
-//   const trialEndDate = new Date(this.trialStartDate);
-//   trialEndDate.setDate(trialEndDate.getDate() + trialDuration);
+userSchema.methods.getRemainingTrialDays = function() {
+  const trialDuration = 14; // trial period in days
+  const now = new Date();
+  const trialEndDate = new Date(this.trialStartDate);
+  trialEndDate.setDate(trialEndDate.getDate() + trialDuration);
 
-//   // Calculate the difference in milliseconds
-//   const diffTime = trialEndDate - now;
+  // Calculate the difference in milliseconds
+  const diffTime = trialEndDate - now;
   
-//   // Convert milliseconds to days
-//   const remainingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  // Convert milliseconds to days
+  const remainingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   
-//   return remainingDays > 0 ? remainingDays : 0; // Return 0 if trial has expired
-// };
+  return remainingDays > 0 ? remainingDays : 0; // Return 0 if trial has expired
+};
 
 
 

@@ -24,20 +24,22 @@ export function fileFilterHandler(file, req, cb) {
     );
   }
 }
-export const subscriptionType = catchAsync(async (req, res, next) => {
-  let size;
+// export const subscriptionType = catchAsync(async (req, res, next) => {
+//   let size;
   
-  if (req.user.subscriptionType == "normal") {
-    size = 5000000;
-  } else {
-    size = 10000000;
-  }
+//   if (req.user.subscriptionType == "normal") {
+//     size = 5000000;
+//   } else if (req.user.subscriptionType == "premium") {
+//     size = 50000000;
+//   }else{
+//     size = 100000000;
+//   }
 
-  // Attach the size to the request object
-  req.fileSizeLimit = size;
+//   // Attach the size to the request object
+//   req.fileSizeLimit = size;
   
-  next();
-});
+//   next();
+// });
 
 let options = (folderName, size) => {
   const storage = multer.diskStorage({

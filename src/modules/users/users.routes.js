@@ -1,13 +1,11 @@
 import express from "express";
 
 const usersRouter = express.Router();
-const app = express();
 
 import * as usersController from "./users.controller.js";
 import {
   fileFilterHandler,
   fileSizeLimitErrorHandler,
-  subscriptionType,
   uploadMixFile,
 } from "../../utils/middleWare/fileUploads.js";
 import {  protectRoutes } from "../auth/auth.controller.js";
@@ -22,8 +20,7 @@ usersRouter.post("/contact", usersController.getContacts);
 
 usersRouter.post(
   "/profile",
-    // protectRoutes,
-    // subscriptionType,
+    protectRoutes,
   uploadMixFile("profilePic", [{ name: "profilePic" }],),
   fileFilterHandler,
   fileSizeLimitErrorHandler,
