@@ -3,6 +3,7 @@ const taskRouter = express.Router();
 
 import * as taskController from "./tasks.controller.js";
 import {
+  fileFilterHandler,
   fileSizeLimitErrorHandler,
   uploadMixFile,
 } from "../../utils/middleWare/fileUploads.js";
@@ -39,6 +40,7 @@ taskRouter.put(
   protectRoutes,
   uploadMixFile("tasks", [{ name: "documents" }]),
   fileSizeLimitErrorHandler,
+  fileFilterHandler,
   taskController.updateTaskPhoto
 );
 

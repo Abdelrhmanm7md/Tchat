@@ -15,17 +15,14 @@ const userSchema = mongoose.Schema(
     phone: {
       type: String,
       required: [true, "Phone is a required field."],
-      // minLength: 11,
       unique: [true, "Phone must be unique."],
     },
     otp: {
       type: String,
-      // required: true,
     },
     profilePic: {
       type: String,
       default: "",
-      // required: true,
     },
     role: {
       type: String,
@@ -34,7 +31,7 @@ const userSchema = mongoose.Schema(
     },
     subscriptionType: {
       type: String,
-      enum: ["normal", "premium","premiumPlus"],
+      enum: ["normal", "premium", "premiumPlus"],
       default: "normal",
       required: true,
     },
@@ -42,33 +39,59 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    // trialStartDate: { type: Date, default: Date.now },
-    // trialActive: { type: Boolean, default: true },
+    isOnFreeTrial: {
+      type: Boolean,
+      default: true, 
+    },
+    trialStartDate: { 
+      type: Date, 
+      default: Date.now, 
+    },
+    trialEndDate: {
+      type: Date,
+      default: function() {
+        return new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); 
+      }
+    },
+    isTrialActive: {
+      type: Boolean,
+      default: true,
+    },
+    remainingDays: {
+      type: Number,
+      default: 30, 
+    }
   },
   { timestamps: true }
 );
-userSchema.methods.getRemainingTrialDays = function() {
-  const trialDuration = 14; // trial period in days
+userSchema.methods.updateRemainingDays = function() {
   const now = new Date();
-  const trialEndDate = new Date(this.trialStartDate);
-  trialEndDate.setDate(trialEndDate.getDate() + trialDuration);
-
-  // Calculate the difference in milliseconds
-  const diffTime = trialEndDate - now;
   
-  // Convert milliseconds to days
+  // Calculate trialEndDate based on trialStartDate
+  const diffTime = this.trialEndDate - now;
   const remainingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   
-  return remainingDays > 0 ? remainingDays : 0; // Return 0 if trial has expired
+  // Update fields and save the document
+  this.remainingDays = remainingDays > 0 ? remainingDays : 0;
+  this.isTrialActive = remainingDays > 0;
+  
+  return this.save(); // Save the updated user document
 };
 
 
-
-
-
-// userSchema.post("init", (doc) => {
-//   doc.profilePic = process.env.BASE_URL + "profilePic/" + doc.profilePic;
-// });
+userSchema.pre('save', function(next) {
+  const now = new Date();
+  
+  if (this.trialEndDate) {
+    const diffTime = this.trialEndDate - now;
+    const remainingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    this.remainingDays = remainingDays > 0 ? remainingDays : 0;
+    
+    this.isTrialActive = remainingDays > 0;
+  }
+  next();
+});
 
 // userSchema.pre("save", function () {
 //   this.password = bcrypt.hashSync(this.password, 10);

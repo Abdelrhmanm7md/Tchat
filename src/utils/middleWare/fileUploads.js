@@ -1,15 +1,14 @@
 import multer from "multer";
 import AppError from "../appError.js";
-import catchAsync from "./catchAsyncError.js";
 
-export const fileSizeLimitErrorHandler = (err, req, res, next) => {
+export const fileSizeLimitErrorHandler = (err, req, res, next) => {  
   if (err) {
     res.status(400).json({ message: err.message });
   } else {
     next();
   }
 };
-export function fileFilterHandler(file, req, cb) {
+export function fileFilterHandlerForProfile(file, req, cb) {
   const filetypes = /jpeg|jpg|png/;
   const mimetype = filetypes.test(file.files.profilePic[0].mimetype);
   // console.log(file.files.profilePic[0].mimetype,"mmmmm");
@@ -20,6 +19,22 @@ export function fileFilterHandler(file, req, cb) {
   } else {
     return cb(
       new AppError("Please, Upload a Valid Image JPEG or PNG or JPG", 400),
+      false
+    );
+  }
+}
+export function fileFilterHandler(file, req, cb) {
+  const filetypes = /jpeg|jpg|png|svg|pdf|docx|xlxs|pptx|doc|xls|xlsx|ppt|pptx/;
+  const files = file.files.documents;
+
+  // Check if all files are valid
+  const allFilesValid = files.every((file) => filetypes.test(file.mimetype));
+
+  if (allFilesValid) {
+    return cb(null, true);
+  } else {
+    return cb(
+      new AppError("Please, Upload Valid Files (JPEG, PNG, JPG, PDF, etc.)", 400),
       false
     );
   }
@@ -57,7 +72,7 @@ let options = (folderName, size) => {
     cb(null, true);
   }
   console.log(size,"sssss");
-  
+
   return multer({
     storage,
     limits: {
@@ -69,6 +84,7 @@ let options = (folderName, size) => {
 
 export const uploadMixFile = (folderName, arrayFields) => (req, res, next) => {
   const size = req.fileSizeLimit;
+  // console.log(req.user.subscriptionType,"Ddddd");
   const upload = options(folderName, size).fields(arrayFields);
   upload(req, res, function (err) {
     if (err) {

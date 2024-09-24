@@ -4,7 +4,7 @@ const usersRouter = express.Router();
 
 import * as usersController from "./users.controller.js";
 import {
-  fileFilterHandler,
+  fileFilterHandlerForProfile,
   fileSizeLimitErrorHandler,
   uploadMixFile,
 } from "../../utils/middleWare/fileUploads.js";
@@ -22,7 +22,7 @@ usersRouter.post(
   "/profile",
     protectRoutes,
   uploadMixFile("profilePic", [{ name: "profilePic" }],),
-  fileFilterHandler,
+  fileFilterHandlerForProfile,
   fileSizeLimitErrorHandler,
   usersController.addPhotos
 );

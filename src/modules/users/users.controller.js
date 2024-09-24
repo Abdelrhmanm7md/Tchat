@@ -131,7 +131,7 @@ const getUserById = catchAsync(async (req, res, next) => {
 
   let results = await userModel.findById(id);
   !results && next(new AppError(`Not Found `, 404));
-  results && res.json({ message: "done", results });
+  results && res.json({ message: "Done", results });
 });
 
 const updateUser = catchAsync(async (req, res, next) => {
