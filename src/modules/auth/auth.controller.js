@@ -93,8 +93,9 @@ export const signIn = catchAsync(async (req, res, next) => {
 // 4- check if this token is the last one or not (change password )
 
 export const protectRoutes = catchAsync(async (req, res, next) => {
-  let { token } = req.headers;
-  if (!token) {
+  const authorizationHeader = req.headers.authorization; 
+
+  const token = authorizationHeader.split(' ')[1];  if (!token) {
     return next(new AppError(`please login first`, 401));
   }
   let decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
