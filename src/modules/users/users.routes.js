@@ -12,6 +12,7 @@ import {  protectRoutes } from "../auth/auth.controller.js";
 
 usersRouter.get("/", usersController.getAllUsersByAdmin);
 usersRouter.get("/:id", usersController.getUserById);
+usersRouter.get("/sub/:id", usersController.getSubscriptionPeriod);
 usersRouter.put("/:id", usersController.updateUser);
 usersRouter.post("/email/:id", usersController.postMessage);
 usersRouter.delete("/:id", usersController.deleteUser);

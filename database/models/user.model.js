@@ -3,6 +3,7 @@ import { taskModel } from "./tasks.model.js";
 import { affiliationModel } from "./affiliation.model.js";
 import { removeFile } from "../../src/utils/removeFiles.js";
 import { messageModel } from "./message.model.js";
+import { groupModel } from "./group.model.js";
 
 const userSchema = mongoose.Schema(
   {
@@ -41,7 +42,7 @@ const userSchema = mongoose.Schema(
     },
     isOnFreeTrial: {
       type: Boolean,
-      default: true, 
+      default: false, 
     },
     trialStartDate: { 
       type: Date, 
@@ -55,43 +56,11 @@ const userSchema = mongoose.Schema(
     },
     isTrialActive: {
       type: Boolean,
-      default: true,
+      default: false,
     },
-    remainingDays: {
-      type: Number,
-      default: 30, 
-    }
   },
   { timestamps: true }
 );
-userSchema.methods.updateRemainingDays = function() {
-  const now = new Date();
-  
-  // Calculate trialEndDate based on trialStartDate
-  const diffTime = this.trialEndDate - now;
-  const remainingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  // Update fields and save the document
-  this.remainingDays = remainingDays > 0 ? remainingDays : 0;
-  this.isTrialActive = remainingDays > 0;
-  
-  return this.save(); // Save the updated user document
-};
-
-
-userSchema.pre('save', function(next) {
-  const now = new Date();
-  
-  if (this.trialEndDate) {
-    const diffTime = this.trialEndDate - now;
-    const remainingDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    this.remainingDays = remainingDays > 0 ? remainingDays : 0;
-    
-    this.isTrialActive = remainingDays > 0;
-  }
-  next();
-});
 
 // userSchema.pre("save", function () {
 //   this.password = bcrypt.hashSync(this.password, 10);
@@ -118,12 +87,15 @@ userSchema.pre(/^delete/, { document: false, query: true }, async function () {
       $and: [{ createdBy: doc._id }, { taskType: "normal" }],
     });
     await affiliationModel.deleteMany({ user: doc._id });
+    await groupModel.deleteMany({ createdBy: doc._id });
     await taskModel.updateMany(
       { users: doc._id },
       { $pull: { users: doc._id } },
       { new: true }
     );
-    removeFile("profilePic", doc.profilePic);
+    if (doc.profilePic){
+      removeFile("profilePic", doc.profilePic);
+    }
   }
 });
 

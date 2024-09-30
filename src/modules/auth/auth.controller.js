@@ -5,6 +5,7 @@ import AppError from "../../utils/appError.js";
 import { userModel } from "../../../database/models/user.model.js";
 import { affiliationModel } from "../../../database/models/affiliation.model.js";
 import generateUniqueId from "generate-unique-id";
+import cron from "node-cron";
 
 export const signUp = catchAsync(async (req, res, next) => {
   // let phoneFormat = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/; //+XX XXXXX XXXXX
@@ -79,6 +80,13 @@ export const signIn = catchAsync(async (req, res, next) => {
         { name: isFound.name, userId: isFound._id },
         process.env.JWT_SECRET_KEY
       );
+      cron.schedule('0 0 * * *', async () => { // Runs daily at midnight
+        const now = new Date();
+        await userModel.updateMany(
+          { isTrialActive: true, trialEndDate: { $lt: now } },
+          { isTrialActive: false }
+        );
+      });
       return res.json({ message: "success", token, isFound });
     }
     return res.status(401).json({ message: "worng phone or password" });

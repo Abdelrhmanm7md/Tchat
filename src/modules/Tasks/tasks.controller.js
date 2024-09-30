@@ -9,6 +9,7 @@ import { removeFile } from "../../utils/removeFiles.js";
 
 const createTask = catchAsync(async (req, res, next) => {
   req.body.users = [];
+  req.body.admins = req.body.createdBy;
   if (req.body.users) {
     if (req.body.users.length >= 1) {
       req.body.isShared = true;
@@ -64,7 +65,8 @@ const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
       .find()
       .populate("users")
       .populate("createdBy")
-      .sort({ $natural: -1 }).select("-messages"),
+      .sort({ $natural: -1 })
+      .select("-messages"),
     req.query
   )
     .pagination()
@@ -131,7 +133,8 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
     taskModel
       .find({ $or: [{ createdBy: req.params.id }, { users: req.params.id }] })
       .populate("users")
-      .populate("createdBy").select("-messages"),
+      .populate("createdBy")
+      .select("-messages"),
     req.query
   )
     .sort()
@@ -158,7 +161,10 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
     }
     if (filterType == "priority") {
       let filter = await taskModel.find({
-        $and: [{ priority: filterValue.toLowerCase() }, { eDate: filterDateFrom }],
+        $and: [
+          { priority: filterValue.toLowerCase() },
+          { eDate: filterDateFrom },
+        ],
       });
       results = filter;
     }
@@ -193,7 +199,8 @@ const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
     taskModel
       .find({ parentTask: req.params.id })
       .populate("users")
-      .populate("createdBy").select("-messages"),
+      .populate("createdBy")
+      .select("-messages"),
     req.query
   )
     .sort()
@@ -254,7 +261,10 @@ const getAllDocsTask = catchAsync(async (req, res, next) => {
   });
 });
 const getAllResTask = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.findById(req.params.id).select("-messages"), req.query)
+  let ApiFeat = new ApiFeature(
+    taskModel.findById(req.params.id).select("-messages"),
+    req.query
+  )
     .sort()
     .search();
 
@@ -288,7 +298,8 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
       })
       .populate("createdBy")
       .populate("users")
-      .populate("users.createdBy").select("-messages"),
+      .populate("users.createdBy")
+      .select("-messages"),
     req.query
   )
     .sort()
@@ -302,15 +313,15 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-  let { filterType, filterValue} = req.query;
-  
+  let { filterType, filterValue } = req.query;
+
   let filter = [
     { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
     { taskType: "shared" },
     { isShared: true },
     { parentTask: null },
   ];
-  if ((filterType && filterValue) ) {
+  if (filterType && filterValue) {
     if (filterType == "taskStatus") {
       filter.push({ taskStatus: filterValue });
     }
@@ -321,17 +332,14 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
       filter.push({ group: filterValue });
     }
     if (filterType == "date") {
-      let dateRange = filterValue.replace(/[\[\]]/g, '').split(',');
-      let sDate = dateRange[0].trim(); 
+      let dateRange = filterValue.replace(/[\[\]]/g, "").split(",");
+      let sDate = dateRange[0].trim();
       let eDate = dateRange[1].trim();
-      
+
       filter.push({
-        $and: [
-          { sDate: { $gte: sDate } },   
-          { eDate: { $lte: eDate } }   
-        ]
-      });       
-      }
+        $and: [{ sDate: { $gte: sDate } }, { eDate: { $lte: eDate } }],
+      });
+    }
     let query = await taskModel
       .find({
         $and: filter,
@@ -359,7 +367,8 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
         ],
       })
       .populate("createdBy")
-      .populate("users").select("-messages"),
+      .populate("users")
+      .select("-messages"),
     req.query
   )
     .sort()
@@ -380,9 +389,9 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
     { isShared: false },
     { parentTask: null },
   ];
-  let { filterType, filterValue} = req.query;
-  
-  if ((filterType && filterValue)) {
+  let { filterType, filterValue } = req.query;
+
+  if (filterType && filterValue) {
     if (filterType == "taskStatus") {
       filter.push({ taskStatus: filterValue });
     }
@@ -393,17 +402,14 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
       filter.push({ group: filterValue });
     }
     if (filterType == "date") {
-      let dateRange = filterValue.replace(/[\[\]]/g, '').split(',');
-      let sDate = dateRange[0].trim(); 
+      let dateRange = filterValue.replace(/[\[\]]/g, "").split(",");
+      let sDate = dateRange[0].trim();
       let eDate = dateRange[1].trim();
-      
+
       filter.push({
-        $and: [
-          { sDate: { $gte: sDate } },   
-          { eDate: { $lte: eDate } }   
-        ]
-      });       
-      }
+        $and: [{ sDate: { $gte: sDate } }, { eDate: { $lte: eDate } }],
+      });
+    }
     let query = await taskModel
       .find({
         $and: filter,
@@ -424,7 +430,8 @@ const getTaskById = catchAsync(async (req, res, next) => {
   let results = await taskModel
     .findById(id)
     .populate("users")
-    .populate("createdBy").select("-messages");
+    .populate("createdBy")
+    .select("-messages");
 
   if (!results) {
     return res.status(404).json({ message: "Task not found!" });
@@ -664,7 +671,8 @@ const getAllTasksByAdminByDay = catchAsync(async (req, res, next) => {
     taskModel
       .find({ createdAt: { $gte: sDayOnly, $lte: eDayOnly } })
       .populate("users")
-      .populate("createdBy").select("-messages"),
+      .populate("createdBy")
+      .select("-messages"),
     req.query
   )
     .sort()
@@ -746,7 +754,8 @@ const getDoneTasksByAdmin = catchAsync(async (req, res, next) => {
     taskModel
       .find({ taskStatus: "Done" })
       .populate("users")
-      .populate("createdBy").select("-messages"),
+      .populate("createdBy")
+      .select("-messages"),
     req.query
   )
     .sort()
@@ -803,7 +812,8 @@ const getDoneTasksByUser = catchAsync(async (req, res, next) => {
         ],
       })
       .populate("users")
-      .populate("createdBy").select("-messages"),
+      .populate("createdBy")
+      .select("-messages"),
     req.query
   )
     .sort()
@@ -837,7 +847,8 @@ const getCancelTasksByUser = catchAsync(async (req, res, next) => {
         ],
       })
       .populate("users")
-      .populate("createdBy").select("-messages"),
+      .populate("createdBy")
+      .select("-messages"),
     req.query
   )
     .sort()

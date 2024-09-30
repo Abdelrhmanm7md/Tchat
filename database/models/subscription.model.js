@@ -10,6 +10,10 @@ const subSchema = mongoose.Schema(
       type: Number,
       required: true,
     },
+    duration: {
+      type: Number,
+      required: true,
+    },
     features: {
       type: [String],
       required: true,
