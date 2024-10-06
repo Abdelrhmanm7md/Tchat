@@ -40,10 +40,6 @@ const userSchema = mongoose.Schema(
       type: Boolean,
       default: false,
     },
-    isOnFreeTrial: {
-      type: Boolean,
-      default: false, 
-    },
     trialStartDate: { 
       type: Date, 
       default: Date.now, 

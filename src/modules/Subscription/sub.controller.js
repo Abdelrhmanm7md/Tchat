@@ -3,9 +3,8 @@ import ApiFeature from "../../utils/apiFeature.js";
 import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 
 const createSub = catchAsync(async (req, res, next) => {
-  const { title, content, tags, author } = req.body;
 
-  const newSub = new subModel({ title, content, tags, author });
+  const newSub = new subModel(req.body);
   const savedSub = await newSub.save();
   res.status(201).json({
     message: "Sub created successfully!",
