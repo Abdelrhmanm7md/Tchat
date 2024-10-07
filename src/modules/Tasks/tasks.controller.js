@@ -59,75 +59,6 @@ const createTask = catchAsync(async (req, res, next) => {
   });
 });
 
-const getAllTaskByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(
-    taskModel
-      .find()
-      .populate("users")
-      .populate("createdBy")
-      .sort({ $natural: -1 })
-      .select("-messages"),
-    req.query
-  )
-    .pagination()
-
-    .sort()
-    .search();
-
-  let results = await ApiFeat.mongooseQuery;
-  results = JSON.stringify(results);
-  results = JSON.parse(results);
-  if (!ApiFeat || !results) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
-  }
-  let { filterType, filterValue } = req.query;
-
-  if (filterType && filterValue) {
-    results = results.filter(function (item) {
-      if (filterType == "title") {
-        return item.title.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      if (filterType == "description") {
-        return item.desc.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      if (filterType == "taskStatus") {
-        return item.taskStatus
-          .toLowerCase()
-          .includes(filterValue.toLowerCase());
-      }
-      if (filterType == "priority") {
-        return item.priority.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      if (filterType == "date") {
-        return item.eDate.includes(filterValue);
-      }
-      if (filterType == "taskType") {
-        return item.taskType.toLowerCase().includes(filterValue.toLowerCase());
-      }
-      if (filterType == "users") {
-        if (item.users[0]) {
-          return item.users[0].name
-            .toLowerCase()
-            .includes(filterValue.toLowerCase());
-        }
-      }
-    });
-  }
-  if (filterType == "sort") {
-    let filter = await taskModel.find();
-    results = filter;
-  }
-  res.json({
-    message: "Done",
-    page: ApiFeat.page,
-    count: await taskModel.countDocuments(),
-    countDone: await taskModel.countDocuments({ taskStatus: "Done" }),
-    countCancel: await taskModel.countDocuments({ taskStatus: "Cancelled" }),
-    results,
-  });
-});
 const getAllTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
     taskModel
@@ -501,63 +432,6 @@ const updateTaskPhoto = catchAsync(async (req, res, next) => {
   );
   res.status(200).json({ message: "Task updated successfully!", documents });
 });
-
-const updateTask = catchAsync(async (req, res, next) => {
-  let { id } = req.params;
-
-  let updatedTask = await taskModel.findByIdAndUpdate(
-    id,
-    { isShared: true, taskType: "shared", $push: { users: req.body.users } },
-    { new: true }
-  );
-
-  if (!updatedTask) {
-    return res.status(404).json({ message: "Couldn't update!  not found!" });
-  }
-  let user = await userModel.findById(req.query.id);
-  let newTaskLog = await taskLogModel.findOneAndUpdate(
-    { taskId: id },
-    {
-      $push: {
-        updates: [
-          {
-            changes: [`${user.name} added users`],
-          },
-        ],
-      },
-    },
-    { new: true }
-  );
-  res.status(200).json({ message: "Task updated successfully!", updatedTask });
-});
-const updateTask4 = catchAsync(async (req, res, next) => {
-  let { id } = req.params;
-
-  let updatedTask = await taskModel.findByIdAndUpdate(
-    id,
-    { $push: { resources: req.body.resources } },
-    { new: true }
-  );
-
-  if (!updatedTask) {
-    return res.status(404).json({ message: "Couldn't update!  not found!" });
-  }
-  let user = await userModel.findById(req.query.id);
-  let newTaskLog = await taskLogModel.findOneAndUpdate(
-    { taskId: id },
-    {
-      $push: {
-        updates: [
-          {
-            changes: [`${user.name} added resources`],
-          },
-        ],
-      },
-    },
-    { new: true }
-  );
-  res.status(200).json({ message: "Task updated successfully!", updatedTask });
-});
 const updateTask2 = catchAsync(async (req, res, next) => {
   let { id } = req.params;
   if (req.body.users) {
@@ -621,6 +495,7 @@ const updateTask2 = catchAsync(async (req, res, next) => {
   );
   res.status(200).json({ message: "Task updated successfully!", updatedTask });
 });
+
 const deleteTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
   let subTask = await taskModel.findById(id);
@@ -649,146 +524,6 @@ const deleteTask = catchAsync(async (req, res, next) => {
   res.status(200).json({ message: "Task deleted successfully!" });
 });
 
-// Admin
-const getAllTasksByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(taskModel.find({}), req.query).sort().search();
-  let results = await ApiFeat.mongooseQuery;
-  if (!ApiFeat || !results) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
-  }
-  res.json({
-    message: "Done",
-    count: await taskModel.countDocuments(),
-  });
-});
-const getAllTasksByAdminByDay = catchAsync(async (req, res, next) => {
-  var sDayOnly = new Date(req.params.date);
-  var eDayOnly = new Date(req.params.date);
-  eDayOnly.setUTCHours(23, 59, 59, 0);
-  let ApiFeat = new ApiFeature(
-    taskModel
-      .find({ createdAt: { $gte: sDayOnly, $lte: eDayOnly } })
-      .populate("users")
-      .populate("createdBy")
-      .select("-messages"),
-    req.query
-  )
-    .sort()
-    .search();
-  let results = await ApiFeat.mongooseQuery;
-  if (!ApiFeat || !results) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
-  }
-  res.json({
-    message: "Done",
-    results,
-  });
-});
-const getAllTasksByAdminByWeek = catchAsync(async (req, res, next) => {
-  const now = new Date();
-  const ninetyDaysAgo = new Date();
-  ninetyDaysAgo.setDate(now.getDate() - 90);
-
-  let results = await taskModel.aggregate([
-    {
-      $match: {
-        createdAt: {
-          $gte: ninetyDaysAgo, // Filter tasks from the last 90 days
-          $lte: now, // Until the current date
-        },
-      },
-    },
-    {
-      $group: {
-        _id: "$priority", // Group by the priority field
-        count: { $sum: 1 }, // Count the number of tasks for each priority
-      },
-    },
-    {
-      $sort: { count: -1 }, // Optionally sort by count (descending)
-    },
-  ]);
-  res.json({
-    message: "Done",
-    results,
-    countAll: await taskModel.countDocuments(),
-    countDone: await taskModel.countDocuments({ taskStatus: "Done" }),
-    countCancel: await taskModel.countDocuments({ taskStatus: "Cancelled" }),
-  });
-});
-const getCancelTasksByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(
-    taskModel.find({ taskStatus: "Cancelled" }),
-    req.query
-  )
-    .sort()
-    .search();
-  let results = await ApiFeat.mongooseQuery;
-  if (!ApiFeat || !results) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
-  }
-  res.json({
-    message: "Done",
-    results,
-    count: await taskModel.countDocuments({ taskStatus: "Cancelled" }),
-  });
-});
-const getDoneTasksByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(
-    taskModel
-      .find({ taskStatus: "Done" })
-      .populate("users")
-      .populate("createdBy")
-      .select("-messages"),
-    req.query
-  )
-    .sort()
-    .search();
-  let results = await ApiFeat.mongooseQuery;
-  if (!ApiFeat || !results) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
-  }
-  let { filterType, filterValue } = req.query;
-  if (filterType && filterValue) {
-    results = results.filter(function (item) {
-      if (filterType == "date") {
-        return item.eDate == filterValue;
-      }
-    });
-  }
-  res.json({
-    message: "Done",
-    results,
-    count: await taskModel.countDocuments({ taskStatus: "Done" }),
-  });
-});
-const getInProgressTasksByAdmin = catchAsync(async (req, res, next) => {
-  let ApiFeat = new ApiFeature(
-    taskModel.find({ taskStatus: "InProgress" }),
-    req.query
-  )
-    .sort()
-    .search();
-  let results = await ApiFeat.mongooseQuery;
-  if (!ApiFeat || !results) {
-    return res.status(404).json({
-      message: "No Task was found!",
-    });
-  }
-  res.json({
-    message: "Done",
-    results,
-    count: await taskModel.countDocuments({ taskStatus: "InProgress" }),
-  });
-});
 ///////////////////////////////////////\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 
 // User
@@ -873,17 +608,17 @@ const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
         $and: [
           { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
           { createdAt: { $gte: ninetyDaysAgo, $lte: now } },
-        ], // Filter by userId or whatever field stores the user
+        ],
       },
     },
     {
       $group: {
-        _id: "$priority", // Group by the priority field
-        count: { $sum: 1 }, // Count the number of tasks for each priority
+        _id: "$priority", 
+        count: { $sum: 1 },
       },
     },
     {
-      $sort: { count: -1 }, // Optionally sort by count (descending)
+      $sort: { count: -1 },
     },
   ]);
 
@@ -970,74 +705,107 @@ const getAnalyseTasksByUser = catchAsync(async (req, res, next) => {
   });
 });
 
-const deleteUserTask = catchAsync(async (req, res, next) => {
-  let { id, userId } = req.params;
+const updateTaskPush= catchAsync(async (req, res, next) => {
+  const { id} = req.params;
+  const { users, resources } = req.body;
 
-  let deleteUserTask = await taskModel.findOneAndUpdate(
+  let updateAction = {};
+  let changeLogMessage = '';
+
+  if (users) {
+    updateAction.$push = { users: users };
+    changeLogMessage = 'added users from task';
+  } else if (resources) {
+    updateAction.$push = { resources: { _id: resources } };
+    changeLogMessage = 'added resources';
+  }else{
+    return res.status(404).json({ message: "Task not found!" });
+  }
+
+  let updatedTask = await taskModel.findOneAndUpdate(
     { _id: id },
-    { $pull: { users: userId } },
+    updateAction,
     { new: true }
   );
-  if (!deleteUserTask) {
-    return res.status(404).json({ message: "tasks not found!" });
+
+  if (!updatedTask) {
+    return res.status(404).json({ message: "Task not found!" });
   }
-  if (deleteUserTask.users.length == 0) {
-    deleteUserTask = await taskModel.findOneAndUpdate(
+
+  const user = await userModel.findById(req.query.id);
+
+  // Log the changes
+  await taskLogModel.findOneAndUpdate(
+    { taskId: id },
+    {
+      $push: {
+        updates: [
+          {
+            changes: [`${user.name} ${changeLogMessage}`],
+          },
+        ],
+      },
+    },
+    { new: true }
+  );
+
+  res.status(200).json({ message: `${changeLogMessage} successfully!`, updatedTask });
+});
+const updateTaskOnDelete = catchAsync(async (req, res, next) => {
+  const { id, userId, resourcesId } = req.params;
+
+  let updateAction = {};
+  let changeLogMessage = '';
+
+  if (userId) {
+    updateAction.$pull = { users: userId };
+    changeLogMessage = 'deleted users from task';
+  } else if (resourcesId) {
+    updateAction.$pull = { resources: { _id: resourcesId } };
+    changeLogMessage = 'deleted resources';
+  }
+// console.log(updateAction, changeLogMessage);
+
+  let updatedTask = await taskModel.findOneAndUpdate(
+    { _id: id },
+    updateAction,
+    { new: true }
+  );
+
+  if (!updatedTask) {
+    return res.status(404).json({ message: "Task not found!" });
+  }
+
+  // If all users are deleted, revert the task to 'normal' type
+  if (userId && updatedTask.users.length === 0) {
+    updatedTask = await taskModel.findOneAndUpdate(
       { _id: id },
       { isShared: false, taskType: "normal" },
       { new: true }
     );
   }
-  let user = await userModel.findById(req.query.id);
-  let newTaskLog = await taskLogModel.findOneAndUpdate(
+
+  // Fetch the user who performed the action
+  const user = await userModel.findById(req.query.id);
+
+  // Log the changes
+  await taskLogModel.findOneAndUpdate(
     { taskId: id },
     {
       $push: {
         updates: [
           {
-            changes: [`${user.name} deleted users from task`],
+            changes: [`${user.name} ${changeLogMessage}`],
           },
         ],
       },
     },
     { new: true }
   );
-  res
-    .status(200)
-    .json({ message: "user deleted successfully!", deleteUserTask });
-});
-const deleteresourcesTask = catchAsync(async (req, res, next) => {
-  let { id, resourcesId } = req.params;
-  console.log(id, resourcesId);
 
-  let deleteUserTask = await taskModel.findOneAndUpdate(
-    { _id: id },
-    { $pull: { resources: { _id: resourcesId } } },
-    { new: true }
-  );
-  // console.log(deleteUserTask.resources[0]._id);
-
-  if (!deleteUserTask) {
-    return res.status(404).json({ message: "tasks not found!" });
-  }
-  let user = await userModel.findById(req.query.id);
-  let newTaskLog = await taskLogModel.findOneAndUpdate(
-    { taskId: id },
-    {
-      $push: {
-        updates: [
-          {
-            changes: [`${user.name} deleted resources`],
-          },
-        ],
-      },
-    },
-    { new: true }
-  );
-  res
-    .status(200)
-    .json({ message: "resources deleted successfully!", deleteUserTask });
+  res.status(200).json({ message: `${changeLogMessage} successfully!`, updatedTask });
 });
+
 const deleteDocsTask = catchAsync(async (req, res, next) => {
   let { id } = req.params;
   console.log(req.body.id);
@@ -1073,9 +841,7 @@ const deleteDocsTask = catchAsync(async (req, res, next) => {
 
 export {
   createTask,
-  getAllTaskByAdmin,
   getTaskById,
-  updateTask,
   deleteTask,
   getAllTaskByUser,
   updateTaskPhoto,
@@ -1086,19 +852,12 @@ export {
   getAllPeopleTask,
   getAllDocsTask,
   getAllResTask,
-  getAllTasksByAdmin,
-  getDoneTasksByAdmin,
-  getCancelTasksByAdmin,
-  getInProgressTasksByAdmin,
   getAnalyseTasksByUser,
-  deleteUserTask,
-  updateTask4,
-  getAllTasksByAdminByDay,
   getAllTasksByUserByDay,
-  deleteresourcesTask,
   deleteDocsTask,
-  getAllTasksByAdminByWeek,
   getAllTasksByUserByWeek,
   getCancelTasksByUser,
   getDoneTasksByUser,
+  updateTaskOnDelete,
+  updateTaskPush
 };
