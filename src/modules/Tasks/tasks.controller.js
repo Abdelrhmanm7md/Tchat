@@ -599,52 +599,48 @@ const getCancelTasksByUser = catchAsync(async (req, res, next) => {
 });
 const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
   const now = new Date();
-  const ninetyDaysAgo = new Date();
-  ninetyDaysAgo.setDate(now.getDate() - 90);
-
-  let results = await taskModel.aggregate([
-    {
-      $match: {
-        $and: [
-          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-          { createdAt: { $gte: ninetyDaysAgo, $lte: now } },
-        ],
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(now.getDate() - 90);
+  
+    const priorities = ['low', 'normal', 'high']; // Adjust based on your application's priorities
+  
+    const taskResults = await taskModel.aggregate([
+      {
+        $match: {
+          $and: [
+            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+            { createdAt: { $gte: ninetyDaysAgo, $lte: now } },
+          ],
+        },
       },
-    },
-    {
-      $group: {
-        _id: "$priority", 
-        count: { $sum: 1 },
+      {
+        $group: {
+          _id: "$priority", // Group by the priority field
+          count: { $sum: 1 }, // Count the number of tasks for each priority
+        },
       },
-    },
-    {
-      $sort: { count: -1 },
-    },
-  ]);
-
+    ]);
+  
+    // Convert the taskResults to a map for easy lookup
+    const taskCountMap = taskResults.reduce((acc, curr) => {
+      acc[curr._id] = curr.count;
+      return acc;
+    }, {});
+  
+    // Create results that include all priorities, defaulting to 0 if not found
+    const results = priorities.map(priority => ({
+      priority,
+      count: taskCountMap[priority] || 0, // Use count from map or default to 0
+    }));
+  
+    // Optionally sort by count (descending)
+    results.sort((a, b) => b.count - a.count);
   res.json({
     message: "Done",
     results,
-    count: await taskModel.countDocuments({
-      $and: [
-        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-        { parentTask: null },
-      ],
-    }),
-    countDone: await taskModel.countDocuments({
-      $and: [
-        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-        { taskStatus: "Done" },
-        { parentTask: null },
-      ],
-    }),
-    countCancel: await taskModel.countDocuments({
-      $and: [
-        { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-        { taskStatus: "Cancelled" },
-        { parentTask: null },
-      ],
-    }),
+    countAll: await taskModel.countDocuments(),
+    countDone: await taskModel.countDocuments({ taskStatus: "Done" }),
+    countCancel: await taskModel.countDocuments({ taskStatus: "Cancelled" }),
   });
 });
 

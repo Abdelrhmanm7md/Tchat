@@ -24,30 +24,44 @@ const getInProgressTasksByAdmin = catchAsync(async (req, res, next) => {
     });
   });
 
-const getAllTasksByAdminByWeek = catchAsync(async (req, res, next) => {
-  const now = new Date();
-  const ninetyDaysAgo = new Date();
-  ninetyDaysAgo.setDate(now.getDate() - 90);
-
-  let results = await taskModel.aggregate([
-    {
-      $match: {
-        createdAt: {
-          $gte: ninetyDaysAgo, // Filter tasks from the last 90 days
-          $lte: now, // Until the current date
+  const getAllTasksByAdminByWeek = catchAsync(async (req, res, next) => {
+    const now = new Date();
+    const ninetyDaysAgo = new Date();
+    ninetyDaysAgo.setDate(now.getDate() - 90);
+  
+    const priorities = ['low', 'normal', 'high']; // Adjust based on your application's priorities
+  
+    const taskResults = await taskModel.aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: ninetyDaysAgo, // Filter tasks from the last 90 days
+            $lte: now, // Until the current date
+          },
         },
       },
-    },
-    {
-      $group: {
-        _id: "$priority", // Group by the priority field
-        count: { $sum: 1 }, // Count the number of tasks for each priority
+      {
+        $group: {
+          _id: "$priority", // Group by the priority field
+          count: { $sum: 1 }, // Count the number of tasks for each priority
+        },
       },
-    },
-    {
-      $sort: { count: -1 }, // Optionally sort by count (descending)
-    },
-  ]);
+    ]);
+  
+    // Convert the taskResults to a map for easy lookup
+    const taskCountMap = taskResults.reduce((acc, curr) => {
+      acc[curr._id] = curr.count;
+      return acc;
+    }, {});
+  
+    // Create results that include all priorities, defaulting to 0 if not found
+    const results = priorities.map(priority => ({
+      priority,
+      count: taskCountMap[priority] || 0, // Use count from map or default to 0
+    }));
+  
+    // Optionally sort by count (descending)
+    results.sort((a, b) => b.count - a.count);
   res.json({
     message: "Done",
     results,
