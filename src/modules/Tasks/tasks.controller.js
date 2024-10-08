@@ -715,6 +715,7 @@ const updateTaskPush = catchAsync(async (req, res, next) => {
 
   if (users) {
     updateAction.$push = { users: users };
+    updateAction={...updateAction, isShared:true ,taskType:"shared"}
     changeLogMessage = "added users from task";
   } else if (resources) {
     updateAction.$push = { resources: resources };
