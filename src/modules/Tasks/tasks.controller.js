@@ -645,16 +645,13 @@ const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
 });
 
 const getAllTasksByUserByDay = catchAsync(async (req, res, next) => {
-  var sDayOnly = new Date(req.params.date);
-  var eDayOnly = new Date(req.params.date);
-  eDayOnly.setUTCHours(23, 59, 59, 0);
 
   let ApiFeat = new ApiFeature(
     taskModel
       .find({
         $and: [
           { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-          { createdAt: { $gte: sDayOnly, $lte: eDayOnly } },
+          { priority: req.params.priority },
         ],
       })
       .populate("users")
@@ -703,7 +700,7 @@ const getAnalyseTasksByUser = catchAsync(async (req, res, next) => {
 
 const updateTaskPush= catchAsync(async (req, res, next) => {
   const { id} = req.params;
-  const { users, resources } = req.body;
+  const { users, resources ,admins } = req.body;
 
   let updateAction = {};
   let changeLogMessage = '';
@@ -714,6 +711,9 @@ const updateTaskPush= catchAsync(async (req, res, next) => {
   } else if (resources) {
     updateAction.$push = { resources: { _id: resources } };
     changeLogMessage = 'added resources';
+  } else if (admins) {
+    updateAction.$push = { admins: admins };
+    changeLogMessage = 'added admin';
   }else{
     return res.status(404).json({ message: "Task not found!" });
   }
@@ -748,7 +748,7 @@ const updateTaskPush= catchAsync(async (req, res, next) => {
   res.status(200).json({ message: `${changeLogMessage} successfully!`, updatedTask });
 });
 const updateTaskOnDelete = catchAsync(async (req, res, next) => {
-  const { id, userId, resourcesId } = req.params;
+  const { id, userId, resourcesId ,adminId} = req.params;
 
   let updateAction = {};
   let changeLogMessage = '';
@@ -759,6 +759,9 @@ const updateTaskOnDelete = catchAsync(async (req, res, next) => {
   } else if (resourcesId) {
     updateAction.$pull = { resources: { _id: resourcesId } };
     changeLogMessage = 'deleted resources';
+  } else if (adminId) {
+    updateAction.$pull = { admins: adminId };
+    changeLogMessage = 'removed admin';
   }
 // console.log(updateAction, changeLogMessage);
 

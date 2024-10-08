@@ -29,15 +29,14 @@ taskRouter.get("/res/:id", taskController.getAllResTask);
 taskRouter.get("/analytics/done/:id", taskController.getDoneTasksByUser);
 taskRouter.get("/analytics/cancel/:id", taskController.getCancelTasksByUser);
 taskRouter.get("/analytics/count/:id", taskController.getAnalyseTasksByUser);
-taskRouter.get("/analytics/day/:id/:date",taskController.getAllTasksByUserByDay);
+taskRouter.get("/analytics/day/:id/:priority",taskController.getAllTasksByUserByDay);
 taskRouter.get("/analytics/week/:id", taskController.getAllTasksByUserByWeek);
 // taskRouter.get("/ttttt", taskController.updateTask22222);
 
 taskRouter.post("/", taskController.createTask);
 
 taskRouter.put("/:id", taskController.updateTask2);
-taskRouter.put("/update/users/:id", taskController.updateTaskPush);
-taskRouter.put("/resources/:id", taskController.updateTaskPush);
+taskRouter.put("/update/:id", taskController.updateTaskPush);
 taskRouter.put(
   "/docs/:id",
   protectRoutes,
@@ -49,6 +48,7 @@ taskRouter.put(
 
 taskRouter.delete("/:id", taskController.deleteTask);
 taskRouter.delete("/:id/user/:userId", taskController.updateTaskOnDelete);
+taskRouter.delete("/:id/admin/:adminId", taskController.updateTaskOnDelete);
 taskRouter.delete("/:id/resources/:resourcesId",taskController.updateTaskOnDelete);
 taskRouter.delete("/:id/docs",taskController.deleteDocsTask);
 
