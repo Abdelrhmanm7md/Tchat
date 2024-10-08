@@ -6,7 +6,6 @@ import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import fsExtra from "fs-extra";
 import path from "path";
 import { removeFile } from "../../utils/removeFiles.js";
-import { query } from "express";
 
 const createTask = catchAsync(async (req, res, next) => {
   req.body.users = [];
@@ -125,6 +124,41 @@ const getAllTaskByUser = catchAsync(async (req, res, next) => {
     results,
   });
 });
+const getAllMembersTask = catchAsync(async (req, res, next) => {
+  let ApiFeat = new ApiFeature(
+    taskModel
+      .findOne({ _id: req.params.id }).populate('users') ,// Find only one task by id.select('users admins'), // Select only the necessary fields
+    req.query
+  )
+    .sort()
+    .search();
+
+  let task = await ApiFeat.mongooseQuery;
+
+  if (!task) {
+    return res.status(404).json({
+      message: "No Task was found!",
+    });
+  }
+
+  const users = Array.isArray(task.users) ? task.users : [];
+  const admins = Array.isArray(task.admins) ? task.admins : [];
+
+  const userCount = users.length;
+
+  const usersWithAdminStatus = users.map(user => ({
+    _id: user._id,
+    name: user.name,
+    isAdmin: admins.includes(user._id), // Check if user is in the admins list
+  }));
+
+  res.json({
+    message: "Done",
+    userCount,
+    usersWithAdminStatus,
+  });
+});
+
 
 const getAllSubTaskByUser = catchAsync(async (req, res, next) => {
   let ApiFeat = new ApiFeature(
@@ -880,4 +914,5 @@ export {
   getDoneTasksByUser,
   updateTaskOnDelete,
   updateTaskPush,
+  getAllMembersTask,
 };

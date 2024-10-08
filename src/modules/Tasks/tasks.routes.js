@@ -22,6 +22,7 @@ taskRouter.get("/user/:id", taskController.getAllTaskByUser);
 taskRouter.get("/user/shared/:id", taskController.getAllTaskByUserShared);
 taskRouter.get("/user/norm/:id", taskController.getAllTaskByUserNormal);
 taskRouter.get("/:id", taskController.getTaskById);
+taskRouter.get("/users/:id", taskController.getAllMembersTask);
 taskRouter.get("/sub/:id", taskController.getAllSubTaskByUser);
 taskRouter.get("/people/:id", taskController.getAllPeopleTask);
 taskRouter.get("/docs/:id", taskController.getAllDocsTask);
