@@ -267,9 +267,17 @@ const getAllTaskByUserShared = catchAsync(async (req, res, next) => {
       let dateRange = filterValue.replace(/[\[\]]/g, "").split(",");
       let sDate = dateRange[0].trim();
       let eDate = dateRange[1].trim();
-
+      sDate = new Date(sDate);
+      eDate = new Date(eDate);
+      eDate.setSeconds(59);
+      eDate.setMinutes(59);
+      eDate.setHours(23);
+      eDate.setMilliseconds(599);
       filter.push({
-        $and: [{ sDate: { $gte: sDate } }, { eDate: { $lte: eDate } }],
+        createdAt: {
+          $gte: sDate,
+          $lte: eDate,
+        },
       });
     }
     let query = await taskModel

@@ -23,7 +23,7 @@ export const signUp = catchAsync(async (req, res, next) => {
   } else {
     return res.status(409).json({ message: "this phone is not valid" });
   }
-  req.body.profilePic = "https://tchatpro.com/profilePic/defaultImages.jpg";
+  // req.body.profilePic = "https://tchatpro.com/profilePic/defaultImages.jpg";
   let results = new userModel(req.body);
   let token = jwt.sign(
     { name: results.name, userId: results._id },
