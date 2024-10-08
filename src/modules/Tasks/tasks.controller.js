@@ -337,13 +337,13 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
       console.log("Filter Value:", filterValue);
       
       let dateRange = filterValue.replace(/[\[\]]/g, "").split(",");
-      let sDate = dateRange[0].trim();
-      let eDate = dateRange[1].trim();
-
+      let sDate = dateRange[0].trim(); // Start date string
+      let eDate = dateRange[1].trim(); // End date string
+    
       filter.push({
         $and: [
-          { sDate: { $gte: sDate } },  // Convert to ISO string if necessary
-          { eDate: { $lte: eDate } }
+          { sDate: { $gte: sDate } },  // Compare directly as strings
+          { eDate: { $lte: eDate } }    // Compare directly as strings
         ]
       });
     }
@@ -627,15 +627,6 @@ const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
     createdAt: { $gte: ninetyDaysAgo, $lte: now },
   });
 
-
-  if (matchResults.length === 0) {
-    return res.json({
-      message: "No tasks found for this user in the specified date range.",
-      results: [],
-    });
-  }
-
-  // Group matchResults by priority
   const priorityCounts = matchResults.reduce((acc, task) => {
     const priority = task.priority; // Get the priority of the task
     if (!acc[priority]) {
@@ -670,6 +661,7 @@ const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
     }),
   });
 });
+
 
 
 
