@@ -332,15 +332,25 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
     if (filterType == "group") {
       filter.push({ group: filterValue });
     }
-    if (filterType == "date") {
+    if (filterType === "date") {
+      console.log("Filter Value:", filterValue);
+      
       let dateRange = filterValue.replace(/[\[\]]/g, "").split(",");
       let sDate = dateRange[0].trim();
       let eDate = dateRange[1].trim();
-
+    
+      // Ensure dates are properly formatted (you can modify the format as needed)
+      const startDateString = new Date(sDate);
+      const endDateString = new Date(eDate);
+    
       filter.push({
-        $and: [{ sDate: { $gte: sDate } }, { eDate: { $lte: eDate } }],
+        $and: [
+          { sDate: { $gte: sDate } },  // Convert to ISO string if necessary
+          { eDate: { $lte: eDate } }
+        ]
       });
     }
+    
     let query = await taskModel
       .find({
         $and: filter,
@@ -597,52 +607,67 @@ const getCancelTasksByUser = catchAsync(async (req, res, next) => {
     results,
   });
 });
+
 const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
   const now = new Date();
-    const ninetyDaysAgo = new Date();
-    ninetyDaysAgo.setDate(now.getDate() - 90);
-  
-    const priorities = ['low', 'normal', 'high']; // Adjust based on your application's priorities
-  
-    const taskResults = await taskModel.aggregate([
-      {
-        $match: {
-          $and: [
-            { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-            { createdAt: { $gte: ninetyDaysAgo, $lte: now } },
-          ],
-        },
-      },
-      {
-        $group: {
-          _id: "$priority", // Group by the priority field
-          count: { $sum: 1 }, // Count the number of tasks for each priority
-        },
-      },
-    ]);
-  
-    // Convert the taskResults to a map for easy lookup
-    const taskCountMap = taskResults.reduce((acc, curr) => {
-      acc[curr._id] = curr.count;
-      return acc;
-    }, {});
-  
-    // Create results that include all priorities, defaulting to 0 if not found
-    const results = priorities.map(priority => ({
-      priority,
-      count: taskCountMap[priority] || 0, // Use count from map or default to 0
-    }));
-  
-    // Optionally sort by count (descending)
-    results.sort((a, b) => b.count - a.count);
+  const ninetyDaysAgo = new Date();
+  ninetyDaysAgo.setDate(now.getDate() - 90);
+
+  const matchResults = await taskModel.find({
+    $or: [
+      { createdBy: req.params.id }, 
+      { users: req.params.id }
+    ],
+    createdAt: { $gte: ninetyDaysAgo, $lte: now },
+  });
+
+
+  if (matchResults.length === 0) {
+    return res.json({
+      message: "No tasks found for this user in the specified date range.",
+      results: [],
+    });
+  }
+
+  // Group matchResults by priority
+  const priorityCounts = matchResults.reduce((acc, task) => {
+    const priority = task.priority; // Get the priority of the task
+    if (!acc[priority]) {
+      acc[priority] = 0; // Initialize count for this priority if it doesn't exist
+    }
+    acc[priority]++; // Increment the count for this priority
+    return acc;
+  }, {});
+
+  const priorities = ['low', 'normal', 'high'];
+  const results = priorities.map(priority => ({
+    priority,
+    count: priorityCounts[priority] || 0,
+  }));
+
   res.json({
     message: "Done",
     results,
-    countAll: await taskModel.countDocuments(),
-    countDone: await taskModel.countDocuments({ taskStatus: "Done" }),
-    countCancel: await taskModel.countDocuments({ taskStatus: "Cancelled" }),
+    countAll :await taskModel.countDocuments({
+      $or: [{ createdBy: req.params.id }, { users: req.params.id }],
+      createdAt: { $gte: ninetyDaysAgo, $lte: now },
+    }),
+    countDone : await taskModel.countDocuments({
+      $or: [{ createdBy: req.params.id }, { users: req.params.id }],
+      createdAt: { $gte: ninetyDaysAgo, $lte: now },
+      taskStatus: "Done",
+    }),
+    countCancel :  await taskModel.countDocuments({
+      $or: [{ createdBy: req.params.id }, { users: req.params.id }],
+      createdAt: { $gte: ninetyDaysAgo, $lte: now },
+      taskStatus: "Cancelled",
+    }),
   });
 });
+
+
+
+
 
 const getAllTasksByUserByDay = catchAsync(async (req, res, next) => {
 
