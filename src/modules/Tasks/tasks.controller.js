@@ -314,13 +314,12 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-
-  let filter = [
-    { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-    { taskType: "normal" },
-    { isShared: false },
-    { parentTask: null },
-  ];
+  
+  // { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+  // { taskType: "normal" },
+  // { isShared: false },
+  // { parentTask: null },
+  let filter = [];
   let { filterType, filterValue } = req.query;
 
   if (filterType && filterValue) {
@@ -333,32 +332,26 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
     if (filterType == "group") {
       filter.push({ group: filterValue });
     }
-    if (filterType === "date") {
+    if (filterType == "date") {
       console.log("Filter Value:", filterValue);
-      
+  
       let dateRange = filterValue.replace(/[\[\]]/g, "").split(",");
-      let sDate = dateRange[0].trim(); // Start date string
-      let eDate = dateRange[1].trim(); // End date string
-    
+      let sDateStr = dateRange[0].trim(); // Start date string
+      let eDateStr = dateRange[1].trim(); // End date string
+
+  
       filter.push({
-        $and: [
-          { sDate: { $gte: sDate } },  // Compare directly as strings
-          { eDate: { $lte: eDate } }    // Compare directly as strings
-        ]
+          $or: [
+              { sDate:  sDateStr,}, // Match tasks within the date range
+              { eDate: eDateStr,} // Match tasks within the date range
+          ]
       });
-    }
+  }
     console.log(filter);
     
     let query = await taskModel
       .find({
-        $and: [
-          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-          { taskType: "normal" },
-          { isShared: false },
-          { parentTask: null },
-          { $and: [          { sDate: { $gte: "2024-10-1" } },  // Convert to ISO string if necessary
-            { eDate: { $lte: "2024-10-10" } } ] }
-        ]
+        $and: filter
       })
       .populate("createdBy")
       .populate("users");

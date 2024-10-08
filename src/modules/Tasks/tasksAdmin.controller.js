@@ -71,30 +71,28 @@ const getInProgressTasksByAdmin = catchAsync(async (req, res, next) => {
   });
 });
 const getAllTasksByAdminByDay = catchAsync(async (req, res, next) => {
-    var sDayOnly = new Date(req.params.date);
-    var eDayOnly = new Date(req.params.date);
-    eDayOnly.setUTCHours(23, 59, 59, 0);
-    let ApiFeat = new ApiFeature(
-      taskModel
-        .find({ createdAt: { $gte: sDayOnly, $lte: eDayOnly } })
-        .populate("users")
-        .populate("createdBy")
-        .select("-messages"),
-      req.query
-    )
-      .sort()
-      .search();
-    let results = await ApiFeat.mongooseQuery;
-    if (!ApiFeat || !results) {
-      return res.status(404).json({
-        message: "No Task was found!",
-      });
-    }
-    res.json({
-      message: "Done",
-      results,
+  let ApiFeat = new ApiFeature(
+    taskModel
+      .find({
+          priority: req.params.priority ,
+      })
+      .populate("users")
+      .populate("createdBy"),
+    req.query
+  )
+    .sort()
+    .search();
+  let results = await ApiFeat.mongooseQuery;
+  if (!ApiFeat || !results) {
+    return res.status(404).json({
+      message: "No Task was found!",
     });
+  }
+  res.json({
+    message: "Done",
+    results,
   });
+});
   const getCancelTasksByAdmin = catchAsync(async (req, res, next) => {
     let ApiFeat = new ApiFeature(
       taskModel.find({ taskStatus: "Cancelled" }),
