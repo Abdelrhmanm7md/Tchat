@@ -6,6 +6,7 @@ import catchAsync from "../../utils/middleWare/catchAsyncError.js";
 import fsExtra from "fs-extra";
 import path from "path";
 import { removeFile } from "../../utils/removeFiles.js";
+import { query } from "express";
 
 const createTask = catchAsync(async (req, res, next) => {
   req.body.users = [];
@@ -338,11 +339,7 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
       let dateRange = filterValue.replace(/[\[\]]/g, "").split(",");
       let sDate = dateRange[0].trim();
       let eDate = dateRange[1].trim();
-    
-      // Ensure dates are properly formatted (you can modify the format as needed)
-      const startDateString = new Date(sDate);
-      const endDateString = new Date(eDate);
-    
+
       filter.push({
         $and: [
           { sDate: { $gte: sDate } },  // Convert to ISO string if necessary
@@ -350,14 +347,23 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
         ]
       });
     }
+    console.log(filter);
     
     let query = await taskModel
       .find({
-        $and: filter,
+        $and: [
+          { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+          { taskType: "normal" },
+          { isShared: false },
+          { parentTask: null },
+          { $and: [          { sDate: { $gte: "2024-10-1" } },  // Convert to ISO string if necessary
+            { eDate: { $lte: "2024-10-10" } } ] }
+        ]
       })
       .populate("createdBy")
       .populate("users");
     results = query;
+    console.log(query);
   }
 
   res.json({
@@ -734,7 +740,7 @@ const updateTaskPush= catchAsync(async (req, res, next) => {
     updateAction.$push = { users: users };
     changeLogMessage = 'added users from task';
   } else if (resources) {
-    updateAction.$push = { resources: { _id: resources } };
+    updateAction.$push = { resources:  resources };
     changeLogMessage = 'added resources';
   } else if (admins) {
     updateAction.$push = { admins: admins };
