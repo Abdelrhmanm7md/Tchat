@@ -314,12 +314,13 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
       message: "No Task was found!",
     });
   }
-  
-  // { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
-  // { taskType: "normal" },
-  // { isShared: false },
-  // { parentTask: null },
-  let filter = [];
+
+  let filter = [
+    { $or: [{ createdBy: req.params.id }, { users: req.params.id }] },
+    { taskType: "normal" },
+    { isShared: false },
+    { parentTask: null },
+  ];
   let { filterType, filterValue } = req.query;
 
   if (filterType && filterValue) {
@@ -333,30 +334,30 @@ const getAllTaskByUserNormal = catchAsync(async (req, res, next) => {
       filter.push({ group: filterValue });
     }
     if (filterType == "date") {
-      console.log("Filter Value:", filterValue);
-  
       let dateRange = filterValue.replace(/[\[\]]/g, "").split(",");
-      let sDateStr = dateRange[0].trim(); // Start date string
-      let eDateStr = dateRange[1].trim(); // End date string
-
-  
+      let sDate = dateRange[0].trim();
+      let eDate = dateRange[1].trim();
+      sDate = new Date(sDate);
+      eDate = new Date(eDate);
+      eDate.setSeconds(59);
+      eDate.setMinutes(59);
+      eDate.setHours(23);
+      eDate.setMilliseconds(599);
       filter.push({
-          $or: [
-              { sDate:  sDateStr,}, // Match tasks within the date range
-              { eDate: eDateStr,} // Match tasks within the date range
-          ]
+        createdAt: {
+          $gte: sDate,
+          $lte: eDate,
+        },
       });
-  }
-    console.log(filter);
-    
+    }
+
     let query = await taskModel
       .find({
-        $and: filter
+        $and: filter,
       })
       .populate("createdBy")
       .populate("users");
     results = query;
-    console.log(query);
   }
 
   res.json({
@@ -613,10 +614,7 @@ const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
   ninetyDaysAgo.setDate(now.getDate() - 90);
 
   const matchResults = await taskModel.find({
-    $or: [
-      { createdBy: req.params.id }, 
-      { users: req.params.id }
-    ],
+    $or: [{ createdBy: req.params.id }, { users: req.params.id }],
     createdAt: { $gte: ninetyDaysAgo, $lte: now },
   });
 
@@ -629,8 +627,8 @@ const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
     return acc;
   }, {});
 
-  const priorities = ['low', 'normal', 'high'];
-  const results = priorities.map(priority => ({
+  const priorities = ["low", "normal", "high"];
+  const results = priorities.map((priority) => ({
     priority,
     count: priorityCounts[priority] || 0,
   }));
@@ -638,16 +636,16 @@ const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
   res.json({
     message: "Done",
     results,
-    countAll :await taskModel.countDocuments({
+    countAll: await taskModel.countDocuments({
       $or: [{ createdBy: req.params.id }, { users: req.params.id }],
       createdAt: { $gte: ninetyDaysAgo, $lte: now },
     }),
-    countDone : await taskModel.countDocuments({
+    countDone: await taskModel.countDocuments({
       $or: [{ createdBy: req.params.id }, { users: req.params.id }],
       createdAt: { $gte: ninetyDaysAgo, $lte: now },
       taskStatus: "Done",
     }),
-    countCancel :  await taskModel.countDocuments({
+    countCancel: await taskModel.countDocuments({
       $or: [{ createdBy: req.params.id }, { users: req.params.id }],
       createdAt: { $gte: ninetyDaysAgo, $lte: now },
       taskStatus: "Cancelled",
@@ -655,13 +653,7 @@ const getAllTasksByUserByWeek = catchAsync(async (req, res, next) => {
   });
 });
 
-
-
-
-
-
 const getAllTasksByUserByDay = catchAsync(async (req, res, next) => {
-
   let ApiFeat = new ApiFeature(
     taskModel
       .find({
@@ -714,23 +706,23 @@ const getAnalyseTasksByUser = catchAsync(async (req, res, next) => {
   });
 });
 
-const updateTaskPush= catchAsync(async (req, res, next) => {
-  const { id} = req.params;
-  const { users, resources ,admins } = req.body;
+const updateTaskPush = catchAsync(async (req, res, next) => {
+  const { id } = req.params;
+  const { users, resources, admins } = req.body;
 
   let updateAction = {};
-  let changeLogMessage = '';
+  let changeLogMessage = "";
 
   if (users) {
     updateAction.$push = { users: users };
-    changeLogMessage = 'added users from task';
+    changeLogMessage = "added users from task";
   } else if (resources) {
-    updateAction.$push = { resources:  resources };
-    changeLogMessage = 'added resources';
+    updateAction.$push = { resources: resources };
+    changeLogMessage = "added resources";
   } else if (admins) {
     updateAction.$push = { admins: admins };
-    changeLogMessage = 'added admin';
-  }else{
+    changeLogMessage = "added admin";
+  } else {
     return res.status(404).json({ message: "Task not found!" });
   }
 
@@ -761,25 +753,27 @@ const updateTaskPush= catchAsync(async (req, res, next) => {
     { new: true }
   );
 
-  res.status(200).json({ message: `${changeLogMessage} successfully!`, updatedTask });
+  res
+    .status(200)
+    .json({ message: `${changeLogMessage} successfully!`, updatedTask });
 });
 const updateTaskOnDelete = catchAsync(async (req, res, next) => {
-  const { id, userId, resourcesId ,adminId} = req.params;
+  const { id, userId, resourcesId, adminId } = req.params;
 
   let updateAction = {};
-  let changeLogMessage = '';
+  let changeLogMessage = "";
 
   if (userId) {
     updateAction.$pull = { users: userId };
-    changeLogMessage = 'deleted users from task';
+    changeLogMessage = "deleted users from task";
   } else if (resourcesId) {
     updateAction.$pull = { resources: { _id: resourcesId } };
-    changeLogMessage = 'deleted resources';
+    changeLogMessage = "deleted resources";
   } else if (adminId) {
     updateAction.$pull = { admins: adminId };
-    changeLogMessage = 'removed admin';
+    changeLogMessage = "removed admin";
   }
-// console.log(updateAction, changeLogMessage);
+  // console.log(updateAction, changeLogMessage);
 
   let updatedTask = await taskModel.findOneAndUpdate(
     { _id: id },
@@ -818,7 +812,9 @@ const updateTaskOnDelete = catchAsync(async (req, res, next) => {
     { new: true }
   );
 
-  res.status(200).json({ message: `${changeLogMessage} successfully!`, updatedTask });
+  res
+    .status(200)
+    .json({ message: `${changeLogMessage} successfully!`, updatedTask });
 });
 
 const deleteDocsTask = catchAsync(async (req, res, next) => {
@@ -874,5 +870,5 @@ export {
   getCancelTasksByUser,
   getDoneTasksByUser,
   updateTaskOnDelete,
-  updateTaskPush
+  updateTaskPush,
 };
