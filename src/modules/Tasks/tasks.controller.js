@@ -16,6 +16,9 @@ const createTask = catchAsync(async (req, res, next) => {
       req.body.taskType = "shared";
     }
   }
+  if(new Date(req.body.sDate) > new Date(req.body.eDate)){
+    return res.status(404).json({ message: "Start date must be less than due date" });
+  }
   let newTask = new taskModel(req.body);
   let addedTask = await newTask.save();
   let user = await userModel.findById(req.body.createdBy);
@@ -530,7 +533,7 @@ const updateTask2 = catchAsync(async (req, res, next) => {
     changes.push(`${user.name} updated Task Status`);
   }
   if (req.body.priority) {
-    changes.push(`${user.name} updated Task Status`);
+    changes.push(`${user.name} updated Task Priority`);
   }
   let newTaskLog = await taskLogModel.findOneAndUpdate(
     { taskId: id },
@@ -806,6 +809,15 @@ const updateTaskOnDelete = catchAsync(async (req, res, next) => {
   let updateAction = {};
   let changeLogMessage = "";
 
+  // const task = await taskModel.findById(id);
+
+  // if (!task) {
+  //   return res.status(404).json({ message: "Task not found" });
+  // }
+  
+  // if (adminId && adminId === String(task.createdBy)) {
+  //   return res.status(400).json({ message: "Cannot remove the creator of the task from admins" });
+  // }
   if (userId) {
     updateAction.$pull = { users: userId };
     changeLogMessage = "deleted users from task";

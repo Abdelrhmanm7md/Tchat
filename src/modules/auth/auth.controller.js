@@ -103,7 +103,8 @@ export const signIn = catchAsync(async (req, res, next) => {
 export const protectRoutes = catchAsync(async (req, res, next) => {
   const authorizationHeader = req.headers.authorization; 
 
-  const token = authorizationHeader.split(' ')[1];  if (!token) {
+  const token = authorizationHeader.split(' ')[1];
+  if (!token) {
     return next(new AppError(`please login first`, 401));
   }
   let decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
@@ -131,3 +132,14 @@ export const protectRoutes = catchAsync(async (req, res, next) => {
   req.user = user;
   next();
 });
+
+export const allowTo = (...roles) => {
+  return (req, res, next) => {
+    if (!roles.includes(req.user.role)) {
+      return next(
+        res.status(403).json({ message: "you don't have permission" })
+      );
+    }
+    next();
+  };
+};
