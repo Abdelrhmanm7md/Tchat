@@ -43,7 +43,7 @@ taskRouter.put(
   protectRoutes,
   uploadMixFile("tasks", [{ name: "documents" }]),
   fileSizeLimitErrorHandler,
-  fileFilterHandler,
+  // fileFilterHandler,
   taskController.updateTaskPhoto
 );
 
